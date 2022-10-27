@@ -1,43 +1,33 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/jmoiron/sqlx"
 	ora "github.com/sijms/go-ora/v2"
+	log "github.com/sirupsen/logrus"
 )
 
 func main() {
+	log.Println("Starting")
+
+	log.Println("Connecting to database")
 	url := ora.BuildUrl("localhost", 1521, "XEPDB1", "gs", "gs", map[string]string{})
 	db, err := sqlx.Connect("oracle", url)
 	if err != nil {
-		panic(err)
+		log.Fatalln("Cannot connect to database:", err)
 	}
 
-	var values []struct {
-		Value int `db:"VALUE"`
-		W     int `db:"W"`
-	}
-	err = db.Select(&values, "SELECT * FROM random")
+	log.Println("Initializing server")
+	server, err := NewServer(db, os.DirFS("./tmpl"), log.NewEntry(log.StandardLogger()))
 	if err != nil {
-		panic(err)
+		log.Fatalln("Cannot initialize server:", err)
 	}
-	for _, v := range values {
-		fmt.Println(v)
-	}
-	r := bufio.NewReader(os.Stdin)
-	for {
-		fmt.Print(": ")
-		input, err := r.ReadString('\n')
-		if err != nil {
-			panic(err)
-		}
-		res, err := db.Exec(input)
-		if err != nil {
-			fmt.Println(err)
-		}
-		fmt.Println(res)
-	}
+	log.Println("Registering handlers")
+	http.HandleFunc("/", server.HandleHome)
+	http.HandleFunc("/login", server.HandleLogin)
+
+	log.Println("Listening")
+	http.ListenAndServe(":8080", nil)
 }
