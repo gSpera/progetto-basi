@@ -25,8 +25,9 @@ func main() {
 		log.Fatalln("Cannot initialize server:", err)
 	}
 	log.Println("Registering handlers")
-	http.HandleFunc("/", server.HandleHome)
+	http.Handle("/", server.LoggedInMiddleware(server.HandleHome, "/login"))
 	http.HandleFunc("/login", server.HandleLogin)
+	http.Handle("/api/orders", server.LoggedInMiddleware(server.HandlerApiGetOrders, "/login"))
 
 	log.Println("Listening")
 	http.ListenAndServe(":8080", nil)
