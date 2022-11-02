@@ -6,6 +6,7 @@ CREATE TABLE utente (
 
 CREATE TABLE azienda (
     id integer primary key,
+    ruolo integer, -- 0: Spera Logistica, 1: Produttore, 2: Destinatario
     nome varchar(20) not null,
     indirizzo varchar(50),
     partita_iva char(11),
@@ -53,10 +54,10 @@ CREATE TABLE stato (
 );
 
 -- Fase 0 Inserire aziende (Spera Logistica)
-INSERT INTO azienda VALUES (-1, 'Spera Logistica', 'Via Speranzosa 123', '12332112312', 'A1A2A3');
+INSERT INTO azienda VALUES (-1, , 0'Spera Logistica', 'Via Speranzosa 123', '12332112312', 'A1A2A3');
 INSERT INTO utente VALUES ('gs', '7a5443b6636713baa6350c1cf3ec620b2771a8d411ea3180c5d46b502b9ab77d', -1);
-INSERT INTO azienda VALUES (0, 'Facciamo scarpe', 'Via scarpaiola 1', '12312312312', '123AAA');
-INSERT INTO azienda VALUES (1, 'Vendiamo scarpe', 'Via scarpetta 2', '32132132112', 'AAA123');
+INSERT INTO azienda VALUES (0, 1,  'Facciamo scarpe', 'Via scarpaiola 1', '12312312312', '123AAA');
+INSERT INTO azienda VALUES (1, 2, 'Vendiamo scarpe', 'Via scarpetta 2', '32132132112', 'AAA123');
 
 -- Fase 1 Creazione ordine (Facciamo Scarpe, idealmente)
 INSERT INTO ordine VALUES(0, 'Scarpe/1', 0, 1, 1, 0, 0);
