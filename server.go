@@ -1,7 +1,6 @@
 package main
 
 import (
-	"crypto/rand"
 	"crypto/sha256"
 	"database/sql"
 	"encoding/hex"
@@ -31,17 +30,11 @@ func NewServer(db *sqlx.DB, tmplDir fs.FS, logger *log.Entry) (Server, error) {
 		return Server{}, fmt.Errorf("cannot parse template: %w", err)
 	}
 
-	var jwtSecret [32]byte
-	_, err = rand.Read(jwtSecret[:])
-	if err != nil {
-		return Server{}, fmt.Errorf("cannot generate JWT secret: %w", err)
-	}
-
 	return Server{
 		Database:  db,
 		Template:  tmpl,
 		Log:       logger,
-		jwtSecret: jwtSecret[:],
+		jwtSecret: SERVER_SECRET[:],
 	}, nil
 }
 
