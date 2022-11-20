@@ -86,11 +86,11 @@ func (s *Server) HandleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tok := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user":      username,
-		"aziendaId": aziendaId,
-		"azienda":   azienda,
-	})
+	tok := jwt.NewWithClaims(jwt.SigningMethodHS256, UserCookie{
+		Username:    username,
+		CompanyID:   aziendaId,
+		CompanyName: azienda,
+	}.Claims())
 	jwtTok, err := tok.SignedString(s.jwtSecret)
 	if err != nil {
 		log.Errorln("Cannot sign JWT token:", err)
@@ -163,17 +163,21 @@ GROUP BY ordine.ddt, produttore.nome, destinatario.nome, ordine.num_colli, ordin
 	}
 }
 
-func (s *Server) AboutMeApiHandler(w http.ResponseWriter, r *http.Request) {
+func (s *Server) HandlerApiAboutMe(w http.ResponseWriter, r *http.Request) {
 	var result struct {
 		CompanyID   int
 		CompanyName string
 	}
 
-	r.Cookie("user")
+	cookie, _ := r.Cookie("user")
+	claims, _ := UserCookieFromJWT(s.parseJWTToken(cookie.Value))
+
+	result.CompanyID = claims.CompanyID
+	result.CompanyName = claims.CompanyName
 
 	encoder := json.NewEncoder(w)
 	encoder.SetIndent("", "\t")
-	err = encoder.Encode(result)
+	err := encoder.Encode(result)
 	if err != nil {
 		log.Errorln("Cannot encode json:", err)
 	}
@@ -185,18 +189,19 @@ func (s *Server) LoggedInMiddleware(handler http.HandlerFunc, redirectTo string)
 		// Get cookie
 		cookie, err := r.Cookie("user")
 		if err != nil {
-			log.Errorln("Cannot parse cookie:", err)
+			log.Errorln("Cannot retrieve cookie:", err)
 			http.Redirect(w, r, redirectTo, http.StatusTemporaryRedirect)
 			return
 		}
 
-		claims, err := s.parseJWTToken(cookie.Value)
+		claims, err := UserCookieFromJWT(s.parseJWTToken(cookie.Value))
 		if err != nil {
 			http.Error(w, "Bad request", http.StatusBadRequest)
+			log.Errorln("Cannot parse jwt:", err)
 			return
 		}
 
-		if _, ok := claims["user"]; !ok {
+		if claims.Username == "" {
 			log.Errorln("Found jwt token without username:", cookie.Value)
 			http.Redirect(w, r, redirectTo, http.StatusTemporaryRedirect)
 			return

@@ -28,6 +28,7 @@ func main() {
 	http.Handle("/", server.LoggedInMiddleware(server.HandleHome, "/login"))
 	http.HandleFunc("/login", server.HandleLogin)
 	http.Handle("/api/orders", server.LoggedInMiddleware(server.HandlerApiGetOrders, "/login"))
+	http.Handle("/api/me", server.LoggedInMiddleware(server.HandlerApiAboutMe, "/login"))
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("tmpl"))))
 
