@@ -10,6 +10,7 @@ type UserCookie struct {
 	Username    string
 	CompanyID   int
 	CompanyName string
+	CompanyRole int
 	Expiration  time.Time
 }
 
@@ -29,15 +30,17 @@ func UserCookieFromJWT(claims jwt.MapClaims, err error) (r UserCookie, e error) 
 		Username:    claims["user"].(string),
 		CompanyID:   int(claims["aziendaId"].(float64)),
 		CompanyName: claims["azienda"].(string),
+		CompanyRole: int(claims["companyRole"].(float64)),
 		Expiration:  time.Unix(int64(claims["expiration"].(float64)), 0),
 	}, nil
 }
 
 func (u UserCookie) Claims() jwt.MapClaims {
 	return jwt.MapClaims{
-		"user":       u.Username,
-		"aziendaId":  u.CompanyID,
-		"azienda":    u.CompanyName,
-		"expiration": u.Expiration.Unix(),
+		"user":        u.Username,
+		"aziendaId":   u.CompanyID,
+		"azienda":     u.CompanyName,
+		"companyRole": u.CompanyRole,
+		"expiration":  u.Expiration.Unix(),
 	}
 }

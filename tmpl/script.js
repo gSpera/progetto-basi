@@ -63,6 +63,9 @@ let stateIcons = {
     7: "check",
 }
 
+const producerRole = 1
+const receiverRole = 2
+
 const ordersRoot = ReactDOM.createRoot(document.querySelector("#orders-root"))
 ordersRoot.render(<OrdersTable />)
 
@@ -72,5 +75,11 @@ fetch("/api/me")
         document.getElementById("azienda-nome").innerText = r.CompanyName
         document.getElementById("navbar-username").innerText = r.Username
         document.getElementById("navbar-company").innerText = r.CompanyName
+        if (r.CompanyID < 0 || r.CompanyRole == producerRole) Array.from(document.getElementsByClassName("only-producer")).forEach(el => el.classList.remove("is-hidden"))
+        if (r.CompanyID < 0 || r.CompanyRole == receiverRole) Array.from(document.getElementsByClassName("only-receiver")).forEach(el => el.classList.remove("is-hidden"))
     })
     .catch(err => console.error(err))
+
+function add_order_button() {
+    console.log("Order")
+}

@@ -58,15 +58,16 @@ func (s *Server) HandleLogin(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	username := r.PostForm.Get("username")
 	password := r.PostForm.Get("password")
-	row := s.Database.QueryRow(s.Database.Rebind("SELECT utente.password, utente.azienda_id, azienda.nome FROM utente JOIN azienda ON utente.azienda_id = azienda.id WHERE utente.nome=:1"), username)
+	row := s.Database.QueryRow(s.Database.Rebind("SELECT utente.password, utente.azienda_id, azienda.nome, azienda.ruolo FROM utente JOIN azienda ON utente.azienda_id = azienda.id WHERE utente.nome=:1"), username)
 
 	var (
 		correctHash string
 		aziendaId   int
 		azienda     string
+		aziendaRole int
 	)
 
-	err := row.Scan(&correctHash, &aziendaId, &azienda)
+	err := row.Scan(&correctHash, &aziendaId, &azienda, &aziendaRole)
 	if err == sql.ErrNoRows {
 		fmt.Fprintln(w, "Utente non trovato")
 		log.Warningln("User not found")
@@ -90,6 +91,7 @@ func (s *Server) HandleLogin(w http.ResponseWriter, r *http.Request) {
 		Username:    username,
 		CompanyID:   aziendaId,
 		CompanyName: azienda,
+		CompanyRole: aziendaRole,
 		Expiration:  time.Now().AddDate(0, 0, 7),
 	}.Claims())
 	jwtTok, err := tok.SignedString(s.jwtSecret)
@@ -168,6 +170,7 @@ func (s *Server) HandlerApiAboutMe(w http.ResponseWriter, r *http.Request) {
 	var result struct {
 		CompanyID   int
 		CompanyName string
+		CompanyRole int
 		Username    string
 	}
 
@@ -176,6 +179,7 @@ func (s *Server) HandlerApiAboutMe(w http.ResponseWriter, r *http.Request) {
 
 	result.CompanyID = claims.CompanyID
 	result.CompanyName = claims.CompanyName
+	result.CompanyRole = claims.CompanyRole
 	result.Username = claims.Username
 
 	encoder := json.NewEncoder(w)
