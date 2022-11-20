@@ -4,6 +4,7 @@
 <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@mdi/font@6.9.96/css/materialdesignicons.min.css">
 
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -19,8 +20,23 @@
                 </div>
             </div>
             <div class="navbar-end">
-                <div class="navbar-item has-dropdown is-active">
-                    <div id="azienda-nome" class="navbar-link is-underlined">Facciamo Scarpe SRL</div>
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <div id="azienda-nome" class="navbar-link is-underlined"></div>
+
+                    <div class="navbar-dropdown">
+                        <span class="navbar-item icon-text">
+                            <span class="icon"><i class="mdi mdi-account"></i></span>
+                            <span id="navbar-username"></span>
+                        </span>
+                        <span class="navbar-item icon-text">
+                            <span class="icon"><i class="mdi mdi-briefcase"></i></span>
+                            <span id="navbar-company"></span>
+                        </span>
+                        <span class="navbar-item icon-text is-underlined">
+                            <span class="icon"><i class="mdi mdi-logout"></i></span>
+                            <a href="/logout">Esci</a>
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
