@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"database/sql"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"io/fs"
@@ -115,31 +116,66 @@ func (s *Server) HandlerApiGetOrders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	orders, err := s.Database.Query(s.Database.Rebind(`
-	SELECT ordine.ddt, produttore.nome as produttore_nome, destinatario.nome as destinatario_nome, MAX(stato.stato) as stato, MAX(stato.quando)
+	type Order struct {
+		DDT               string    `db:"DDT"`
+		ProducerName      string    `db:"PRODUTTORE_NOME"`
+		RecipientName     string    `db:"DESTINATARIO_NOME"`
+		NumPackages       int       `db:"NUM_COLLI"`
+		WithdrawBankCheck bool      `db:"RITIRARE_ASSEGNO"`
+		StateID           int       `db:"STATO"`
+		StateString       string    `db:"STATO_STRING"`
+		When              time.Time `db:"QUANDO"`
+	}
+	result := make([]Order, 0, 10)
+
+	orders, err := s.Database.Queryx(s.Database.Rebind(`
+	SELECT ordine.ddt, produttore.nome as produttore_nome, destinatario.nome as destinatario_nome, ordine.num_colli, ordine.ritirare_assegno, MAX(stato.stato) as stato, stato_string.value as stato_string, MAX(stato.quando) as quando
 FROM ordine
  JOIN stato ON ordine.id = stato.ordine_id
  JOIN azienda produttore ON ordine.produttore_id = produttore.id
  JOIN azienda destinatario ON ordine.destinatario_id = destinatario.id
-WHERE produttore.id = :1 or destinatario.id = :1
-GROUP BY ordine.ddt, produttore.nome, destinatario.nome`), claims["aziendaId"].(float64))
+ JOIN stato_string ON stato_string.id = (SELECT MAX(stato.stato) FROM stato WHERE ordine_id = ordine.id)
+WHERE (:1<0) or (produttore.id = :1 or destinatario.id = :1)
+GROUP BY ordine.ddt, produttore.nome, destinatario.nome, ordine.num_colli, ordine.ritirare_assegno, stato_string.value`), claims["aziendaId"].(float64))
 	if err != nil {
 		log.Errorln("Cannot retrieve orders:", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
-	for orders.Next() {
-		var (
-			ddt, produttoreName, destinatarioName, statoId, statoDate string
-		)
+	defer orders.Close()
 
-		err := orders.Scan(&ddt, &produttoreName, &destinatarioName, &statoId, &statoDate)
+	for orders.Next() {
+		var order Order
+		err := orders.StructScan(&order)
 		if err != nil {
 			log.Errorln("Cannot scan row:", err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
-		fmt.Fprintln(w, ddt, produttoreName, destinatarioName, statoId, statoDate)
+		result = append(result, order)
+	}
+
+	encoder := json.NewEncoder(w)
+	encoder.SetIndent("", "\t")
+	err = encoder.Encode(result)
+	if err != nil {
+		log.Errorln("Cannot encode json:", err)
+	}
+}
+
+func (s *Server) AboutMeApiHandler(w http.ResponseWriter, r *http.Request) {
+	var result struct {
+		CompanyID   int
+		CompanyName string
+	}
+
+	r.Cookie("user")
+
+	encoder := json.NewEncoder(w)
+	encoder.SetIndent("", "\t")
+	err = encoder.Encode(result)
+	if err != nil {
+		log.Errorln("Cannot encode json:", err)
 	}
 }
 
