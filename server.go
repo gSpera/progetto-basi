@@ -90,6 +90,7 @@ func (s *Server) HandleLogin(w http.ResponseWriter, r *http.Request) {
 		Username:    username,
 		CompanyID:   aziendaId,
 		CompanyName: azienda,
+		Expiration:  time.Now().AddDate(0, 0, 7),
 	}.Claims())
 	jwtTok, err := tok.SignedString(s.jwtSecret)
 	if err != nil {
@@ -167,6 +168,7 @@ func (s *Server) HandlerApiAboutMe(w http.ResponseWriter, r *http.Request) {
 	var result struct {
 		CompanyID   int
 		CompanyName string
+		Username    string
 	}
 
 	cookie, _ := r.Cookie("user")
@@ -174,6 +176,7 @@ func (s *Server) HandlerApiAboutMe(w http.ResponseWriter, r *http.Request) {
 
 	result.CompanyID = claims.CompanyID
 	result.CompanyName = claims.CompanyName
+	result.Username = claims.Username
 
 	encoder := json.NewEncoder(w)
 	encoder.SetIndent("", "\t")
@@ -203,6 +206,12 @@ func (s *Server) LoggedInMiddleware(handler http.HandlerFunc, redirectTo string)
 
 		if claims.Username == "" {
 			log.Errorln("Found jwt token without username:", cookie.Value)
+			http.Redirect(w, r, redirectTo, http.StatusTemporaryRedirect)
+			return
+		}
+
+		if claims.Expiration.Before(time.Now()) {
+			log.Errorln("Found jwt token expired:", cookie.Value)
 			http.Redirect(w, r, redirectTo, http.StatusTemporaryRedirect)
 			return
 		}
