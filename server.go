@@ -40,8 +40,7 @@ func NewServer(db *sqlx.DB, tmplDir fs.FS, logger *log.Entry) (Server, error) {
 }
 
 func (s *Server) HandleHome(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "<body>Progetto<br>")
-	s.Database.Query("")
+	http.ServeFile(w, r, "tmpl/ordini.html")
 }
 
 func (s *Server) HandleLogin(w http.ResponseWriter, r *http.Request) {
@@ -188,6 +187,84 @@ func (s *Server) HandlerApiAboutMe(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Errorln("Cannot encode json:", err)
 	}
+}
+
+func (s *Server) HandlerApiReceivers(w http.ResponseWriter, r *http.Request) {
+	type receiver struct {
+		ID   int    `db:"ID"`
+		Name string `db:"NOME"`
+	}
+
+	var result struct {
+		ShowSender bool
+		Receivers  []receiver
+	}
+
+	cookie, _ := r.Cookie("user")
+	claims, _ := UserCookieFromJWT(s.parseJWTToken(cookie.Value))
+
+	result.ShowSender = claims.CompanyID < 0
+	orders, err := s.Database.Queryx(s.Database.Rebind(`SELECT id, nome FROM azienda WHERE id >= 0 AND id != :1`), claims.CompanyID)
+	if err != nil {
+		log.Errorln("Cannot retrieve orders:", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	defer orders.Close()
+
+	for orders.Next() {
+		var r receiver
+		err := orders.StructScan(&r)
+		if err != nil {
+			log.Errorln("Cannot scan row:", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+		result.Receivers = append(result.Receivers, r)
+	}
+	encoder := json.NewEncoder(w)
+	encoder.SetIndent("", "\t")
+	err = encoder.Encode(result)
+	if err != nil {
+		log.Errorln("Cannot encode json:", err)
+	}
+}
+
+func (s *Server) HandleApiNewOrder(w http.ResponseWriter, r *http.Request) {
+	input := struct {
+		Sender   int `json:",string"`
+		Receiver int `json:",string"`
+		DDT      string
+		NumColli int
+		Assegno  bool
+	}{}
+
+	defer r.Body.Close()
+	err := json.NewDecoder(r.Body).Decode(&input)
+	if err != nil {
+		s.Log.Errorln("Cannot read body in new order:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	assegno := 0
+	if input.Assegno {
+		assegno = 1
+	}
+
+	if input.DDT == "" {
+		http.Error(w, "Invalid Request", http.StatusBadRequest)
+		return
+	}
+
+	res, err := s.Database.Exec(`INSERT INTO Ordine VALUES (ordine_seq.nextval, :1, :2, :3, :4, :5)`, input.DDT, input.Sender, input.Receiver, input.NumColli, assegno)
+	if err != nil {
+		s.Log.Errorln("Cannot insert order:", err, res)
+		http.Error(w, "Invalid Request", http.StatusBadRequest)
+		return
+	}
+
+	s.Log.Println(input)
 }
 
 // LoggedInMiddleWare makes sure the request continues only if the user is logged in

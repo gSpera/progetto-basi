@@ -13,13 +13,14 @@ CREATE TABLE azienda (
     codice_univoco char(6)
 );
 
+CREATE SEQUENCE ordine_seq INCREMENT BY 1 NOCACHE NOCYCLE ORDER;
 CREATE TABLE ordine (
     id integer primary key, -- Autoincrement
-    ddt varchar(20),
+    ddt varchar(20) not null,
     produttore_id integer not null,
     destinatario_id integer not null,
-    num_colli integer default 1,
-    ritirare_assegno integer -- Boolean
+    num_colli integer default 1 not null,
+    ritirare_assegno integer not null-- Boolean
 );
 
 CREATE TABLE viaggio (
@@ -46,6 +47,7 @@ INSERT INTO stato_string VALUES (5, 'Pronto per essere spedito');
 INSERT INTO stato_string VALUES (6, 'Spedito');
 INSERT INTO stato_string VALUES (7, 'Consegnato');
 
+CREATE SEQUENCE stato_seq INCREMENT BY 1 NOCACHE NOCYCLE ORDER;
 CREATE TABLE stato (
     id integer primary key,
     ordine_id integer,
@@ -73,4 +75,8 @@ INSERT INTO stato VALUES (5, 0, 6, '04-GEN-22');
 INSERT INTO stato VALUES (6, 0, 7, '05-GEN-22');
 INSERT INTO viaggio VALUES (1, 0, 'DP Spera Logistica', 'Negozio', 'CD321XA', '07-GEN-22', '07-GEN-22');
 
-SELECT stato_string.value, stato.quando, ordine.ddt FROM stato JOIN ordine ON stato.ordine_id = ordine.id JOIN stato_string ON stato_string.id=stato.id;
+-- SELECT stato_string.value, stato.quando, ordine.ddt FROM stato JOIN ordine ON stato.ordine_id = ordine.id JOIN stato_string ON stato_string.id=stato.id;
+
+-- Trigger 
+CREATE TRIGGER order_new AFTER INSERT ON ordine FOR EACH ROW
+    INSERT INTO stato VALUES (stato_seq.nextval, :new.id, 0, CURRENT_TIMESTAMP)
