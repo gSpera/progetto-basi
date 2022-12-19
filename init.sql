@@ -55,6 +55,33 @@ CREATE TABLE stato (
     quando date
 );
 
+-- Trigger 
+CREATE TRIGGER order_new AFTER INSERT ON ordine FOR EACH ROW
+    INSERT INTO stato VALUES (stato_seq.nextval, :new.id, 0, CURRENT_TIMESTAMP)
+
+CREATE TRIGGER ultimi_stati_update AFTER INSERT ON stato
+BEGIN
+    CREATE OR REPLACE MATERIALIZED VIEW ultimi_stati AS
+    SELECT ordine.ddt, produttore.nome as produttore_nome, destinatario.nome as destinatario_nome, ordine.num_colli, ordine.ritirare_assegno, MAX(stato.stato) as stato, stato_string.value as stato_string, MAX(stato.quando) as quando
+    FROM ordine
+     JOIN stato ON ordine.id = stato.ordine_id
+     JOIN azienda produttore ON ordine.produttore_id = produttore.id
+     JOIN azienda destinatario ON ordine.destinatario_id = destinatario.id
+     JOIN stato_string ON stato_string.id = (SELECT MAX(stato.stato) FROM stato WHERE ordine_id = ordine.id)
+    GROUP BY ordine.ddt, produttore.nome, destinatario.nome, ordine.num_colli, ordine.ritirare_assegno, stato_string.value
+    ORDER BY quando DESC;
+END; 
+
+CREATE MATERIALIZED VIEW ultimi_stati AS
+SELECT ordine.ddt, produttore.nome as produttore_nome, destinatario.nome as destinatario_nome, ordine.num_colli, ordine.ritirare_assegno, MAX(stato.stato) as stato, stato_string.value as stato_string, MAX(stato.quando) as quando
+FROM ordine
+ JOIN stato ON ordine.id = stato.ordine_id
+ JOIN azienda produttore ON ordine.produttore_id = produttore.id
+ JOIN azienda destinatario ON ordine.destinatario_id = destinatario.id
+ JOIN stato_string ON stato_string.id = (SELECT MAX(stato.stato) FROM stato WHERE ordine_id = ordine.id)
+GROUP BY ordine.ddt, produttore.nome, destinatario.nome, ordine.num_colli, ordine.ritirare_assegno, stato_string.value
+ORDER BY quando DESC
+
 -- Fase 0 Inserire aziende (Spera Logistica)
 INSERT INTO azienda VALUES (-1, 0, 'Spera Logistica', 'Via Speranzosa 123', '12332112312', 'A1A2A3');
 INSERT INTO utente VALUES ('gs', '7a5443b6636713baa6350c1cf3ec620b2771a8d411ea3180c5d46b502b9ab77d', -1);
@@ -77,6 +104,3 @@ INSERT INTO viaggio VALUES (1, 0, 'DP Spera Logistica', 'Negozio', 'CD321XA', '0
 
 -- SELECT stato_string.value, stato.quando, ordine.ddt FROM stato JOIN ordine ON stato.ordine_id = ordine.id JOIN stato_string ON stato_string.id=stato.id;
 
--- Trigger 
-CREATE TRIGGER order_new AFTER INSERT ON ordine FOR EACH ROW
-    INSERT INTO stato VALUES (stato_seq.nextval, :new.id, 0, CURRENT_TIMESTAMP)

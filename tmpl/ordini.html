@@ -45,12 +45,19 @@
     <div class="section content">
         <h1>Ordini</h1>
         <div class="field">
-            <div class="control has-icons-left only-producer is-hidden">
+            <div class="control has-icons-left mt only-producer is-hidden">
                 <span class="icon is-left">
                     <span class="mdi mdi-account"></span>
                 </span>
 
                 <button class="input button" onclick="add_order_button()">Aggiungi ordine</button>
+            </div>
+            <div class="control has-icons-left mt only-admin is-hidden">
+                <span class="icon is-left">
+                    <span class="mdi mdi-account"></span>
+                </span>
+
+                <button class="input button" onclick="add_azienda_button()">Aggiungi azienda</button>
             </div>
             <div class="table-container">
                 <div id="orders-root" />
@@ -59,6 +66,7 @@
     </div>
 
     <div id="insert-order-root"></div>
+    <div id="insert-azienda-root"></div>
 
     <script type="text/babel" src="/static/script.js" />
 </body>
