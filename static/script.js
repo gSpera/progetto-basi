@@ -60,7 +60,7 @@ class InsertOrder extends React.Component {
             ShowSender: false,
             Receivers: [],
             Selection: {
-                Sender: "0",
+                Sender: this.props.sender,
                 Receiver: "0",
                 DDT: "",
                 NumColli: 1,
@@ -70,7 +70,7 @@ class InsertOrder extends React.Component {
 
         fetch("/api/avaible-receivers")
             .then(r => r.json())
-            .then(r => this.setState(r));
+            .then(r => this.setState(r))
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -214,12 +214,13 @@ fetch("/api/me")
         document.getElementById("navbar-company").innerText = r.CompanyName
         if (r.CompanyID < 0 || r.CompanyRole == producerRole) Array.from(document.getElementsByClassName("only-producer")).forEach(el => el.classList.remove("is-hidden"))
         if (r.CompanyID < 0 || r.CompanyRole == receiverRole) Array.from(document.getElementsByClassName("only-receiver")).forEach(el => el.classList.remove("is-hidden"))
+
+        ReactDOM.createRoot(insert_order).render(<InsertOrder sender={Math.max(r.CompanyID, 0)} orderTableRef={ordersTableRef} />)
     })
     .catch(err => console.error(err))
 
 const insert_order = document.querySelector("#insert-order-root")
 insert_order.style.display = 'none'
-ReactDOM.createRoot(insert_order).render(<InsertOrder orderTableRef={ordersTableRef} />)
 function add_order_button() {
     insert_order.style.display = 'block'
 }
