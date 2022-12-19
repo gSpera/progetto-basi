@@ -124,6 +124,7 @@ func (s *Server) HandlerApiGetOrders(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type Order struct {
+		ID                int       `db:"ID"`
 		DDT               string    `db:"DDT"`
 		ProducerName      string    `db:"PRODUTTORE_NOME"`
 		RecipientName     string    `db:"DESTINATARIO_NOME"`
@@ -136,14 +137,14 @@ func (s *Server) HandlerApiGetOrders(w http.ResponseWriter, r *http.Request) {
 	result := make([]Order, 0, 10)
 
 	orders, err := s.Database.Queryx(s.Database.Rebind(`
-	SELECT ordine.ddt, produttore.nome as produttore_nome, destinatario.nome as destinatario_nome, ordine.num_colli, ordine.ritirare_assegno, MAX(stato.stato) as stato, stato_string.value as stato_string, MAX(stato.quando) as quando
+	SELECT ordine.id, ordine.ddt, produttore.nome as produttore_nome, destinatario.nome as destinatario_nome, ordine.num_colli, ordine.ritirare_assegno, MAX(stato.stato) as stato, stato_string.value as stato_string, MAX(stato.quando) as quando
 FROM ordine
  JOIN stato ON ordine.id = stato.ordine_id
  JOIN azienda produttore ON ordine.produttore_id = produttore.id
  JOIN azienda destinatario ON ordine.destinatario_id = destinatario.id
  JOIN stato_string ON stato_string.id = (SELECT MAX(stato.stato) FROM stato WHERE ordine_id = ordine.id)
 WHERE (:1<0) or (produttore.id = :1 or destinatario.id = :1)
-GROUP BY ordine.ddt, produttore.nome, destinatario.nome, ordine.num_colli, ordine.ritirare_assegno, stato_string.value`), claims["aziendaId"].(float64))
+GROUP BY ordine.id, ordine.ddt, produttore.nome, destinatario.nome, ordine.num_colli, ordine.ritirare_assegno, stato_string.value`), claims["aziendaId"].(float64))
 	if err != nil {
 		log.Errorln("Cannot retrieve orders:", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -165,6 +166,76 @@ GROUP BY ordine.ddt, produttore.nome, destinatario.nome, ordine.num_colli, ordin
 	encoder := json.NewEncoder(w)
 	encoder.SetIndent("", "\t")
 	err = encoder.Encode(result)
+	if err != nil {
+		log.Errorln("Cannot encode json:", err)
+	}
+}
+
+func (s *Server) HandleApiInfoOrder(w http.ResponseWriter, r *http.Request) {
+	type stateRes struct {
+		State   string    `db:"STATO"`
+		StateID int       `db:"STATOID"`
+		When    time.Time `db:"QUANDO"`
+	}
+	type viaggioRes struct {
+		StartDate    time.Time `db:"DATA_PARTENZA"`
+		EndDate      time.Time `db:"DATA_ARRIVO"`
+		Partenza     string    `db:"PARTENZA"`
+		Destinazione string    `db:"DESTINAZIONE"`
+		Motrice      string    `db:"MOTRICE"`
+	}
+	states := make([]stateRes, 0, 7)
+	viaggios := make([]viaggioRes, 0, 7)
+	r.ParseForm()
+	id := r.Form.Get("id")
+
+	statesQuery, err := s.Database.Queryx("SELECT stato_string.value as stato, stato as statoID, quando FROM stato JOIN stato_string ON stato_string.id=stato.stato WHERE ordine_id=:1", id)
+	if err != nil {
+		log.Errorln("Cannot retrieve states:", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	defer statesQuery.Close()
+
+	for statesQuery.Next() {
+		var state stateRes
+		err := statesQuery.StructScan(&state)
+		if err != nil {
+			log.Errorln("Cannot scan row:", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+		states = append(states, state)
+	}
+
+	viaggioQuery, err := s.Database.Queryx("SELECT partenza, destinazione, data_partenza, data_arrivo FROM viaggio WHERE id_ordine=:1", id)
+	if err != nil {
+		log.Errorln("Cannot retrieve viaggi:", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	defer viaggioQuery.Close()
+
+	for viaggioQuery.Next() {
+		var viaggio viaggioRes
+		err := viaggioQuery.StructScan(&viaggio)
+		if err != nil {
+			log.Errorln("Cannot scan row:", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+		viaggios = append(viaggios, viaggio)
+	}
+
+	encoder := json.NewEncoder(w)
+	encoder.SetIndent("", "\t")
+	err = encoder.Encode(struct {
+		States []stateRes
+		Viaggi []viaggioRes
+	}{
+		states,
+		viaggios,
+	})
 	if err != nil {
 		log.Errorln("Cannot encode json:", err)
 	}

@@ -28,6 +28,7 @@ func main() {
 	http.Handle("/", server.LoggedInMiddleware(server.HandleHome, "/login"))
 	http.HandleFunc("/login", server.HandleLogin)
 	http.HandleFunc("/logout", server.HandleLogout)
+	http.Handle("/api/info-order", server.LoggedInMiddleware(server.HandleApiInfoOrder, "/login"))
 	http.Handle("/api/orders", server.LoggedInMiddleware(server.HandlerApiGetOrders, "/login"))
 	http.Handle("/api/avaible-receivers", server.LoggedInMiddleware(server.HandlerApiReceivers, "/login"))
 	http.Handle("/api/new-order", server.LoggedInMiddleware(server.HandleApiNewOrder, "/login"))
