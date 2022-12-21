@@ -137,14 +137,9 @@ func (s *Server) HandlerApiGetOrders(w http.ResponseWriter, r *http.Request) {
 	result := make([]Order, 0, 10)
 
 	orders, err := s.Database.Queryx(s.Database.Rebind(`
-	SELECT ordine.id, ordine.ddt, produttore.nome as produttore_nome, destinatario.nome as destinatario_nome, ordine.num_colli, ordine.ritirare_assegno, MAX(stato.stato) as stato, stato_string.value as stato_string, MAX(stato.quando) as quando
-FROM ordine
- JOIN stato ON ordine.id = stato.ordine_id
- JOIN azienda produttore ON ordine.produttore_id = produttore.id
- JOIN azienda destinatario ON ordine.destinatario_id = destinatario.id
- JOIN stato_string ON stato_string.id = (SELECT MAX(stato.stato) FROM stato WHERE ordine_id = ordine.id)
-WHERE (:1<0) or (produttore.id = :1 or destinatario.id = :1)
-GROUP BY ordine.id, ordine.ddt, produttore.nome, destinatario.nome, ordine.num_colli, ordine.ritirare_assegno, stato_string.value`), claims["aziendaId"].(float64))
+		SELECT * FROM ultimi_stati
+		WHERE (:1<0) or (produttore.id = :1 or destinatario.id = :1)
+	`), claims["aziendaId"].(float64))
 	if err != nil {
 		log.Errorln("Cannot retrieve orders:", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -333,7 +328,9 @@ func (s *Server) HandleApiNewOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := s.Database.Exec(`INSERT INTO Ordine VALUES (ordine_seq.nextval, :1, :2, :3, :4, :5)`, input.DDT, input.Sender, input.Receiver, input.NumColli, assegno)
+	res, err := s.Database.Exec(
+		`INSERT INTO Ordine VALUES (ordine_seq.nextval, :1, :2, :3, :4, :5)`,
+		input.DDT, input.Sender, input.Receiver, input.NumColli, assegno)
 	if err != nil {
 		s.Log.Errorln("Cannot insert order:", err, res)
 		http.Error(w, "Invalid Request", http.StatusBadRequest)

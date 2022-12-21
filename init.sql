@@ -87,6 +87,21 @@ BEGIN
     UPDATE utente SET utente.password=hash WHERE utente.nome=utente_nome;
 END;
 
+CREATE OR REPLACE PROCEDURE ricalcola_ultimi_ordini AUTHID current_user
+IS
+BEGIN
+    EXECUTE IMMEDIATE 'DROP MATERIALIZED VIEW ultimi_stati';
+    EXECUTE IMMEDIATE 'CREATE MATERIALIZED VIEW ultimi_stati AS
+    SELECT ordine.ddt, produttore.nome as produttore_nome, destinatario.nome as destinatario_nome, ordine.num_colli, ordine.ritirare_assegno, MAX(stato.stato) as stato, stato_string.value as stato_string, MAX(stato.quando) as quando
+    FROM ordine
+     JOIN stato ON ordine.id = stato.ordine_id
+     JOIN azienda produttore ON ordine.produttore_id = produttore.id
+     JOIN azienda destinatario ON ordine.destinatario_id = destinatario.id
+     JOIN stato_string ON stato_string.id = (SELECT MAX(stato.stato) FROM stato WHERE ordine_id = ordine.id)
+    GROUP BY ordine.ddt, produttore.nome, destinatario.nome, ordine.num_colli, ordine.ritirare_assegno, stato_string.value
+    ORDER BY quando DESC';
+END;
+
 -- Trigger 
 CREATE TRIGGER order_new AFTER INSERT ON ordine FOR EACH ROW
     INSERT INTO stato VALUES (stato_seq.nextval, :new.id, 0, CURRENT_TIMESTAMP)
