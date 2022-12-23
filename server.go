@@ -127,7 +127,9 @@ func (s *Server) HandlerApiGetOrders(w http.ResponseWriter, r *http.Request) {
 		ID                int       `db:"ID"`
 		DDT               string    `db:"DDT"`
 		ProducerName      string    `db:"PRODUTTORE_NOME"`
+		ProducerID        int       `db:"PRODUTTORE_ID"`
 		RecipientName     string    `db:"DESTINATARIO_NOME"`
+		RecipientID       int       `db:"DESTINATARIO_ID"`
 		NumPackages       int       `db:"NUM_COLLI"`
 		WithdrawBankCheck bool      `db:"RITIRARE_ASSEGNO"`
 		StateID           int       `db:"STATO"`
@@ -138,7 +140,7 @@ func (s *Server) HandlerApiGetOrders(w http.ResponseWriter, r *http.Request) {
 
 	orders, err := s.Database.Queryx(s.Database.Rebind(`
 		SELECT * FROM ultimi_stati
-		WHERE (:1<0) or (produttore.id = :1 or destinatario.id = :1)
+		WHERE (:1<0) or (produttore_id = :1 or destinatario_id = :1)
 	`), claims["aziendaId"].(float64))
 	if err != nil {
 		log.Errorln("Cannot retrieve orders:", err)
