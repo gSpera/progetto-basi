@@ -4,8 +4,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/jmoiron/sqlx"
-	ora "github.com/sijms/go-ora/v2"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -13,8 +11,7 @@ func main() {
 	log.Println("Starting")
 
 	log.Println("Connecting to database")
-	url := ora.BuildUrl("localhost", 1521, "XEPDB1", "gs", "gs", map[string]string{})
-	db, err := sqlx.Connect("oracle", url)
+	db, err := NewDatabase()
 	if err != nil {
 		log.Fatalln("Cannot connect to database:", err)
 	}

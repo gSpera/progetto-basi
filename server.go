@@ -9,22 +9,22 @@ import (
 	"html/template"
 	"io/fs"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/jmoiron/sqlx"
 	log "github.com/sirupsen/logrus"
 )
 
 type Server struct {
 	jwtSecret []byte
 
-	Database *sqlx.DB
+	Database Database
 	Template *template.Template
 	Log      *log.Entry
 }
 
-func NewServer(db *sqlx.DB, tmplDir fs.FS, logger *log.Entry) (Server, error) {
+func NewServer(db Database, tmplDir fs.FS, logger *log.Entry) (Server, error) {
 	tmpl := template.New("html")
 	_, err := tmpl.ParseFS(tmplDir, "*.tmpl")
 	if err != nil {
@@ -57,7 +57,7 @@ func (s *Server) HandleLogin(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	username := r.PostForm.Get("username")
 	password := r.PostForm.Get("password")
-	row := s.Database.QueryRow(s.Database.Rebind("SELECT utente.password, utente.azienda_id, azienda.nome, azienda.ruolo FROM utente JOIN azienda ON utente.azienda_id = azienda.id WHERE utente.nome=:1"), username)
+	row := s.Database.GetUserInfoByName(username)
 
 	var (
 		correctHash string
@@ -138,10 +138,7 @@ func (s *Server) HandlerApiGetOrders(w http.ResponseWriter, r *http.Request) {
 	}
 	result := make([]Order, 0, 10)
 
-	orders, err := s.Database.Queryx(s.Database.Rebind(`
-		SELECT * FROM ultimi_stati
-		WHERE (:1<0) or (produttore_id = :1 or destinatario_id = :1)
-	`), claims["aziendaId"].(float64))
+	orders, err := s.Database.LatestStatesFor(int(claims["aziendaId"].(float64)))
 	if err != nil {
 		log.Errorln("Cannot retrieve orders:", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -184,9 +181,15 @@ func (s *Server) HandleApiInfoOrder(w http.ResponseWriter, r *http.Request) {
 	states := make([]stateRes, 0, 7)
 	viaggios := make([]viaggioRes, 0, 7)
 	r.ParseForm()
-	id := r.Form.Get("id")
+	idString := r.Form.Get("id")
+	id, err := strconv.Atoi(idString)
+	if err != nil {
+		log.Errorf("Cannot parse inte ordine id: %q: %v\n", id, err)
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
 
-	statesQuery, err := s.Database.Queryx("SELECT stato_string.value as stato, stato as statoID, quando FROM stato JOIN stato_string ON stato_string.id=stato.stato WHERE ordine_id=:1", id)
+	statesQuery, err := s.Database.StatesForOrdine(id)
 	if err != nil {
 		log.Errorln("Cannot retrieve states:", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -205,7 +208,7 @@ func (s *Server) HandleApiInfoOrder(w http.ResponseWriter, r *http.Request) {
 		states = append(states, state)
 	}
 
-	viaggioQuery, err := s.Database.Queryx("SELECT partenza, destinazione, data_partenza, data_arrivo FROM viaggio WHERE id_ordine=:1", id)
+	viaggioQuery, err := s.Database.ViagginiForOrdine(id)
 	if err != nil {
 		log.Errorln("Cannot retrieve viaggi:", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -277,7 +280,7 @@ func (s *Server) HandlerApiReceivers(w http.ResponseWriter, r *http.Request) {
 	claims, _ := UserCookieFromJWT(s.parseJWTToken(cookie.Value))
 
 	result.ShowSender = claims.CompanyID < 0
-	orders, err := s.Database.Queryx(s.Database.Rebind(`SELECT id, nome FROM azienda WHERE id >= 0 AND id != :1`), claims.CompanyID)
+	orders, err := s.Database.CompanyNameByID(claims.CompanyID)
 	if err != nil {
 		log.Errorln("Cannot retrieve orders:", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -303,14 +306,16 @@ func (s *Server) HandlerApiReceivers(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type NewOrderInput struct {
+	Sender   int `json:",string"`
+	Receiver int `json:",string"`
+	DDT      string
+	NumColli int `json:",string"`
+	Assegno  bool
+}
+
 func (s *Server) HandleApiNewOrder(w http.ResponseWriter, r *http.Request) {
-	input := struct {
-		Sender   int `json:",string"`
-		Receiver int `json:",string"`
-		DDT      string
-		NumColli int
-		Assegno  bool
-	}{}
+	var input NewOrderInput
 
 	defer r.Body.Close()
 	err := json.NewDecoder(r.Body).Decode(&input)
@@ -330,9 +335,7 @@ func (s *Server) HandleApiNewOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := s.Database.Exec(
-		`INSERT INTO Ordine VALUES (ordine_seq.nextval, :1, :2, :3, :4, :5)`,
-		input.DDT, input.Sender, input.Receiver, input.NumColli, assegno)
+	res, err := s.Database.NewOrder(input, assegno)
 	if err != nil {
 		s.Log.Errorln("Cannot insert order:", err, res)
 		http.Error(w, "Invalid Request", http.StatusBadRequest)
