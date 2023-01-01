@@ -10,6 +10,7 @@ import (
 	"io/fs"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -124,17 +125,17 @@ func (s *Server) HandlerApiGetOrders(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type Order struct {
-		ID                int       `db:"ID"`
-		DDT               string    `db:"DDT"`
-		ProducerName      string    `db:"PRODUTTORE_NOME"`
-		ProducerID        int       `db:"PRODUTTORE_ID"`
-		RecipientName     string    `db:"DESTINATARIO_NOME"`
-		RecipientID       int       `db:"DESTINATARIO_ID"`
-		NumPackages       int       `db:"NUM_COLLI"`
-		WithdrawBankCheck bool      `db:"RITIRARE_ASSEGNO"`
-		StateID           int       `db:"STATO"`
-		StateString       string    `db:"STATO_STRING"`
-		When              time.Time `db:"QUANDO"`
+		ID                int     `db:"ID"`
+		DDT               string  `db:"DDT"`
+		ProducerName      string  `db:"PRODUTTORE_NOME" sqlite:"produttore_nome"`
+		ProducerID        int     `db:"PRODUTTORE_ID" sqlite:"produttore_id"`
+		RecipientName     string  `db:"DESTINATARIO_NOME" sqlite:"destinatario_nome"`
+		RecipientID       int     `db:"DESTINATARIO_ID" sqlite:"destinatario_id"`
+		NumPackages       int     `db:"NUM_COLLI" sqlite:"num_colli"`
+		WithdrawBankCheck bool    `db:"RITIRARE_ASSEGNO" sqlite:"ritirare_assegno"`
+		StateID           int     `db:"STATO" sqlite:"stato"`
+		StateString       string  `db:"STATO_STRING" sqlite:"stato_string"`
+		When              SqlTime `db:"QUANDO" sqlite:"quando"`
 	}
 	result := make([]Order, 0, 10)
 
@@ -167,16 +168,16 @@ func (s *Server) HandlerApiGetOrders(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) HandleApiInfoOrder(w http.ResponseWriter, r *http.Request) {
 	type stateRes struct {
-		State   string    `db:"STATO"`
-		StateID int       `db:"STATOID"`
-		When    time.Time `db:"QUANDO"`
+		State   string  `db:"STATO"`
+		StateID int     `db:"STATOID"`
+		When    SqlTime `db:"QUANDO"`
 	}
 	type viaggioRes struct {
-		StartDate    time.Time `db:"DATA_PARTENZA"`
-		EndDate      time.Time `db:"DATA_ARRIVO"`
-		Partenza     string    `db:"PARTENZA"`
-		Destinazione string    `db:"DESTINAZIONE"`
-		Motrice      string    `db:"MOTRICE"`
+		StartDate    SqlTime `db:"DATA_PARTENZA"`
+		EndDate      SqlTime `db:"DATA_ARRIVO"`
+		Partenza     string  `db:"PARTENZA"`
+		Destinazione string  `db:"DESTINAZIONE"`
+		Motrice      string  `db:"MOTRICE"`
 	}
 	states := make([]stateRes, 0, 7)
 	viaggios := make([]viaggioRes, 0, 7)
@@ -268,7 +269,7 @@ func (s *Server) HandlerApiAboutMe(w http.ResponseWriter, r *http.Request) {
 func (s *Server) HandlerApiReceivers(w http.ResponseWriter, r *http.Request) {
 	type receiver struct {
 		ID   int    `db:"ID"`
-		Name string `db:"NOME"`
+		Name string `db:"NOME" sqlite:"nome"`
 	}
 
 	var result struct {
@@ -310,7 +311,7 @@ type NewOrderInput struct {
 	Sender   int `json:",string"`
 	Receiver int `json:",string"`
 	DDT      string
-	NumColli int `json:",string"`
+	NumColli int
 	Assegno  bool
 }
 
@@ -342,7 +343,56 @@ func (s *Server) HandleApiNewOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.Log.Println(input)
+	s.Log.Println("Insert new order:", input)
+}
+
+func (s *Server) HandleApiNewAzienda(w http.ResponseWriter, r *http.Request) {
+	input := struct {
+		Name       string
+		Role       int `json:",string"`
+		Address    string
+		PIva       string
+		CodUnivoco string
+	}{}
+
+	defer r.Body.Close()
+	err := json.NewDecoder(r.Body).Decode(&input)
+	if err != nil {
+		s.Log.Errorln("Cannot read body in new order:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	if strings.TrimSpace(input.Name) == "" {
+		http.Error(w, "Invalid Request", http.StatusBadRequest)
+		return
+	}
+
+	var addr sql.NullString
+	if strings.TrimSpace(input.Address) != "" {
+		addr.Valid = true
+		addr.String = input.Address
+	}
+
+	var piva sql.NullString
+	if strings.TrimSpace(input.PIva) != "" {
+		piva.Valid = true
+		piva.String = input.PIva
+	}
+
+	var codunivoco sql.NullString
+	if strings.TrimSpace(input.CodUnivoco) != "" {
+		codunivoco.Valid = true
+		codunivoco.String = input.CodUnivoco
+	}
+
+	_, err = s.Database.NewAzienda(input.Name, input.Role, addr, piva, codunivoco)
+	if err != nil {
+		s.Log.Errorln("Cannot create azienda:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+	s.Log.Println("New azienda:", input)
 }
 
 // LoggedInMiddleWare makes sure the request continues only if the user is logged in

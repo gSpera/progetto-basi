@@ -68,7 +68,7 @@ class InsertOrder extends React.Component {
             ShowSender: false,
             Receivers: [],
             Selection: {
-                Sender: this.props.sender,
+                Sender: "" + this.props.sender,
                 Receiver: "0",
                 DDT: "",
                 NumColli: 1,
@@ -247,7 +247,7 @@ class InsertAzienda extends React.Component {
         fetch("/api/new-azienda", {
             method: "POST",
             cache: "no-cache",
-            body: JSON.stringify(this.state.Selection),
+            body: JSON.stringify(this.state),
         })
         this.close();
     }

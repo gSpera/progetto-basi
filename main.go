@@ -12,6 +12,8 @@ func main() {
 
 	log.Println("Database Name:", DatabaseName())
 	log.Println("Connecting to database")
+	log.SetReportCaller(true)
+
 	db, err := NewDatabase()
 	if err != nil {
 		log.Fatalln("Cannot connect to database:", err)
@@ -30,6 +32,7 @@ func main() {
 	http.Handle("/api/orders", server.LoggedInMiddleware(server.HandlerApiGetOrders, "/login"))
 	http.Handle("/api/avaible-receivers", server.LoggedInMiddleware(server.HandlerApiReceivers, "/login"))
 	http.Handle("/api/new-order", server.LoggedInMiddleware(server.HandleApiNewOrder, "/login"))
+	http.Handle("/api/new-azienda", server.LoggedInMiddleware(server.HandleApiNewAzienda, "/login"))
 	http.Handle("/api/me", server.LoggedInMiddleware(server.HandlerApiAboutMe, "/login"))
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))

@@ -54,3 +54,7 @@ func (d Database) NewOrder(input NewOrderInput, assegno int) (sql.Result, error)
 		`INSERT INTO Ordine VALUES (ordine_seq.nextval, :1, :2, :3, :4, :5)`,
 		input.DDT, input.Sender, input.Receiver, input.NumColli, assegno)
 }
+
+func (d Database) NewAzienda(name string, role int, address sql.NullString, piva sql.NullString, codunivoco sql.NullString) (sql.Result, error) {
+	panic("not implemented")
+}
