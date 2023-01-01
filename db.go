@@ -2,6 +2,8 @@ package main
 
 import (
 	"database/sql/driver"
+	"fmt"
+	"os"
 	"time"
 )
 
@@ -13,7 +15,12 @@ func (s *SqlTime) Scan(src any) error {
 		t, err := time.Parse(time.RFC3339Nano, v)
 		*s = SqlTime(t)
 		return err
+	case time.Time:
+		*s = SqlTime(v)
+		return nil
+
 	default:
+		fmt.Fprintf(os.Stderr, "Cannot scan SqlTime: %T(%v)\n", src, src)
 		panic("cannot scan SqlTime")
 	}
 }

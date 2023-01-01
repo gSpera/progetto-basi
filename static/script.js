@@ -71,7 +71,7 @@ class InsertOrder extends React.Component {
                 Sender: "" + this.props.sender,
                 Receiver: "0",
                 DDT: "",
-                NumColli: 1,
+                NumColli: "1",
                 Assegno: false,
             },
         };
@@ -90,16 +90,16 @@ class InsertOrder extends React.Component {
 
         switch (event.target.name) {
             case "sender":
-                this.state.Selection.Sender = value;
+                this.state.Selection.Sender = String(value);
                 break;
             case "receiver":
-                this.state.Selection.Receiver = value;
+                this.state.Selection.Receiver = String(value);
                 break;
             case "ddt":
                 this.state.Selection.DDT = value;
                 break;
             case "num-colli":
-                this.state.Selection.NumColli = value;
+                this.state.Selection.NumColli = String(value);
                 break;
             case "assegno":
                 this.state.Selection.Assegno = value;

@@ -168,9 +168,9 @@ func (s *Server) HandlerApiGetOrders(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) HandleApiInfoOrder(w http.ResponseWriter, r *http.Request) {
 	type stateRes struct {
-		State   string  `db:"STATO"`
-		StateID int     `db:"STATOID"`
-		When    SqlTime `db:"QUANDO"`
+		State   string  `db:"STATO" sqlite:"stato"`
+		StateID int     `db:"STATOID" sqlite:"statoID"`
+		When    SqlTime `db:"QUANDO" sqlite:"quando"`
 	}
 	type viaggioRes struct {
 		StartDate    SqlTime `db:"DATA_PARTENZA"`
@@ -311,7 +311,7 @@ type NewOrderInput struct {
 	Sender   int `json:",string"`
 	Receiver int `json:",string"`
 	DDT      string
-	NumColli int
+	NumColli int `json:",string"`
 	Assegno  bool
 }
 
