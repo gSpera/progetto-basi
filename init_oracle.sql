@@ -92,7 +92,7 @@ IS
 BEGIN
     EXECUTE IMMEDIATE 'DROP MATERIALIZED VIEW ultimi_stati';
     EXECUTE IMMEDIATE 'CREATE MATERIALIZED VIEW ultimi_stati AS
-    SELECT ordine.ddt, produttore.nome as produttore_nome, destinatario.nome as destinatario_nome, ordine.num_colli, ordine.ritirare_assegno, MAX(stato.stato) as stato, stato_string.value as stato_string, MAX(stato.quando) as quando
+    SELECT ordine.ddt, produttore.id as produttore_id, destinatario.id as destinatario_id, produttore.nome as produttore_nome, destinatario.nome as destinatario_nome, ordine.num_colli, ordine.ritirare_assegno, MAX(stato.stato) as stato, stato_string.value as stato_string, MAX(stato.quando) as quando
     FROM ordine
      JOIN stato ON ordine.id = stato.ordine_id
      JOIN azienda produttore ON ordine.produttore_id = produttore.id
@@ -109,7 +109,7 @@ CREATE TRIGGER order_new AFTER INSERT ON ordine FOR EACH ROW
 CREATE TRIGGER ultimi_stati_update AFTER INSERT OR UPDATE OR DELETE ON stato
 BEGIN
     CREATE OR REPLACE MATERIALIZED VIEW ultimi_stati AS
-    SELECT ordine.ddt, produttore.nome as produttore_nome, destinatario.nome as destinatario_nome, ordine.num_colli, ordine.ritirare_assegno, MAX(stato.stato) as stato, stato_string.value as stato_string, MAX(stato.quando) as quando
+    SELECT ordine.ddt, produttore.id as produttore_id, destinatario.id as destinatario_id, produttore.nome as produttore_nome, destinatario.nome as destinatario_nome, ordine.num_colli, ordine.ritirare_assegno, MAX(stato.stato) as stato, stato_string.value as stato_string, MAX(stato.quando) as quando
     FROM ordine
      JOIN stato ON ordine.id = stato.ordine_id
      JOIN azienda produttore ON ordine.produttore_id = produttore.id
@@ -120,7 +120,7 @@ BEGIN
 END; 
 
 CREATE MATERIALIZED VIEW ultimi_stati AS
-SELECT ordine.ddt, produttore.nome as produttore_nome, destinatario.nome as destinatario_nome, ordine.num_colli, ordine.ritirare_assegno, MAX(stato.stato) as stato, stato_string.value as stato_string, MAX(stato.quando) as quando
+SELECT ordine.ddt, produttore.id as produttore_id, destinatario.id as destinatario_id, produttore.nome as produttore_nome, destinatario.nome as destinatario_nome, ordine.num_colli, ordine.ritirare_assegno, MAX(stato.stato) as stato, stato_string.value as stato_string, MAX(stato.quando) as quando
 FROM ordine
  JOIN stato ON ordine.id = stato.ordine_id
  JOIN azienda produttore ON ordine.produttore_id = produttore.id

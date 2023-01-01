@@ -1,3 +1,5 @@
+//go:build oracle
+
 package main
 
 import (
@@ -9,6 +11,10 @@ import (
 
 type Database struct {
 	db *sqlx.DB
+}
+
+func DatabaseName() string {
+	return "Oracle"
 }
 
 func NewDatabase() (Database, error) {

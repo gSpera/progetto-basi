@@ -10,6 +10,7 @@ import (
 func main() {
 	log.Println("Starting")
 
+	log.Println("Database Name:", DatabaseName())
 	log.Println("Connecting to database")
 	db, err := NewDatabase()
 	if err != nil {
