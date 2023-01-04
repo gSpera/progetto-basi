@@ -10,9 +10,20 @@ import (
 type SqlTime time.Time
 
 func (s *SqlTime) Scan(src any) error {
+	if src == nil {
+		return fmt.Errorf("time is nil")
+	}
+
 	switch v := src.(type) {
 	case string:
 		t, err := time.Parse(time.RFC3339Nano, v)
+		if err != nil {
+			t, err = time.Parse("2006-01-02 15:04:05", v)
+			if err != nil {
+				return err
+			}
+		}
+
 		*s = SqlTime(t)
 		return err
 	case time.Time:

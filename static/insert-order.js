@@ -13,6 +13,7 @@ class InsertOrder extends React.Component {
                 Protocollo: "",
                 NumColli: "1",
                 Assegno: false,
+                Note: "",
             },
         };
 
@@ -40,13 +41,17 @@ class InsertOrder extends React.Component {
                 break;
             case "order":
                 this.state.Selection.Order = value;
+                break;
             case "protocollo":
                 this.state.Selection.Protocollo = value;
             case "num-colli":
                 this.state.Selection.NumColli = String(value);
                 break;
             case "assegno":
-                this.state.Selection.Assegno = value;
+                this.state.Selection.Assegno = value == "true";
+                break;
+            case "note":
+                this.state.Selection.Note = value;
                 break;
             default:
                 alert("Errore");
@@ -140,7 +145,13 @@ class InsertOrder extends React.Component {
                         <div className="field is-horizontal">
                             <label htmlFor="assegno" className="field-label label checkbox">Ritirare Assegno</label>
                             <div className="field-body control">
-                                <input name="assegno" type="checkbox" value={this.state.Selection.Assegno} onChange={this.onChange} />
+                                <input name="assegno" type="checkbox" value={this.state.Selection.Assegno} onChange={this.handleChange} />
+                            </div>
+                        </div>
+                        <div className="field is-horizontal">
+                            <label htmlFor="note" className="field-label label">Note</label>
+                            <div className="field-body control">
+                                <textarea name="note" className="textarea" value={this.state.Selection.Note} onChange={this.handleChange}></textarea>
                             </div>
                         </div>
                     </form>

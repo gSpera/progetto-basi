@@ -21,7 +21,8 @@ CREATE TABLE ordine (
     produttore_id integer not null,
     destinatario_id integer not null,
     num_colli integer default 1 not null,
-    ritirare_assegno integer not null-- Boolean
+    ritirare_assegno integer not null,-- Boolean
+    note varchar(256)
 );
 
 CREATE TABLE viaggio (
@@ -58,7 +59,7 @@ CREATE TABLE stato (
 
 -- Trigger 
 CREATE TRIGGER order_new AFTER INSERT ON ordine FOR EACH ROW
-    BEGIN INSERT INTO stato VALUES (NULL, NEW.id, 0, CURRENT_TIMESTAMP); END;
+    BEGIN INSERT INTO stato VALUES (NULL, NEW.id, 0, strftime("%Y-%m-%d %H:%M:%S")); END;
 
 CREATE VIEW ultimi_stati AS
 SELECT ordine.id,ordine.id,  ordine.ddt, produttore.id as produttore_id, destinatario.id as destinatario_id, produttore.nome as produttore_nome, destinatario.nome as destinatario_nome, ordine.num_colli, ordine.ritirare_assegno, MAX(stato.stato) as stato, stato_string.value as stato_string, MAX(stato.quando) as quando

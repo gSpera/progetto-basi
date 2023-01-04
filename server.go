@@ -308,11 +308,14 @@ func (s *Server) HandlerApiReceivers(w http.ResponseWriter, r *http.Request) {
 }
 
 type NewOrderInput struct {
-	Sender   int `json:",string"`
-	Receiver int `json:",string"`
-	DDT      string
-	NumColli int `json:",string"`
-	Assegno  bool
+	Sender     int `json:",string"`
+	Receiver   int `json:",string"`
+	DDT        string
+	Order      string
+	Protocollo string
+	NumColli   int `json:",string"`
+	Assegno    bool
+	Note       string
 }
 
 func (s *Server) HandleApiNewOrder(w http.ResponseWriter, r *http.Request) {
@@ -331,8 +334,9 @@ func (s *Server) HandleApiNewOrder(w http.ResponseWriter, r *http.Request) {
 		assegno = 1
 	}
 
-	if input.DDT == "" {
+	if input.Order == "" {
 		http.Error(w, "Invalid Request", http.StatusBadRequest)
+		s.Log.Warnln("Invalid request: no order")
 		return
 	}
 
