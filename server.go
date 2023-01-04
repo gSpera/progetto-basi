@@ -36,7 +36,7 @@ func NewServer(db Database, tmplDir fs.FS, logger *log.Entry, jwtSecret []byte) 
 		Database:  db,
 		Template:  tmpl,
 		Log:       logger,
-		jwtSecret: SERVER_SECRET[:],
+		jwtSecret: jwtSecret,
 	}, nil
 }
 
