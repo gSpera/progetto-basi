@@ -15,7 +15,9 @@ CREATE TABLE azienda (
 
 CREATE TABLE ordine (
     id integer primary key autoincrement,
-    ddt varchar(20) not null,
+    ddt varchar(20),
+    ordine varchar(50) not null,
+    protocollo varchar(20) not null,
     produttore_id integer not null,
     destinatario_id integer not null,
     num_colli integer default 1 not null,
