@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"net/http"
 	"os"
 
@@ -9,6 +10,12 @@ import (
 
 func main() {
 	log.Println("Starting")
+	jwtSecret := flag.String("jwt-secret", "", "JWT token secret, 32 bytes")
+	flag.Parse()
+
+	if len(*jwtSecret) != 32 {
+		log.Fatalln("Invalid jwt secret, not 32 bytes")
+	}
 
 	log.Println("Database Name:", DatabaseName())
 	log.Println("Connecting to database")
@@ -20,10 +27,11 @@ func main() {
 	}
 
 	log.Println("Initializing server")
-	server, err := NewServer(db, os.DirFS("./tmpl"), log.NewEntry(log.StandardLogger()))
+	server, err := NewServer(db, os.DirFS("./tmpl"), log.NewEntry(log.StandardLogger()), []byte(*jwtSecret))
 	if err != nil {
 		log.Fatalln("Cannot initialize server:", err)
 	}
+
 	log.Println("Registering handlers")
 	http.Handle("/", server.LoggedInMiddleware(server.HandleHome, "/login"))
 	http.HandleFunc("/login", server.HandleLogin)

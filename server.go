@@ -25,7 +25,7 @@ type Server struct {
 	Log      *log.Entry
 }
 
-func NewServer(db Database, tmplDir fs.FS, logger *log.Entry) (Server, error) {
+func NewServer(db Database, tmplDir fs.FS, logger *log.Entry, jwtSecret []byte) (Server, error) {
 	tmpl := template.New("html")
 	_, err := tmpl.ParseFS(tmplDir, "*.tmpl")
 	if err != nil {
