@@ -16,7 +16,15 @@ func DatabaseName() string {
 	return "NO DATABASE SELECTED"
 }
 
-func NewDatabase() (Database, error) {
+func DatabaseArgDefault() string {
+	return ""
+}
+
+func DatabaseArgUsage() string {
+	return "COMPILE WITH -flags"
+}
+
+func NewDatabase(string) (Database, error) {
 	return Database{}, fmt.Errorf("no database selected, build with a tag")
 }
 

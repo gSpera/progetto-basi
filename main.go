@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"net/http"
 	"os"
 
@@ -11,6 +12,8 @@ import (
 func main() {
 	log.Println("Starting")
 	jwtSecret := flag.String("jwt-secret", "", "JWT token secret, 32 bytes")
+	listen := flag.String("addr", ":8080", "address used to listen")
+	databaseArg := flag.String("db", DatabaseArgDefault(), fmt.Sprintf("argument to db (%s): %s", DatabaseName(), DatabaseArgUsage()))
 	flag.Parse()
 
 	if len(*jwtSecret) != 32 {
@@ -19,9 +22,10 @@ func main() {
 
 	log.Println("Database Name:", DatabaseName())
 	log.Println("Connecting to database")
+	log.Println("Database Argument:", *databaseArg)
 	log.SetReportCaller(true)
 
-	db, err := NewDatabase()
+	db, err := NewDatabase(*databaseArg)
 	if err != nil {
 		log.Fatalln("Cannot connect to database:", err)
 	}
@@ -45,6 +49,6 @@ func main() {
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
-	log.Println("Listening")
-	http.ListenAndServe(":8080", nil)
+	log.Println("Listening:", *listen)
+	http.ListenAndServe(*listen, nil)
 }

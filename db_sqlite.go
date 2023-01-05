@@ -19,8 +19,16 @@ func DatabaseName() string {
 	return "SQLite"
 }
 
-func NewDatabase() (Database, error) {
-	db, err := sqlx.Connect("sqlite", "test.db")
+func DatabaseArgDefault() string {
+	return "database.db"
+}
+
+func DatabaseArgUsage() string {
+	return "db path"
+}
+
+func NewDatabase(dbPath string) (Database, error) {
+	db, err := sqlx.Connect("sqlite", dbPath)
 	db.Mapper = reflectx.NewMapperFunc("sqlite", strings.ToLower)
 
 	return Database{
