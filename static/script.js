@@ -14,6 +14,7 @@ const receiverRole = 2
 
 const ordersTableRef = React.createRef();
 const infoOrderRef = React.createRef();
+const insertOrderRef = React.createRef();
 
 const info_order = document.querySelector("#info-order-root")
 ReactDOM.createRoot(info_order).render(<InfoOrder ref={infoOrderRef} />)
@@ -31,13 +32,13 @@ fetch("/api/me")
         if (r.CompanyID < 0 || r.CompanyRole == receiverRole) Array.from(document.getElementsByClassName("only-receiver")).forEach(el => el.classList.remove("is-hidden"))
         if (r.CompanyID < 0) Array.from(document.getElementsByClassName("only-admin")).forEach(el => el.classList.remove("is-hidden"))
 
-        ReactDOM.createRoot(insert_order).render(<InsertOrder sender={Math.max(r.CompanyID, 0)} orderTableRef={ordersTableRef} />)
+        ReactDOM.createRoot(insert_order).render(<InsertOrder ref={insertOrderRef} sender={Math.max(r.CompanyID, 0)} orderTableRef={ordersTableRef} />)
     })
     .catch(err => console.error(err))
 
 const insert_order = document.querySelector("#insert-order-root")
 const insert_azienda = document.querySelector("#insert-azienda-root")
-ReactDOM.createRoot(insert_azienda).render(<InsertAzienda />)
+ReactDOM.createRoot(insert_azienda).render(<InsertAzienda onSuccess={() => insertOrderRef.current.updateReceivers()} />)
 
 insert_order.style.display = 'none'
 insert_azienda.style.display = 'none'

@@ -4,6 +4,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"strings"
 
 	"github.com/jmoiron/sqlx"
@@ -28,12 +29,15 @@ func DatabaseArgUsage() string {
 }
 
 func NewDatabase(dbPath string) (Database, error) {
-	db, err := sqlx.Connect("sqlite", dbPath)
+	db, err := sqlx.Connect("sqlite", dbPath+"?_pragma=busy_timeout(10)")
+	if err != nil {
+		return Database{}, fmt.Errorf("cannot connect: %w", err)
+	}
 	db.Mapper = reflectx.NewMapperFunc("sqlite", strings.ToLower)
 
 	return Database{
 		db: db,
-	}, err
+	}, nil
 }
 
 func (d Database) GetUserInfoByName(username string) *sql.Row {
@@ -58,7 +62,7 @@ func (d Database) CompanyNameByID(companyID int) (*sqlx.Rows, error) {
 func (d Database) NewOrder(input NewOrderInput, assegno int) (sql.Result, error) {
 	return d.db.Exec(
 		`INSERT INTO ordine VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		input.DDT, input.Order, input.Protocollo, input.Sender, input.Receiver, input.NumColli, assegno, input.Note)
+		input.DDT, input.Order, input.Protocollo, input.Sender, input.ReceiverID, input.NumColli, assegno, input.Note)
 }
 
 func (d Database) NewAzienda(name string, role int, address sql.NullString, piva sql.NullString, codunivoco sql.NullString) (sql.Result, error) {

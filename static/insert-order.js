@@ -7,7 +7,8 @@ class InsertOrder extends React.Component {
             Receivers: [],
             Selection: {
                 Sender: "" + this.props.sender,
-                Receiver: "0",
+                ReceiverID: "0",
+                ReceiverName: "",
                 DDT: "",
                 Order: "",
                 Protocollo: "",
@@ -17,13 +18,19 @@ class InsertOrder extends React.Component {
             },
         };
 
+        this.handleChange = this.handleChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+        this.updateReceivers = this.updateReceivers.bind(this);
+
+        this.updateReceivers();
+        this.close = this.close.bind(this);
+    }
+
+    updateReceivers() {
         fetch("/api/avaible-receivers")
             .then(r => r.json())
             .then(r => this.setState(r))
 
-        this.handleChange = this.handleChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.close = this.close.bind(this);
     }
 
     handleChange(event) {
@@ -34,7 +41,7 @@ class InsertOrder extends React.Component {
                 this.state.Selection.Sender = String(value);
                 break;
             case "receiver":
-                this.state.Selection.Receiver = String(value);
+                this.state.Selection.ReceiverName = String(value);
                 break;
             case "ddt":
                 this.state.Selection.DDT = value;
@@ -61,10 +68,22 @@ class InsertOrder extends React.Component {
     }
 
     handleSubmit() {
-        if (this.state.Selection.order == "") {
+        if (this.state.Selection.Order == "") {
             alert("Inserire un ordine valido")
             return
         }
+
+        const name = this.state.Selection.ReceiverName;
+        const id = this.state.Receivers.filter(r => r.Name === this.state.Selection.ReceiverName);
+        if (id.length == 0) {
+            alert("Inserire un destinatario valido")
+            return
+        }
+        if (id.length > 1) {
+            alert("Errore con il destinatario, più destinatari con lo stesso nome")
+            return
+        }
+        this.state.Selection.ReceiverID = String(id[0].ID)
 
         fetch("/api/new-order", {
             method: "POST",
@@ -105,11 +124,16 @@ class InsertOrder extends React.Component {
                         <div className="field is-horizontal">
                             <label htmlFor="receiver" className="field-label label">Destinatario</label>
                             <div className="field-body control">
-                                <div className="select">
+                                { /* <div className="select">
                                     <select name="receiver" value={this.state.Selection.Receiver} onChange={this.handleChange}>
                                         {this.state.Receivers.map(receiver => <option value={receiver.ID} key={receiver.ID}>{receiver.Name}</option>)}
                                     </select>
-                                </div>
+                                </div> */ }
+                                <input list="receiver-list" name="receiver" className="input" value={this.state.Selection.ReceiverName} onChange={this.handleChange} />
+                                <datalist id="receiver-list">
+                                    {this.state.Receivers.map(receiver =>
+                                        <option value={receiver.Name} key={receiver.ID}>{receiver.Name}</option>)}
+                                </datalist>
                             </div>
                         </div>
 

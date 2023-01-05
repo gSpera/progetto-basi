@@ -52,6 +52,7 @@ class InsertAzienda extends React.Component {
             cache: "no-cache",
             body: JSON.stringify(this.state),
         })
+        this.props.onSuccess();
         this.close();
     }
 

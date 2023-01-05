@@ -309,7 +309,7 @@ func (s *Server) HandlerApiReceivers(w http.ResponseWriter, r *http.Request) {
 
 type NewOrderInput struct {
 	Sender     int `json:",string"`
-	Receiver   int `json:",string"`
+	ReceiverID int `json:",string"`
 	DDT        string
 	Order      string
 	Protocollo string
