@@ -29,7 +29,7 @@ func DatabaseArgUsage() string {
 }
 
 func NewDatabase(dbPath string) (Database, error) {
-	db, err := sqlx.Connect("sqlite", dbPath+"?_pragma=busy_timeout(10)")
+	db, err := sqlx.Connect("sqlite", dbPath+"?_pragma=busy_timeout(1000)")
 	if err != nil {
 		return Database{}, fmt.Errorf("cannot connect: %w", err)
 	}
@@ -65,7 +65,7 @@ func (d Database) NewOrder(input NewOrderInput, assegno int) (sql.Result, error)
 		input.DDT, input.Order, input.Protocollo, input.Sender, input.ReceiverID, input.NumColli, assegno, input.Note)
 }
 
-func (d Database) NewAzienda(name string, role int, address sql.NullString, piva sql.NullString, codunivoco sql.NullString) (sql.Result, error) {
+func (d Database) NewAzienda(name string, role int, address sql.NullString, piva sql.NullString, codunivoco sql.NullString, comune string, regioneID int) (sql.Result, error) {
 	return d.db.Exec(
-		`INSERT INTO azienda VALUES (NULL, ?, ?, ?, ?, ?)`, role, name, address, piva, codunivoco)
+		`INSERT INTO azienda VALUES (NULL, ?, ?, ?, ?, ?, ?, ?)`, role, name, address, comune, regioneID, piva, codunivoco)
 }

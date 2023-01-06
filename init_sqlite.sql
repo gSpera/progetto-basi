@@ -8,9 +8,11 @@ CREATE TABLE azienda (
     id integer primary key,
     ruolo integer, -- 0: Spera Logistica, 1: Produttore, 2: Destinatario
     nome varchar(20) not null,
-    indirizzo varchar(50),
+    indirizzo varchar(50) not null,
+    comune varchar(20),
+    regione integer not null,
     partita_iva char(11),
-    codice_univoco char(6)
+    codice_univoco char(6),
 );
 
 CREATE TABLE ordine (
@@ -48,6 +50,33 @@ INSERT INTO stato_string VALUES (4, 'In archivio');
 INSERT INTO stato_string VALUES (5, 'Pronto per essere spedito');
 INSERT INTO stato_string VALUES (6, 'Spedito');
 INSERT INTO stato_string VALUES (7, 'Consegnato');
+
+CREATE TABLE regione_string (
+    id integer primary key,
+    value varchar(30)
+);
+
+INSERT INTO regione_string VALUES (0, "Abruzzo");
+INSERT INTO regione_string VALUES (1, "Basilicata");
+INSERT INTO regione_string VALUES (2, "Calabria");
+INSERT INTO regione_string VALUES (3, "Campania");
+INSERT INTO regione_string VALUES (4, "Emilia Romagna");
+INSERT INTO regione_string VALUES (5, "Friuli Venezia Giulia");
+INSERT INTO regione_string VALUES (6, "Lazio");
+INSERT INTO regione_string VALUES (7, "Liguria");
+INSERT INTO regione_string VALUES (8, "Lombardia");
+INSERT INTO regione_string VALUES (9, "Marche");
+INSERT INTO regione_string VALUES (10, "Molise");
+INSERT INTO regione_string VALUES (11, "Piemonte");
+INSERT INTO regione_string VALUES (12, "Puglia");
+INSERT INTO regione_string VALUES (13, "Sardegna");
+INSERT INTO regione_string VALUES (14, "Sicilia");
+INSERT INTO regione_string VALUES (15, "Toscana");
+INSERT INTO regione_string VALUES (16, "Trentino Alto Adige");
+INSERT INTO regione_string VALUES (17, "Umbria");
+INSERT INTO regione_string VALUES (18, "Valle d'Aosta");
+INSERT INTO regione_string VALUES (19, "Veneto");
+
 
 CREATE TABLE stato (
     id integer primary key autoincrement,

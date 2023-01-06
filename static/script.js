@@ -8,6 +8,28 @@ let stateIcons = {
     6: "truck",
     7: "check",
 }
+const regioni = [
+    { ID: 0, Name: "Abruzzo" },
+    { ID: 1, Name: "Basilicata" },
+    { ID: 2, Name: "Calabria" },
+    { ID: 3, Name: "Campania" },
+    { ID: 4, Name: "Emilia Romagna" },
+    { ID: 5, Name: "Friuli Venezia Giulia" },
+    { ID: 6, Name: "Lazio" },
+    { ID: 7, Name: "Liguria" },
+    { ID: 8, Name: "Lombardia" },
+    { ID: 9, Name: "Marche" },
+    { ID: 10, Name: "Molise" },
+    { ID: 11, Name: "Piemonte" },
+    { ID: 12, Name: "Puglia" },
+    { ID: 13, Name: "Sardegna" },
+    { ID: 14, Name: "Sicilia" },
+    { ID: 15, Name: "Toscana" },
+    { ID: 16, Name: "Trentino Alto Adige" },
+    { ID: 17, Name: "Umbria" },
+    { ID: 18, Name: "Valle d'Aosta" },
+    { ID: 19, Name: "Veneto" },
+]
 
 const producerRole = 1
 const receiverRole = 2

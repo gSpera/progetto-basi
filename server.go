@@ -357,6 +357,8 @@ func (s *Server) HandleApiNewAzienda(w http.ResponseWriter, r *http.Request) {
 		Address    string
 		PIva       string
 		CodUnivoco string
+		Comune     string
+		RegioneID  int `json:",string"`
 	}{}
 
 	defer r.Body.Close()
@@ -390,7 +392,7 @@ func (s *Server) HandleApiNewAzienda(w http.ResponseWriter, r *http.Request) {
 		codunivoco.String = input.CodUnivoco
 	}
 
-	_, err = s.Database.NewAzienda(input.Name, input.Role, addr, piva, codunivoco)
+	_, err = s.Database.NewAzienda(input.Name, input.Role, addr, piva, codunivoco, input.Comune, input.RegioneID)
 	if err != nil {
 		s.Log.Errorln("Cannot create azienda:", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)

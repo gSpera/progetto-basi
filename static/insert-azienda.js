@@ -4,10 +4,12 @@ class InsertAzienda extends React.Component {
 
         this.state = {
             Name: "",
-            Role: "0",
+            Role: "2",
             Address: "",
             PIVA: "",
             CodUnivoco: "",
+            Comune: "",
+            RegioneID: "",
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -33,6 +35,12 @@ class InsertAzienda extends React.Component {
                 break;
             case "codunivoco":
                 this.state.CodUnivoco = value;
+                break;
+            case "comune":
+                this.state.Comune = value;
+                break;
+            case "regione":
+                this.state.RegioneID = String(value);
                 break;
             default:
                 alert("Errore");
@@ -77,7 +85,7 @@ class InsertAzienda extends React.Component {
                             </div>
                         </div>
 
-                        <div className="field is-horizontal">
+                        {/*<div className="field is-horizontal">
                             <label htmlFor="role" className="field-label label">Ruolo:</label>
                             <div className="field-body control select">
                                 <select name="role" value={this.state.Role} onChange={this.handleChange}>
@@ -85,7 +93,7 @@ class InsertAzienda extends React.Component {
                                     <option value="2">Venditore</option>
                                 </select>
                             </div>
-                        </div>
+                        </div>*/}
 
                         <div className="field is-horizontal">
                             <label htmlFor="address" className="field-label label">Indirizzo: </label>
@@ -95,6 +103,22 @@ class InsertAzienda extends React.Component {
                         </div>
 
                         <div className="field is-horizontal">
+                            <label htmlFor="comune" className="field-label label">Comune: </label>
+                            <div className="field-body control">
+                                <input name="comune" className="input" value={this.state.Comune} onChange={this.handleChange} />
+                            </div>
+                        </div>
+
+                        <div className="field is-horizontal">
+                            <label htmlFor="regione" className="field-label label">Ruolo:</label>
+                            <div className="field-body control select">
+                                <select name="regione" value={this.state.RegioneID} onChange={this.handleChange}>
+                                    {regioni.map(r => <option value={r.ID} key={r.ID}>{r.Name}</option>)}
+                                </select>
+                            </div>
+                        </div>
+
+                        {/*<div className="field is-horizontal">
                             <label htmlFor="piva" className="field-label label">P. IVA: </label>
                             <div className="field-body control">
                                 <input name="piva" className="input" value={this.state.PIVA} onChange={this.handleChange} />
@@ -105,7 +129,7 @@ class InsertAzienda extends React.Component {
                             <div className="field-body control">
                                 <input name="codunivoco" className="input" value={this.state.CodUnivoco} onChange={this.handleChange} />
                             </div>
-                        </div>
+                        </div> */}
                     </form>
                 </div>
                 <div className="modal-card-foot">
