@@ -51,6 +51,7 @@ class InsertOrder extends React.Component {
                 break;
             case "protocollo":
                 this.state.Selection.Protocollo = value;
+                break;
             case "num-colli":
                 this.state.Selection.NumColli = String(value);
                 break;
