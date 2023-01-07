@@ -61,6 +61,9 @@ class InfoOrder extends React.Component {
                     <div><b>Mittente: </b>{this.state.order.ProducerName}</div>
                     <div><b>Destinatario: </b>{this.state.order.RecipientName}</div>
 
+                    <h2>Note:</h2>
+                    <textarea className="textarea" readOnly={true}>{this.state.r.Note}</textarea>
+
                     <h2>Aggiornamenti:</h2>
                     {
                         [].concat(this.state.r.States, this.state.r.Viaggi)

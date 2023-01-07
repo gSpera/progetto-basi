@@ -73,3 +73,9 @@ func (d Database) AddStateToOrder(orderID int, newState int, when time.Time) (sq
 	return d.db.Exec(
 		`INSERT INTO stato VALUES (NULL, ?, ?, ?)`, orderID, newState, SqlTime(when))
 }
+func (d Database) RetrieveOrderNote(orderID int) (string, error) {
+	var note string
+	r := d.db.QueryRow(`SELECT note FROM ordine WHERE id=?`, orderID)
+	err := r.Scan(&note)
+	return note, err
+}

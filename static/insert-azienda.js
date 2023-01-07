@@ -9,7 +9,7 @@ class InsertAzienda extends React.Component {
             PIVA: "",
             CodUnivoco: "",
             Comune: "",
-            RegioneID: "",
+            RegioneID: "0",
         };
 
         this.handleChange = this.handleChange.bind(this);

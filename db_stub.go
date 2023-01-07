@@ -53,3 +53,6 @@ func (d Database) NewAzienda(name string, role int, address sql.NullString, piva
 func (d Database) AddStateToOrder(orderID int, newState int, when time.Time) (sql.Result, error) {
 	panic("no database selected")
 }
+func (d Database) RetrieveOrderNote(orderID int) (string, error) {
+	panic("no database selected")
+}

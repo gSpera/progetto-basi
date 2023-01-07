@@ -230,12 +230,16 @@ func (s *Server) HandleApiInfoOrder(w http.ResponseWriter, r *http.Request) {
 		viaggios = append(viaggios, viaggio)
 	}
 
+	note, err := s.Database.RetrieveOrderNote(id)
+
 	encoder := json.NewEncoder(w)
 	encoder.SetIndent("", "\t")
 	err = encoder.Encode(struct {
+		Note   string
 		States []stateRes
 		Viaggi []viaggioRes
 	}{
+		note,
 		states,
 		viaggios,
 	})
