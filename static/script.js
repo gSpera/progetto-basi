@@ -8,6 +8,16 @@ let stateIcons = {
     6: "truck",
     7: "check",
 }
+const states = [
+    { ID: 0, Name: "Creato" },
+    { ID: 1, Name: "Pronto per essere ricevuto" },
+    { ID: 2, Name: "In ricezione" },
+    { ID: 3, Name: "In deposito" },
+    { ID: 4, Name: "In archivio" },
+    { ID: 5, Name: "Pronto per essere spedito" },
+    { ID: 6, Name: "Spedito" },
+    { ID: 7, Name: "Consegnato" },
+]
 const regioni = [
     { ID: 0, Name: "Abruzzo" },
     { ID: 1, Name: "Basilicata" },
@@ -37,12 +47,16 @@ const receiverRole = 2
 const ordersTableRef = React.createRef();
 const infoOrderRef = React.createRef();
 const insertOrderRef = React.createRef();
+const updateOrderRef = React.createRef();
 
 const info_order = document.querySelector("#info-order-root")
 ReactDOM.createRoot(info_order).render(<InfoOrder ref={infoOrderRef} />)
 
+const updateOrder = document.querySelector("#update-order-root")
+ReactDOM.createRoot(updateOrder).render(<UpdateOrder ref={updateOrderRef} orderTableRef={ordersTableRef} />)
+
 const ordersRoot = ReactDOM.createRoot(document.querySelector("#orders-root"))
-ordersRoot.render(<OrdersTable ref={ordersTableRef} infoOrderRef={infoOrderRef} />)
+ordersRoot.render(<OrdersTable ref={ordersTableRef} infoOrderRef={infoOrderRef} updateOrderRef={updateOrderRef} />)
 
 fetch("/api/me")
     .then(r => r.json())

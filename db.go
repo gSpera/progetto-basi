@@ -36,14 +36,14 @@ func (s *SqlTime) Scan(src any) error {
 	}
 }
 
-func (s *SqlTime) String() string {
-	return time.Time(*s).Format(time.RFC3339Nano)
+func (s SqlTime) String() string {
+	return time.Time(s).Format(time.RFC3339Nano)
 }
 
-func (s *SqlTime) Value() (driver.Value, error) {
+func (s SqlTime) Value() (driver.Value, error) {
 	return s.String(), nil
 }
 
-func (s *SqlTime) MarshalJSON() ([]byte, error) {
+func (s SqlTime) MarshalJSON() ([]byte, error) {
 	return []byte("\"" + s.String() + "\""), nil
 }

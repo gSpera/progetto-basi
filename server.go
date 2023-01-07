@@ -401,6 +401,30 @@ func (s *Server) HandleApiNewAzienda(w http.ResponseWriter, r *http.Request) {
 	s.Log.Println("New azienda:", input)
 }
 
+func (s *Server) HandleApiUpdateOrder(w http.ResponseWriter, r *http.Request) {
+	input := struct {
+		OrderID int
+		State   int `json:",string"`
+		When    time.Time
+	}{}
+
+	defer r.Body.Close()
+	err := json.NewDecoder(r.Body).Decode(&input)
+	if err != nil {
+		s.Log.Errorln("Cannot read body in new order:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	_, err = s.Database.AddStateToOrder(input.OrderID, input.State, input.When)
+	if err != nil {
+		s.Log.Errorln("Cannot add state to order:", err)
+		http.Error(w, "Invalid Request", http.StatusBadRequest)
+		return
+	}
+	s.Log.Println("New State:", input)
+}
+
 // LoggedInMiddleWare makes sure the request continues only if the user is logged in
 func (s *Server) LoggedInMiddleware(handler http.HandlerFunc, redirectTo string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

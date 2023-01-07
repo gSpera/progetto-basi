@@ -45,6 +45,7 @@ func main() {
 	http.Handle("/api/avaible-receivers", server.LoggedInMiddleware(server.HandlerApiReceivers, "/login"))
 	http.Handle("/api/new-order", server.LoggedInMiddleware(server.HandleApiNewOrder, "/login"))
 	http.Handle("/api/new-azienda", server.LoggedInMiddleware(server.HandleApiNewAzienda, "/login"))
+	http.Handle("/api/update-order", server.LoggedInMiddleware(server.HandleApiUpdateOrder, "/login"))
 	http.Handle("/api/me", server.LoggedInMiddleware(server.HandlerApiAboutMe, "/login"))
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))

@@ -5,6 +5,7 @@ class OrdersTable extends React.Component {
         this.state = { orders: [] };
         this.update = this.update.bind(this);
         this.orderInfo = this.orderInfo.bind(this);
+        this.updateOrder = this.updateOrder.bind(this);
         this.update();
     }
 
@@ -20,6 +21,10 @@ class OrdersTable extends React.Component {
 
     orderInfo(order) {
         this.props.infoOrderRef.current.update(order);
+    }
+
+    updateOrder(order) {
+        this.props.updateOrderRef.current.update(order);
     }
 
     render() {
@@ -47,8 +52,11 @@ class OrdersTable extends React.Component {
                             <td>
                                 <span className="icon"><span className={"mdi mdi-" + stateIcons[order.StateID]}></span></span>
                                 {order.StateString}
-                                <span className="icon is-medium" style={{ float: "right", marginRight: "1rem" }} onClick={() => this.orderInfo(order)}>
+                                <span className="icon is-medium" style={{ float: "right", marginRight: "0.5rem", cursor: "pointer" }} onClick={() => this.orderInfo(order)}>
                                     <span className="mdi mdi-information-outline"></span>
+                                </span>
+                                <span className="icon is-medium" style={{ float: "right", cursor: "pointer" }} onClick={() => this.updateOrder(order)}>
+                                    <span className="mdi mdi-pencil"></span>
                                 </span>
                             </td>
                             <td>{new Date(order.When).toLocaleDateString()}</td>
@@ -56,6 +64,6 @@ class OrdersTable extends React.Component {
                     )
                 }
             </tbody>
-        </table>
+        </table >
     }
 }
