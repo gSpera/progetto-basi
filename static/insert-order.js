@@ -56,7 +56,7 @@ class InsertOrder extends React.Component {
                 this.state.Selection.NumColli = String(value);
                 break;
             case "assegno":
-                this.state.Selection.Assegno = value == "true";
+                this.state.Selection.Assegno = event.target.checked;
                 break;
             case "note":
                 this.state.Selection.Note = value;
