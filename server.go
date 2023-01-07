@@ -127,6 +127,8 @@ func (s *Server) HandlerApiGetOrders(w http.ResponseWriter, r *http.Request) {
 	type Order struct {
 		ID                int     `db:"ID"`
 		DDT               string  `db:"DDT"`
+		Order             string  `sqlite:"ordine"`
+		Protocollo        string  `sqlite:"protocollo"`
 		ProducerName      string  `db:"PRODUTTORE_NOME" sqlite:"produttore_nome"`
 		ProducerID        int     `db:"PRODUTTORE_ID" sqlite:"produttore_id"`
 		RecipientName     string  `db:"DESTINATARIO_NOME" sqlite:"destinatario_nome"`

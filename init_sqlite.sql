@@ -91,7 +91,7 @@ CREATE TRIGGER order_new AFTER INSERT ON ordine FOR EACH ROW
     BEGIN INSERT INTO stato VALUES (NULL, NEW.id, 0, strftime("%Y-%m-%d %H:%M:%S")); END;
 
 CREATE VIEW ultimi_stati AS
-SELECT ordine.id, ordine.ddt, produttore.id as produttore_id, destinatario.id as destinatario_id, produttore.nome as produttore_nome, destinatario.nome as destinatario_nome, ordine.num_colli, ordine.ritirare_assegno, MAX(stato.stato) as stato, stato_string.value as stato_string, MAX(stato.quando) as quando
+SELECT ordine.id, ordine.ordine, ordine.protocollo, ordine.ddt, produttore.id as produttore_id, destinatario.id as destinatario_id, produttore.nome as produttore_nome, destinatario.nome as destinatario_nome, ordine.num_colli, ordine.ritirare_assegno, MAX(stato.stato) as stato, stato_string.value as stato_string, MAX(stato.quando) as quando
 FROM ordine
  JOIN stato ON ordine.id = stato.ordine_id
  JOIN azienda produttore ON ordine.produttore_id = produttore.id

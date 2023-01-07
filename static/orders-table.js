@@ -31,8 +31,10 @@ class OrdersTable extends React.Component {
         return <table className="table is-striped is-narrow is-hoverable is-fullwidth">
             <thead>
                 <tr>
-                    <th>DDT</th>
                     <th>Produttore</th>
+                    <th>Ordine</th>
+                    <th>DDT</th>
+                    <th>Protocollo</th>
                     <th>Destinatario</th>
                     <th>n° Colli</th>
                     <th>Assegno</th>
@@ -43,10 +45,12 @@ class OrdersTable extends React.Component {
             <tbody>
                 {
                     this.state.orders.map(order =>
-                        <tr key={order.DDT}>
-                            <td>{order.DDT}</td>
-                            <td>{order.ProducerName}</td>
+                        <tr key={order.Order}>
                             <td>{order.RecipientName}</td>
+                            <td>{order.Order}</td>
+                            <td>{order.DDT}</td>
+                            <td>{order.Protocollo}</td>
+                            <td>{order.ProducerName}</td>
                             <td>{order.NumPackages}</td>
                             <td><span className="icon is-medium"><span className={"mdi mdi-" + (order.WithdrawBankCheck ? 'check' : '')}></span></span></td>
                             <td>
