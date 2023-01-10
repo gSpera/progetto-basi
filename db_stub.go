@@ -56,3 +56,6 @@ func (d Database) AddStateToOrder(orderID int, newState int, when time.Time) (sq
 func (d Database) RetrieveOrderNote(orderID int) (string, error) {
 	panic("no database selected")
 }
+func (d Database) UpdateArriveDate(orderID int, newDate time.Time) (sql.Result, error) {
+	panic("no database selected")
+}

@@ -435,6 +435,29 @@ func (s *Server) HandleApiUpdateOrder(w http.ResponseWriter, r *http.Request) {
 	s.Log.Println("New State:", input)
 }
 
+func (s *Server) HandleApiUpdateArriveDate(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	orderIDString := r.Form.Get("id")
+	newDateString := r.Form.Get("date")
+	orderID, err := strconv.Atoi(orderIDString)
+	if err != nil {
+		http.Error(w, "Internal Error", http.StatusBadRequest)
+		return
+	}
+	newDate, err := time.Parse(time.RFC3339Nano, newDateString)
+	if err != nil {
+		http.Error(w, "Internal Error", http.StatusBadRequest)
+		return
+	}
+
+	_, err = s.Database.UpdateArriveDate(orderID, newDate)
+	if err != nil {
+		s.Log.Errorln("Cannot update arrive date:", err)
+		http.Error(w, "Invalid Request", http.StatusBadRequest)
+		return
+	}
+}
+
 // LoggedInMiddleWare makes sure the request continues only if the user is logged in
 func (s *Server) LoggedInMiddleware(handler http.HandlerFunc, redirectTo string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
