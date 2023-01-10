@@ -44,6 +44,8 @@ class InsertAzienda extends React.Component {
                 break;
             default:
                 alert("Errore");
+                this.props.notificationRef.current.notify("Errore interno update insert azienda")
+
         }
 
         this.setState(this.state);
@@ -52,6 +54,7 @@ class InsertAzienda extends React.Component {
     handleSubmit() {
         if (this.state.DDT == "") {
             alert("Inserire un DDT valido")
+            this.props.notificationRef.current.notify("Inserire un DDT valido")
             return
         }
 
@@ -60,6 +63,7 @@ class InsertAzienda extends React.Component {
             cache: "no-cache",
             body: JSON.stringify(this.state),
         })
+        .catch(err => this.props.notificationRef.current.notify("Nuova azienda:" + err))
         this.props.onSuccess();
         this.close();
     }

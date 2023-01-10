@@ -48,15 +48,20 @@ const ordersTableRef = React.createRef();
 const infoOrderRef = React.createRef();
 const insertOrderRef = React.createRef();
 const updateOrderRef = React.createRef();
+const notificationRef = React.createRef();
+
+
+const notificationRoot = ReactDOM.createRoot(document.querySelector("#notification-root"))
+notificationRoot.render(<Notification ref={notificationRef}/>)
 
 const info_order = document.querySelector("#info-order-root")
-ReactDOM.createRoot(info_order).render(<InfoOrder ref={infoOrderRef} />)
+ReactDOM.createRoot(info_order).render(<InfoOrder ref={infoOrderRef} notificationRef={notificationRef} />)
 
 const updateOrder = document.querySelector("#update-order-root")
-ReactDOM.createRoot(updateOrder).render(<UpdateOrder ref={updateOrderRef} orderTableRef={ordersTableRef} />)
+ReactDOM.createRoot(updateOrder).render(<UpdateOrder ref={updateOrderRef} orderTableRef={ordersTableRef} notificationRef={notificationRef} />)
 
 const ordersRoot = ReactDOM.createRoot(document.querySelector("#orders-root"))
-ordersRoot.render(<OrdersTable ref={ordersTableRef} infoOrderRef={infoOrderRef} updateOrderRef={updateOrderRef} />)
+ordersRoot.render(<OrdersTable ref={ordersTableRef} infoOrderRef={infoOrderRef} updateOrderRef={updateOrderRef} notificationRef={notificationRef}/>)
 
 fetch("/api/me")
     .then(r => r.json())
@@ -68,13 +73,13 @@ fetch("/api/me")
         if (r.CompanyID < 0 || r.CompanyRole == receiverRole) Array.from(document.getElementsByClassName("only-receiver")).forEach(el => el.classList.remove("is-hidden"))
         if (r.CompanyID < 0) Array.from(document.getElementsByClassName("only-admin")).forEach(el => el.classList.remove("is-hidden"))
 
-        ReactDOM.createRoot(insert_order).render(<InsertOrder ref={insertOrderRef} sender={Math.max(r.CompanyID, 0)} orderTableRef={ordersTableRef} />)
+        ReactDOM.createRoot(insert_order).render(<InsertOrder ref={insertOrderRef} sender={Math.max(r.CompanyID, 0)} orderTableRef={ordersTableRef} notificationRef={notificationRef} />)
     })
-    .catch(err => console.error(err))
+    .catch(err => notificationRef.current.notify("Informazioni"))
 
 const insert_order = document.querySelector("#insert-order-root")
 const insert_azienda = document.querySelector("#insert-azienda-root")
-ReactDOM.createRoot(insert_azienda).render(<InsertAzienda onSuccess={() => insertOrderRef.current.updateReceivers()} />)
+ReactDOM.createRoot(insert_azienda).render(<InsertAzienda onSuccess={() => insertOrderRef.current.updateReceivers()} notificationRef={notificationRef} />)
 
 insert_order.style.display = 'none'
 insert_azienda.style.display = 'none'

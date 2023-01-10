@@ -39,7 +39,7 @@ class UpdateOrder extends React.Component {
                 this.state.Selection.When = new Date(value).toISOString();
                 break;
             default:
-                alert("Errore");
+                this.props.notificationRef.current.notify("Errore interno update ordine")
         }
 
         this.setState(this.state);
@@ -56,6 +56,7 @@ class UpdateOrder extends React.Component {
             cache: "no-cache",
             body: JSON.stringify(this.state.Selection),
         })
+        .catch(err => this.props.notificationRef.current.notify("Aggiorna ordine:" + err))
         this.close();
         this.props.orderTableRef.current.update();
     }

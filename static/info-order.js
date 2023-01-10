@@ -18,6 +18,7 @@ class InfoOrder extends React.Component {
                 order,
                 r,
             }))
+            .catch(err => this.props.notificationRef.current.notify("Info ordine:" + err))
     }
 
     showUpdate(update) {

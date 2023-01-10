@@ -16,7 +16,7 @@ class OrdersTable extends React.Component {
                 ...this.state,
                 orders: r,
             }))
-            .catch(err => console.error(err))
+            .catch(err => this.props.notificationRef.current.notify("Tabella ordini:" + err))
     }
 
     orderInfo(order) {
@@ -31,11 +31,10 @@ class OrdersTable extends React.Component {
         return <table className="table is-striped is-narrow is-hoverable is-fullwidth">
             <thead>
                 <tr>
-                    <th>Produttore</th>
+                    <th>Destinatario</th>
                     <th>Ordine</th>
                     <th>DDT</th>
                     <th>Protocollo</th>
-                    <th>Destinatario</th>
                     <th>n° Colli</th>
                     <th>Assegno</th>
                     <th>Ultimo aggiornamento</th>
@@ -50,7 +49,6 @@ class OrdersTable extends React.Component {
                             <td>{order.Order}</td>
                             <td>{order.DDT}</td>
                             <td>{order.Protocollo}</td>
-                            <td>{order.ProducerName}</td>
                             <td>{order.NumPackages}</td>
                             <td><span className="icon is-medium"><span className={"mdi mdi-" + (order.WithdrawBankCheck ? 'check' : '')}></span></span></td>
                             <td>

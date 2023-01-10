@@ -30,6 +30,7 @@ class InsertOrder extends React.Component {
         fetch("/api/avaible-receivers")
             .then(r => r.json())
             .then(r => this.setState(r))
+            .catch(err => this.props.notificationRef.current.notify("Nuovo ordine:" + err))
 
     }
 
@@ -62,26 +63,26 @@ class InsertOrder extends React.Component {
                 this.state.Selection.Note = value;
                 break;
             default:
-                alert("Errore");
-        }
+                this.props.notificationRef.current.notify("Errore interno update nuovo ordine")
+            }
 
         this.setState(this.state);
     }
 
     handleSubmit() {
         if (this.state.Selection.Order == "") {
-            alert("Inserire un ordine valido")
+            this.props.notificationRef.current.notify("Inserire un ordine valido")
             return
         }
 
         const name = this.state.Selection.ReceiverName;
         const id = this.state.Receivers.filter(r => r.Name === this.state.Selection.ReceiverName);
         if (id.length == 0) {
-            alert("Inserire un destinatario valido")
+            this.props.notificationRef.current.notify("Inserire un destinatario valido")
             return
         }
         if (id.length > 1) {
-            alert("Errore con il destinatario, più destinatari con lo stesso nome")
+            this.props.notificationRef.current.notify("Errore con il destinatario, più destinatari con lo stesso nome")
             return
         }
         this.state.Selection.ReceiverID = String(id[0].ID)
@@ -91,6 +92,7 @@ class InsertOrder extends React.Component {
             cache: "no-cache",
             body: JSON.stringify(this.state.Selection),
         })
+        .catch(err => this.props.notificationRef.current.notify("Nuovo ordine:" + err))
         this.close();
         this.props.orderTableRef.current.update();
     }
