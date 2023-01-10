@@ -138,6 +138,9 @@ func (s *Server) HandlerApiGetOrders(w http.ResponseWriter, r *http.Request) {
 		StateID           int     `db:"STATO" sqlite:"stato"`
 		StateString       string  `db:"STATO_STRING" sqlite:"stato_string"`
 		When              SqlTime `db:"QUANDO" sqlite:"quando"`
+		Carrier           string  `sqlite:"trasportatore"`
+		Region            string  `sqlite:"regione"`
+		ArriveDate        SqlTime `sqlite:"data_arrivo"`
 	}
 	result := make([]Order, 0, 10)
 
@@ -321,6 +324,7 @@ type NewOrderInput struct {
 	Protocollo string
 	NumColli   int `json:",string"`
 	Assegno    bool
+	Carrier    string
 	Note       string
 }
 

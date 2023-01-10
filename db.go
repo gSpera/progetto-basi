@@ -9,9 +9,12 @@ import (
 
 type SqlTime time.Time
 
+var NilTime = SqlTime(time.UnixMicro(0))
+
 func (s *SqlTime) Scan(src any) error {
 	if src == nil {
-		return fmt.Errorf("time is nil")
+		*s = NilTime
+		return nil
 	}
 
 	switch v := src.(type) {

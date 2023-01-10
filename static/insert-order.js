@@ -62,6 +62,9 @@ class InsertOrder extends React.Component {
             case "note":
                 this.state.Selection.Note = value;
                 break;
+            case "carrier":
+                this.state.Selection.Carrier = value;
+                break;
             default:
                 this.props.notificationRef.current.notify("Errore interno update nuovo ordine")
             }
@@ -175,6 +178,14 @@ class InsertOrder extends React.Component {
                                 <input name="assegno" type="checkbox" value={this.state.Selection.Assegno} onChange={this.handleChange} />
                             </div>
                         </div>
+
+                        <div className="field is-horizontal">
+                            <label htmlFor="carrier" className="field-label label">Trasportatore</label>
+                            <div className="field-body control">
+                                <input name="carrier" className="input" value={this.state.Selection.Carrier} onChange={this.handleChange} />
+                            </div>
+                        </div>
+
                         <div className="field is-horizontal">
                             <label htmlFor="note" className="field-label label">Note</label>
                             <div className="field-body control">

@@ -62,8 +62,8 @@ func (d Database) CompanyNameByID(companyID int) (*sqlx.Rows, error) {
 }
 func (d Database) NewOrder(input NewOrderInput, assegno int) (sql.Result, error) {
 	return d.db.Exec(
-		`INSERT INTO ordine VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		input.DDT, input.Order, input.Protocollo, input.Sender, input.ReceiverID, input.NumColli, assegno, input.Note)
+		`INSERT INTO ordine VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?)`,
+		input.DDT, input.Order, input.Protocollo, input.Sender, input.ReceiverID, input.NumColli, assegno, input.Carrier, input.Note)
 }
 func (d Database) NewAzienda(name string, role int, address sql.NullString, piva sql.NullString, codunivoco sql.NullString, comune string, regioneID int) (sql.Result, error) {
 	return d.db.Exec(

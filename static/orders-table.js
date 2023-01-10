@@ -31,24 +31,25 @@ class OrdersTable extends React.Component {
         return <table className="table is-striped is-narrow is-hoverable is-fullwidth">
             <thead>
                 <tr>
-                    <th>Destinatario</th>
                     <th>Ordine</th>
+                    <th>Cliente</th>
+                    <th>Regione</th>
                     <th>DDT</th>
-                    <th>Protocollo</th>
                     <th>n° Colli</th>
                     <th>Assegno</th>
                     <th>Ultimo aggiornamento</th>
-                    <th>Data aggiornamento</th>
+                    <th>Stima arrivo</th>
+                    <th>Trasportatore</th>
                 </tr>
             </thead>
             <tbody>
                 {
                     this.state.orders.map(order =>
                         <tr key={order.Order}>
-                            <td>{order.RecipientName}</td>
                             <td>{order.Order}</td>
+                            <td>{order.RecipientName}</td>
+                            <td>{order.Region}</td>
                             <td>{order.DDT}</td>
-                            <td>{order.Protocollo}</td>
                             <td>{order.NumPackages}</td>
                             <td><span className="icon is-medium"><span className={"mdi mdi-" + (order.WithdrawBankCheck ? 'check' : '')}></span></span></td>
                             <td>
@@ -61,7 +62,8 @@ class OrdersTable extends React.Component {
                                     <span className="mdi mdi-pencil"></span>
                                 </span>
                             </td>
-                            <td>{new Date(order.When).toLocaleDateString()}</td>
+                            <td>{new Date(order.ArriveDate).getFullYear() != 1970 ? new Date(order.ArriveDate).toLocaleDateString() : ""}</td>
+                            <td>{order.Carrier}</td>
                         </tr>
                     )
                 }
