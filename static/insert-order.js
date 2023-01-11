@@ -170,8 +170,10 @@ class InsertOrder extends React.Component {
         fetch(`/api/retrieve-note?id=${id}`)
             .then(r => r.text())
             .then(note => this.setState({
+                ...this.state,
                 show: true,
                 Selection: {
+                    ...this.state.Selection,
                     Note: note,
                 },
             }))
@@ -207,11 +209,6 @@ class InsertOrder extends React.Component {
                         <div className="field is-horizontal">
                             <label htmlFor="receiver" className="field-label label">Destinatario</label>
                             <div className="field-body control">
-                                { /* <div className="select">
-                                    <select name="receiver" value={this.state.Selection.Receiver} onChange={this.handleChange}>
-                                        {this.state.Receivers.map(receiver => <option value={receiver.ID} key={receiver.ID}>{receiver.Name}</option>)}
-                                    </select>
-                                </div> */ }
                                 <input list="receiver-list" name="receiver" className="input" value={this.state.Selection.ReceiverName} onChange={this.handleChange} />
                                 <datalist id="receiver-list">
                                     {this.state.Receivers.map(receiver =>
