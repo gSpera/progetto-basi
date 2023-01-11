@@ -2,13 +2,20 @@ class OrdersTable extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = { orders: [], updateArriveDate: { show: false } };
+        this.state = {
+            orders: [],
+            updateArriveDate: { show: false },
+            deleteOrder: { show: false },
+        };
         this.update = this.update.bind(this);
         this.orderInfo = this.orderInfo.bind(this);
         this.updateOrder = this.updateOrder.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.updateArriveDateSubmit = this.updateArriveDateSubmit.bind(this);
         this.updateArriveDateClose = this.updateArriveDateClose.bind(this);
+        this.deleteOrderButton = this.deleteOrderButton.bind(this);
+        this.deleteOrderClose = this.deleteOrderClose.bind(this);
+        this.deleteOrderDelete = this.deleteOrderDelete.bind(this);
         this.update();
     }
 
@@ -72,6 +79,34 @@ class OrdersTable extends React.Component {
             updateArriveDate: { show: false },
         })
     }
+    deleteOrderButton(order) {
+        this.setState({
+            ...this.state,
+            deleteOrder: {
+                show: true,
+                orderID: order.ID,
+                order: order
+            },
+        })
+    }
+
+    deleteOrderDelete() {
+        const id = this.state.deleteOrder.orderID;
+        fetch(`/api/delete-order?id=${id}`)
+            .catch(err => this.props.notificationRef.current.notify("Errore durante la cancellazione:" + err))
+        this.setState({
+            ...this.state,
+            deleteOrder: { show: false },
+        })
+        this.update()
+    }
+
+    deleteOrderClose() {
+        this.setState({
+            ...this.state,
+            deleteOrder: { show: false },
+        })
+    }
 
     render() {
         return <React.Fragment>
@@ -87,6 +122,7 @@ class OrdersTable extends React.Component {
                         <th>Ultimo aggiornamento</th>
                         <th>Stima arrivo</th>
                         <th>Trasportatore</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -116,6 +152,14 @@ class OrdersTable extends React.Component {
                                     </span>
                                 </td>
                                 <td>{order.Carrier}</td>
+                                <td>
+                                    <span className="icon is-medium" style={{ cursor: "pointer" }} onClick={() => this.updateArriveDate(order)}>
+                                        <span className="mdi mdi-pencil"></span>
+                                    </span>
+                                    <span className="icon is-medium" style={{ cursor: "pointer" }} onClick={() => this.deleteOrderButton(order)}>
+                                        <span className="mdi mdi-delete"></span>
+                                    </span>
+                                </td>
                             </tr>
                         )
                     }
@@ -142,6 +186,29 @@ class OrdersTable extends React.Component {
                         <div className="modal-card-foot">
                             <button className="button is-primary" onClick={this.updateArriveDateSubmit}>Aggiorna</button>
                             <button className="button" onClick={this.updateArriveDateClose}>Chiudi</button>
+                        </div>
+                    </div>
+                </div>
+            }
+            {this.state.deleteOrder.show &&
+                <div className="modal is-active">
+                    <div className="modal-background"></div>
+                    <div className="modal-card">
+                        <header className="modal-card-head">
+                            <div className="modal-card-title">Sicuro di voler eliminare l'ordine: {this.state.deleteOrder.order.Order}??</div>
+                        </header>
+
+                        <div className="modal-card-body">
+                            <p>
+                                Ordine: <b>{this.state.deleteOrder.order.Order}</b>, DDT: <b>{this.state.deleteOrder.order.DDT}</b>
+                            </p>
+                            <p>
+                                Per: <b>{this.state.deleteOrder.order.RecipientName}</b> ({this.state.deleteOrder.order.Region})
+                            </p>
+                        </div>
+                        <div className="modal-card-foot">
+                            <button className="button is-danger" onClick={this.deleteOrderDelete}>Elimina</button>
+                            <button className="button" onClick={this.deleteOrderClose}>Annulla</button>
                         </div>
                     </div>
                 </div>

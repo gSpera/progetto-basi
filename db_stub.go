@@ -59,3 +59,6 @@ func (d Database) RetrieveOrderNote(orderID int) (string, error) {
 func (d Database) UpdateArriveDate(orderID int, newDate time.Time) (sql.Result, error) {
 	panic("no database selected")
 }
+func (d Database) DeleteOrder(orderID int) (sql.Result, error) {
+	panic("no database selected")
+}

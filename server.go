@@ -458,6 +458,23 @@ func (s *Server) HandleApiUpdateArriveDate(w http.ResponseWriter, r *http.Reques
 	}
 }
 
+func (s *Server) HandleApiDeleteOrder(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	orderIDString := r.Form.Get("id")
+	orderID, err := strconv.Atoi(orderIDString)
+	if err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+
+	_, err = s.Database.DeleteOrder(orderID)
+	if err != nil {
+		s.Log.Errorln("Delete order:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+}
+
 // LoggedInMiddleWare makes sure the request continues only if the user is logged in
 func (s *Server) LoggedInMiddleware(handler http.HandlerFunc, redirectTo string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

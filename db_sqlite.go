@@ -82,3 +82,6 @@ func (d Database) RetrieveOrderNote(orderID int) (string, error) {
 func (d Database) UpdateArriveDate(orderID int, newDate time.Time) (sql.Result, error) {
 	return d.db.Exec(`UPDATE ordine SET data_arrivo=? WHERE id=?`, newDate, orderID)
 }
+func (d Database) DeleteOrder(orderID int) (sql.Result, error) {
+	return d.db.Exec(`DELETE FROM ordine WHERE id=?`, orderID)
+}
