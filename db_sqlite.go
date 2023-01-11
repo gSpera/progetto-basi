@@ -85,3 +85,13 @@ func (d Database) UpdateArriveDate(orderID int, newDate time.Time) (sql.Result, 
 func (d Database) DeleteOrder(orderID int) (sql.Result, error) {
 	return d.db.Exec(`DELETE FROM ordine WHERE id=?`, orderID)
 }
+func (d Database) EditOrder(order NewOrderInput) (sql.Result, error) {
+	var assegno int
+	if order.Assegno {
+		assegno = 1
+	}
+
+	return d.db.Exec(
+		`UPDATE ordine SET ddt=?, ordine=?, protocollo=?, produttore_id=?, destinatario_id=?, num_colli=?, ritirare_assegno=?, trasportatore=?, note=? WHERE id=?`,
+		order.DDT, order.Order, order.Protocollo, order.Sender, order.ReceiverID, order.NumColli, assegno, order.Carrier, order.Note, order.OrderID)
+}

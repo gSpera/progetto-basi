@@ -317,6 +317,8 @@ func (s *Server) HandlerApiReceivers(w http.ResponseWriter, r *http.Request) {
 }
 
 type NewOrderInput struct {
+	OrderID int // Only Edit
+
 	Sender     int `json:",string"`
 	ReceiverID int `json:",string"`
 	DDT        string
@@ -358,6 +360,33 @@ func (s *Server) HandleApiNewOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	s.Log.Println("Insert new order:", input)
+}
+
+func (s *Server) HandleApiEditOrder(w http.ResponseWriter, r *http.Request) {
+	var input NewOrderInput
+
+	defer r.Body.Close()
+	err := json.NewDecoder(r.Body).Decode(&input)
+	if err != nil {
+		s.Log.Errorln("Cannot read body in edit order:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	if input.Order == "" {
+		http.Error(w, "Invalid Request", http.StatusBadRequest)
+		s.Log.Warnln("Invalid request: no order")
+		return
+	}
+
+	res, err := s.Database.EditOrder(input)
+	if err != nil {
+		s.Log.Errorln("Cannot update order:", err, res)
+		http.Error(w, "Invalid Request", http.StatusBadRequest)
+		return
+	}
+
+	s.Log.Println("Update order:", input)
 }
 
 func (s *Server) HandleApiNewAzienda(w http.ResponseWriter, r *http.Request) {
@@ -456,6 +485,22 @@ func (s *Server) HandleApiUpdateArriveDate(w http.ResponseWriter, r *http.Reques
 		http.Error(w, "Invalid Request", http.StatusBadRequest)
 		return
 	}
+}
+func (s *Server) HandleApiRetrieveNote(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	orderIDString := r.Form.Get("id")
+	orderID, err := strconv.Atoi(orderIDString)
+	if err != nil {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+	note, err := s.Database.RetrieveOrderNote(orderID)
+	if err != nil {
+		s.Log.Errorln("Retrieve Order Note:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+	fmt.Fprintln(w, note)
 }
 
 func (s *Server) HandleApiDeleteOrder(w http.ResponseWriter, r *http.Request) {

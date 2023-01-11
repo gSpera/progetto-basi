@@ -48,6 +48,8 @@ func main() {
 	http.Handle("/api/update-order", server.LoggedInMiddleware(server.HandleApiUpdateOrder, "/login"))
 	http.Handle("/api/update-arrive-date", server.LoggedInMiddleware(server.HandleApiUpdateArriveDate, "/login"))
 	http.Handle("/api/delete-order", server.LoggedInMiddleware(server.HandleApiDeleteOrder, "/login"))
+	http.Handle("/api/edit-order", server.LoggedInMiddleware(server.HandleApiEditOrder, "/login"))
+	http.Handle("/api/retrieve-note", server.LoggedInMiddleware(server.HandleApiRetrieveNote, "/login"))
 	http.Handle("/api/me", server.LoggedInMiddleware(server.HandlerApiAboutMe, "/login"))
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))

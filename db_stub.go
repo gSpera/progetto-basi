@@ -62,3 +62,6 @@ func (d Database) UpdateArriveDate(orderID int, newDate time.Time) (sql.Result, 
 func (d Database) DeleteOrder(orderID int) (sql.Result, error) {
 	panic("no database selected")
 }
+func (d Database) EditOrder(order NewOrderInput) (sql.Result, error) {
+	panic("no database selected")
+}

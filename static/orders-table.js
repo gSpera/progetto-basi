@@ -16,6 +16,7 @@ class OrdersTable extends React.Component {
         this.deleteOrderButton = this.deleteOrderButton.bind(this);
         this.deleteOrderClose = this.deleteOrderClose.bind(this);
         this.deleteOrderDelete = this.deleteOrderDelete.bind(this);
+        this.editOrder = this.editOrder.bind(this);
         this.update();
     }
 
@@ -108,6 +109,10 @@ class OrdersTable extends React.Component {
         })
     }
 
+    editOrder(order) {
+        this.props.insertOrderRef.current.editOrder(order)
+    }
+
     render() {
         return <React.Fragment>
             <table className="table is-striped is-narrow is-hoverable is-fullwidth">
@@ -153,7 +158,7 @@ class OrdersTable extends React.Component {
                                 </td>
                                 <td>{order.Carrier}</td>
                                 <td>
-                                    <span className="icon is-medium" style={{ cursor: "pointer" }} onClick={() => this.updateArriveDate(order)}>
+                                    <span className="icon is-medium" style={{ cursor: "pointer" }} onClick={() => this.editOrder(order)}>
                                         <span className="mdi mdi-pencil"></span>
                                     </span>
                                     <span className="icon is-medium" style={{ cursor: "pointer" }} onClick={() => this.deleteOrderButton(order)}>
