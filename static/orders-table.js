@@ -76,76 +76,76 @@ class OrdersTable extends React.Component {
     render() {
         return <React.Fragment>
             <table className="table is-striped is-narrow is-hoverable is-fullwidth">
-            <thead>
-                <tr>
-                    <th>Ordine</th>
-                    <th>Cliente</th>
-                    <th>Regione</th>
-                    <th>DDT</th>
-                    <th>n° Colli</th>
-                    <th>Assegno</th>
-                    <th>Ultimo aggiornamento</th>
-                    <th>Stima arrivo</th>
-                    <th>Trasportatore</th>
-                </tr>
-            </thead>
-            <tbody>
-                {
-                    this.state.orders.map(order =>
-                        <tr key={order.ID}>
-                            <td>{order.Order}</td>
-                            <td>{order.RecipientName}</td>
-                            <td>{order.Region}</td>
-                            <td>{order.DDT}</td>
-                            <td>{order.NumPackages}</td>
-                            <td><span className="icon is-medium"><span className={"mdi mdi-" + (order.WithdrawBankCheck ? 'check' : '')}></span></span></td>
-                            <td>
-                                <span className="icon"><span className={"mdi mdi-" + stateIcons[order.StateID]}></span></span>
-                                {order.StateString}
-                                <span className="icon is-medium" style={{ float: "right", marginRight: "0.5rem", cursor: "pointer" }} onClick={() => this.orderInfo(order)}>
-                                    <span className="mdi mdi-information-outline"></span>
-                                </span>
-                                <span className="icon is-medium" style={{ float: "right", cursor: "pointer" }} onClick={() => this.updateOrder(order)}>
-                                    <span className="mdi mdi-pencil"></span>
-                                </span>
-                            </td>
-                            <td>
-                                {new Date(order.ArriveDate).getFullYear() != 1970 ? new Date(order.ArriveDate).toLocaleDateString() : ""}
-                                <span className="icon is-medium" style={{ float: "right", cursor: "pointer" }} onClick={() => this.updateArriveDate(order)}>
-                                    <span className="mdi mdi-pencil"></span>
-                                </span>
-                            </td>
-                            <td>{order.Carrier}</td>
-                        </tr>
-                    )
-                }
-            </tbody>
-        </table>
-        { this.state.updateArriveDate.show &&
-            <div className="modal is-active">
-                <div className="modal-background"></div>
-                <div className="modal-card">
-                    <header className="modal-card-head">
-                        <div className="modal-card-title">Aggiorna Stima Arrivo Ordine: {this.state.updateArriveDate.order}</div>
-                    </header>
+                <thead>
+                    <tr>
+                        <th>Ordine</th>
+                        <th>Cliente</th>
+                        <th>Regione</th>
+                        <th>DDT</th>
+                        <th>n° Colli</th>
+                        <th>Assegno</th>
+                        <th>Ultimo aggiornamento</th>
+                        <th>Stima arrivo</th>
+                        <th>Trasportatore</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {
+                        this.state.orders.map(order =>
+                            <tr key={order.ID}>
+                                <td>{order.Order}</td>
+                                <td>{order.RecipientName}</td>
+                                <td>{order.Region}</td>
+                                <td>{order.DDT}</td>
+                                <td>{order.NumPackages}</td>
+                                <td><span className="icon is-medium"><span className={"mdi mdi-" + (order.WithdrawBankCheck ? 'check' : '')}></span></span></td>
+                                <td>
+                                    <span className="icon"><span className={"mdi mdi-" + stateIcons[order.StateID]}></span></span>
+                                    {order.StateString}
+                                    <span className="icon is-medium" style={{ float: "right", marginRight: "0.5rem", cursor: "pointer" }} onClick={() => this.orderInfo(order)}>
+                                        <span className="mdi mdi-information-outline"></span>
+                                    </span>
+                                    <span className="icon is-medium" style={{ float: "right", cursor: "pointer" }} onClick={() => this.updateOrder(order)}>
+                                        <span className="mdi mdi-pencil"></span>
+                                    </span>
+                                </td>
+                                <td>
+                                    {new Date(order.ArriveDate).getFullYear() != 1970 ? new Date(order.ArriveDate).toLocaleDateString() : ""}
+                                    <span className="icon is-medium" style={{ float: "right", cursor: "pointer" }} onClick={() => this.updateArriveDate(order)}>
+                                        <span className="mdi mdi-pencil"></span>
+                                    </span>
+                                </td>
+                                <td>{order.Carrier}</td>
+                            </tr>
+                        )
+                    }
+                </tbody>
+            </table>
+            {this.state.updateArriveDate.show &&
+                <div className="modal is-active">
+                    <div className="modal-background"></div>
+                    <div className="modal-card">
+                        <header className="modal-card-head">
+                            <div className="modal-card-title">Aggiorna Stima Arrivo Ordine: {this.state.updateArriveDate.order}</div>
+                        </header>
 
-                    <div className="modal-card-body">
-                        <form>
-                            <div className="field is-horizontal">
-                                <label htmlFor="arrive-date" className="field-label label">Data:</label>
-                                <div className="field-body control">
-                                    <input name="arrive-date" className="input" type="date" value={this.state.updateArriveDate.when.substring(0, 10)} onChange={this.handleChange} />
+                        <div className="modal-card-body">
+                            <form>
+                                <div className="field is-horizontal">
+                                    <label htmlFor="arrive-date" className="field-label label">Data:</label>
+                                    <div className="field-body control">
+                                        <input name="arrive-date" className="input" type="date" value={this.state.updateArriveDate.when.substring(0, 10)} onChange={this.handleChange} />
+                                    </div>
                                 </div>
-                            </div>
-                        </form>
-                    </div>
-                    <div className="modal-card-foot">
-                        <button className="button is-primary" onClick={this.updateArriveDateSubmit}>Aggiorna</button>
-                        <button className="button" onClick={this.close}>Chiudi</button>
+                            </form>
+                        </div>
+                        <div className="modal-card-foot">
+                            <button className="button is-primary" onClick={this.updateArriveDateSubmit}>Aggiorna</button>
+                            <button className="button" onClick={this.updateArriveDateClose}>Chiudi</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        }
+            }
         </React.Fragment>
     }
 }
