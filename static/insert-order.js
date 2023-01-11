@@ -93,6 +93,11 @@ class InsertOrder extends React.Component {
             this.props.notificationRef.current.notify("Errore con il destinatario, più destinatari con lo stesso nome")
             return false
         }
+
+        if (this.state.Selection.NumColli == "") {
+            this.props.notificationRef.current.notify("Inserire un numero di colli valido")
+            return false
+        }
         this.state.Selection.ReceiverID = String(id[0].ID)
         return true
     }
