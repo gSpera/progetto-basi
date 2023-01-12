@@ -39,13 +39,18 @@ class OrdersTable extends React.Component {
     }
 
     updateArriveDate(order) {
+        let startDate = order.Arrivedate
+        if (new Date(order.ArriveDate).getFullYear() == 1970) {
+            startDate = new Date().toISOString()
+        }
+
         this.setState({
             ...this.state,
             updateArriveDate: {
                 show: true,
                 orderID: order.ID,
                 order: order.Order,
-                when: order.ArriveDate,
+                when: startDate,
             }
         })
     }
