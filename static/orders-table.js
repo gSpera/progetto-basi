@@ -141,7 +141,7 @@ class OrdersTable extends React.Component {
                         this.state.orders.map(order =>
                             <tr key={order.ID}>
                                 <td>{order.Order}</td>
-                                <td>{new Date(order.ArriveDate).getFullYear() != 1970 ? new Date(order.CreationDate).toLocaleDateString() : ""}</td>
+                                <td>{new Date(order.CreationDate).getFullYear() != 1970 ? new Date(order.CreationDate).toLocaleDateString() : ""}</td>
                                 <td>{order.RecipientName}</td>
                                 <td>{order.Region}</td>
                                 <td>{order.DDT}</td>
