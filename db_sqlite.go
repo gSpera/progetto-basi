@@ -62,8 +62,8 @@ func (d Database) CompanyNameByID(companyID int) (*sqlx.Rows, error) {
 }
 func (d Database) NewOrder(input NewOrderInput, assegno int) (sql.Result, error) {
 	return d.db.Exec(
-		`INSERT INTO ordine VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?)`,
-		input.DDT, input.Order, input.Protocollo, input.Sender, input.ReceiverID, input.NumColli, assegno, input.Carrier, input.Note)
+		`INSERT INTO ordine VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?)`,
+		input.DDT, input.Order, input.Protocollo, input.Sender, input.ReceiverID, input.NumColli, assegno, input.Carrier, input.CreationDate, input.Note)
 }
 func (d Database) NewAzienda(name string, role int, address sql.NullString, piva sql.NullString, codunivoco sql.NullString, comune string, regioneID int) (sql.Result, error) {
 	return d.db.Exec(
@@ -80,7 +80,7 @@ func (d Database) RetrieveOrderNote(orderID int) (string, error) {
 	return note, err
 }
 func (d Database) UpdateArriveDate(orderID int, newDate time.Time) (sql.Result, error) {
-	return d.db.Exec(`UPDATE ordine SET data_arrivo=? WHERE id=?`, SqlTime(newDate), orderID)
+	return d.db.Exec(`UPDATE ordine SET data_consegna=? WHERE id=?`, SqlTime(newDate), orderID)
 }
 func (d Database) DeleteOrder(orderID int) (sql.Result, error) {
 	return d.db.Exec(`DELETE FROM ordine WHERE id=?`, orderID)
@@ -92,6 +92,6 @@ func (d Database) EditOrder(order NewOrderInput) (sql.Result, error) {
 	}
 
 	return d.db.Exec(
-		`UPDATE ordine SET ddt=?, ordine=?, protocollo=?, produttore_id=?, destinatario_id=?, num_colli=?, ritirare_assegno=?, trasportatore=?, note=? WHERE id=?`,
-		order.DDT, order.Order, order.Protocollo, order.Sender, order.ReceiverID, order.NumColli, assegno, order.Carrier, order.Note, order.OrderID)
+		`UPDATE ordine SET ddt=?, ordine=?, protocollo=?, produttore_id=?, destinatario_id=?, num_colli=?, ritirare_assegno=?, trasportatore=?, data_creazione=?, note=? WHERE id=?`,
+		order.DDT, order.Order, order.Protocollo, order.Sender, order.ReceiverID, order.NumColli, assegno, order.Carrier, order.CreationDate, order.Note, order.OrderID)
 }

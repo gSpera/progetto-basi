@@ -124,6 +124,7 @@ class OrdersTable extends React.Component {
                 <thead>
                     <tr>
                         <th>Ordine</th>
+                        <th>Data Ordine</th>
                         <th>Cliente</th>
                         <th>Regione</th>
                         <th>DDT</th>
@@ -140,6 +141,7 @@ class OrdersTable extends React.Component {
                         this.state.orders.map(order =>
                             <tr key={order.ID}>
                                 <td>{order.Order}</td>
+                                <td>{new Date(order.ArriveDate).getFullYear() != 1970 ? new Date(order.CreationDate).toLocaleDateString() : ""}</td>
                                 <td>{order.RecipientName}</td>
                                 <td>{order.Region}</td>
                                 <td>{order.DDT}</td>
@@ -148,9 +150,6 @@ class OrdersTable extends React.Component {
                                 <td>
                                     <span className="icon"><span className={"mdi mdi-" + stateIcons[order.StateID]}></span></span>
                                     {order.StateString}
-                                    <span className="icon is-medium" style={{ float: "right", marginRight: "0.5rem", cursor: "pointer" }} onClick={() => this.orderInfo(order)}>
-                                        <span className="mdi mdi-information-outline"></span>
-                                    </span>
                                     <span className="icon is-medium" style={{ float: "right", cursor: "pointer" }} onClick={() => this.updateOrder(order)}>
                                         <span className="mdi mdi-pencil"></span>
                                     </span>
@@ -163,6 +162,9 @@ class OrdersTable extends React.Component {
                                 </td>
                                 <td>{order.Carrier}</td>
                                 <td>
+                                    <span className="icon is-medium" style={{ cursor: "pointer" }} onClick={() => this.orderInfo(order)}>
+                                        <span className="mdi mdi-information-outline"></span>
+                                    </span>
                                     <span className="icon is-medium" style={{ cursor: "pointer" }} onClick={() => this.editOrder(order)}>
                                         <span className="mdi mdi-pencil"></span>
                                     </span>

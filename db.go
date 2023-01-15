@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql/driver"
+	"encoding/json"
 	"fmt"
 	"os"
 	"time"
@@ -28,7 +29,7 @@ func (s *SqlTime) Scan(src any) error {
 		}
 
 		*s = SqlTime(t)
-		return err
+		return nil
 	case time.Time:
 		*s = SqlTime(v)
 		return nil
@@ -37,6 +38,16 @@ func (s *SqlTime) Scan(src any) error {
 		fmt.Fprintf(os.Stderr, "Cannot scan SqlTime: %T(%v)\n", src, src)
 		panic("cannot scan SqlTime")
 	}
+}
+
+func (s *SqlTime) UnmarshalJSON(data []byte) error {
+	var str string
+	err := json.Unmarshal(data, &str)
+	if err != nil {
+		return fmt.Errorf("not a string: %w", err)
+	}
+
+	return s.Scan(str)
 }
 
 func (s SqlTime) String() string {

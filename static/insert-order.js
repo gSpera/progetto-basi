@@ -15,6 +15,7 @@ class InsertOrder extends React.Component {
                 Protocollo: "",
                 NumColli: "1",
                 Assegno: false,
+                CreationDate: new Date(),
                 Note: "",
             },
         };
@@ -70,6 +71,9 @@ class InsertOrder extends React.Component {
             case "carrier":
                 this.state.Selection.Carrier = value;
                 break;
+            case "creation-date":
+                this.state.Selection.CreationDate = new Date(value);
+                break;
             default:
                 this.props.notificationRef.current.notify("Errore interno update nuovo ordine")
         }
@@ -107,10 +111,12 @@ class InsertOrder extends React.Component {
             return
         }
 
+        let selection = { ... this.state.Selection } // Shallow copy
+        selection.CreationDate = dateToRFC339Nano(selection.CreationDate)
         fetch("/api/new-order", {
             method: "POST",
             cache: "no-cache",
-            body: JSON.stringify(this.state.Selection),
+            body: JSON.stringify(selection),
         })
             .catch(err => this.props.notificationRef.current.notify("Nuovo ordine:" + err))
         this.close();
@@ -122,13 +128,13 @@ class InsertOrder extends React.Component {
             return
         }
 
+        let selection = { ...this.state.Selection } // Shallow copy
+        selection.OrderID = this.state.edit.orderID
+        selection.CreationDate = dateToRFC339Nano(selection.CreationDate)
         fetch("/api/edit-order", {
             method: "POST",
             cache: "no-cache",
-            body: JSON.stringify({
-                ...this.state.Selection,
-                OrderID: this.state.edit.orderID,
-            }),
+            body: JSON.stringify(selection),
         })
             .catch(err => this.props.notificationRef.current.notify("Modifica ordine:" + err))
         this.close()
@@ -161,6 +167,7 @@ class InsertOrder extends React.Component {
             NumColli: String(order.NumPackages),
             Assegno: order.WithdrawBankCheck,
             Carrier: order.Carrier,
+            CreationDate: new Date(order.CreationDate),
             Note: "LOADING",
         }
 
@@ -219,6 +226,13 @@ class InsertOrder extends React.Component {
                                     {this.state.Receivers.map(receiver =>
                                         <option value={receiver.Name} key={receiver.ID}>{receiver.Name}</option>)}
                                 </datalist>
+                            </div>
+                        </div>
+
+                        <div className="field is-horizontal">
+                            <label htmlFor="creation-date" className="field-label label">Data:</label>
+                            <div className="field-body control">
+                                <input name="creation-date" className="input" type="date" value={dateToISO8601(this.state.Selection.CreationDate)} onChange={this.handleChange} />
                             </div>
                         </div>
 

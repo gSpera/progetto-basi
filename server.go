@@ -140,7 +140,8 @@ func (s *Server) HandlerApiGetOrders(w http.ResponseWriter, r *http.Request) {
 		When              SqlTime `db:"QUANDO" sqlite:"quando"`
 		Carrier           string  `sqlite:"trasportatore"`
 		Region            string  `sqlite:"regione"`
-		ArriveDate        SqlTime `sqlite:"data_arrivo"`
+		CreationDate      SqlTime `sqlite:"data_creazione"`
+		ArriveDate        SqlTime `sqlite:"data_consegna"`
 	}
 	result := make([]Order, 0, 10)
 
@@ -319,15 +320,16 @@ func (s *Server) HandlerApiReceivers(w http.ResponseWriter, r *http.Request) {
 type NewOrderInput struct {
 	OrderID int // Only Edit
 
-	Sender     int `json:",string"`
-	ReceiverID int `json:",string"`
-	DDT        string
-	Order      string
-	Protocollo string
-	NumColli   int `json:",string"`
-	Assegno    bool
-	Carrier    string
-	Note       string
+	Sender       int `json:",string"`
+	ReceiverID   int `json:",string"`
+	DDT          string
+	Order        string
+	Protocollo   string
+	NumColli     int `json:",string"`
+	Assegno      bool
+	Carrier      string
+	CreationDate SqlTime
+	Note         string
 }
 
 func (s *Server) HandleApiNewOrder(w http.ResponseWriter, r *http.Request) {

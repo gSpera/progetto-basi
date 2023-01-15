@@ -99,3 +99,13 @@ function add_azienda_button() {
 function hide_azienda_button() {
     insert_azienda.style.display = 'none'
 }
+
+// Used HTML input tag
+function dateToISO8601(date) {
+    // yyyy-mm-dd
+    return `${date.getFullYear()}-${String((date.getMonth()) + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+}
+function dateToRFC339Nano(date) {
+    // 2006-01-02T15:04:05Z07:00
+    return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}T${String(date.getUTCHours()).padStart(2, '0')}:${String(date.getUTCMinutes()).padStart(2, '0')}:${String(date.getUTCSeconds()).padStart(2, '0')}.${date.getUTCMilliseconds()}Z`
+}
