@@ -45,9 +45,9 @@ CREATE TABLE stato_string (
     value varchar(30)
 );
 
-INSERT INTO stato_string VALUES (0, 'Creato');
+INSERT INTO stato_string VALUES (0, 'In ricezione');
 INSERT INTO stato_string VALUES (1, 'Pronto per essere ricevuto');
-INSERT INTO stato_string VALUES (2, 'In ricezione');
+INSERT INTO stato_string VALUES (2, 'Tr');
 INSERT INTO stato_string VALUES (3, 'In deposito');
 INSERT INTO stato_string VALUES (4, 'In archivio');
 INSERT INTO stato_string VALUES (5, 'Pronto per essere spedito');

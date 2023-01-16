@@ -4,6 +4,19 @@ class OrdersTable extends React.Component {
 
         this.state = {
             orders: [],
+            search: {
+                order: "",
+                client: "",
+                region: "",
+                ddt: "",
+                numPackages: "",
+                latestUpdate: "",
+                carrier: "",
+                creationDate: "",
+                arriveDate: "",
+                bankCheck: "",
+            },
+            searchedOrders: [],
             updateArriveDate: { show: false },
             deleteOrder: { show: false },
         };
@@ -11,12 +24,14 @@ class OrdersTable extends React.Component {
         this.orderInfo = this.orderInfo.bind(this);
         this.updateOrder = this.updateOrder.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.handleSearch = this.handleSearch.bind(this);
         this.updateArriveDateSubmit = this.updateArriveDateSubmit.bind(this);
         this.updateArriveDateClose = this.updateArriveDateClose.bind(this);
         this.deleteOrderButton = this.deleteOrderButton.bind(this);
         this.deleteOrderClose = this.deleteOrderClose.bind(this);
         this.deleteOrderDelete = this.deleteOrderDelete.bind(this);
         this.editOrder = this.editOrder.bind(this);
+        this.searchOrders = this.searchOrders.bind(this);
         this.update();
     }
 
@@ -26,7 +41,7 @@ class OrdersTable extends React.Component {
             .then(r => this.setState({
                 ...this.state,
                 orders: r,
-            }))
+            }, this.searchOrders))
             .catch(err => this.props.notificationRef.current.notify("Tabella ordini:" + err))
     }
 
@@ -67,6 +82,34 @@ class OrdersTable extends React.Component {
         }
 
         this.setState(this.state);
+    }
+
+    handleSearch(event) {
+        const name = event.target.name.substring("search-".length)
+        const value = event.target.value
+
+        this.state.search[name] = value
+        this.setState(this.state, this.searchOrders)
+    }
+
+    searchOrders() {
+        const orders = this.state.orders
+        const search = this.state.search
+
+        const filtered = orders
+            .filter(o => search.order.length > 0 ? o.Order.includes(search.order) : true)
+            .filter(o => search.client.length > 0 ? o.RecipientName.includes(search.client) : true)
+            .filter(o => search.region.length > 0 ? o.Region.includes(search.region) : true)
+            .filter(o => search.ddt.length > 0 ? o.DDT.includes(search.ddt) : true)
+            .filter(o => search.numPackages.length > 0 ? String(o.NumPackages).includes(search.numPackages) : true)
+            .filter(o => search.latestUpdate.length > 0 ? o.StateString.includes(search.latestUpdate) : true)
+            .filter(o => search.carrier.length > 0 ? o.Carrier.includes(search.carrier) : true)
+            .filter(o => search.creationDate.length > 0 ? o.CreationDate.includes(search.creationDate) : true)
+            .filter(o => search.arriveDate.length > 0 ? o.ArriveDate.includes(search.arriveDate) : true)
+        this.setState({
+            ...this.state,
+            searchedOrders: filtered,
+        })
     }
 
     updateArriveDateSubmit() {
@@ -119,6 +162,19 @@ class OrdersTable extends React.Component {
     }
 
     render() {
+        console.log(this.state.searchedOrders)
+        const searchInput = (name) => <th key={name}>
+            <span className="control has-icons-right">
+                <input className="input is-small" name={"search-" + name} value={this.state.search[name] || ""} onChange={this.handleSearch} />
+                <span className="icon is-small is-right">
+                    <i className="mdi mdi-magnify"></i>
+                </span>
+            </span>
+        </th>
+        const searchDateInput = (name) => <th key={name}>
+            <input className="input is-small" type="date" name={"search-" + name} value={this.state.search[name] || ""} onChange={this.handleSearch} />
+        </th>
+
         return <React.Fragment>
             <table className="table is-striped is-narrow is-hoverable is-fullwidth">
                 <thead>
@@ -135,10 +191,23 @@ class OrdersTable extends React.Component {
                         <th>Trasportatore</th>
                         <th></th>
                     </tr>
+                    <tr>
+                        {searchInput('order')}
+                        {searchDateInput('creationDate')}
+                        {searchInput('client')}
+                        {searchInput('region')}
+                        {searchInput('ddt')}
+                        {searchInput('numPackages')}
+                        <th></th>
+                        {searchInput('latestUpdate')}
+                        {searchDateInput('arriveDate')}
+                        {searchInput('carrier')}
+                        <th></th>
+                    </tr>
                 </thead>
                 <tbody>
                     {
-                        this.state.orders.map(order =>
+                        this.state.searchedOrders.map(order =>
                             <tr key={order.ID}>
                                 <td>{order.Order}</td>
                                 <td>{new Date(order.CreationDate).getFullYear() != 1970 ? new Date(order.CreationDate).toLocaleDateString() : ""}</td>

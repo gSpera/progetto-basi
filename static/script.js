@@ -9,9 +9,9 @@ let stateIcons = {
     7: "check",
 }
 const states = [
-    { ID: 0, Name: "Creato" },
+    { ID: 0, Name: "In ricezione" },
     { ID: 1, Name: "Pronto per essere ricevuto" },
-    { ID: 2, Name: "In ricezione" },
+    { ID: 2, Name: "Trasporto in deposito" },
     { ID: 3, Name: "In deposito" },
     { ID: 4, Name: "In archivio" },
     { ID: 5, Name: "Pronto per essere spedito" },
