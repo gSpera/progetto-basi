@@ -63,9 +63,16 @@ class InsertAzienda extends React.Component {
             cache: "no-cache",
             body: JSON.stringify(this.state),
         })
-        .catch(err => this.props.notificationRef.current.notify("Nuova azienda:" + err))
-        this.props.onSuccess();
-        this.close();
+            .then(resp => {
+                if (!resp.ok) {
+                    this.props.notificationRef.current.notify("Impossibile creare la nuova azienda")
+                    console.error("Nuova azienda:" + resp)
+                    return
+                }
+                this.props.onSuccess()
+                this.close()
+            })
+            .catch(err => this.props.notificationRef.current.notify("Nuova azienda:" + err))
     }
 
     close() {

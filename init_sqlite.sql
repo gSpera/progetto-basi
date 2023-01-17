@@ -7,7 +7,7 @@ CREATE TABLE utente (
 CREATE TABLE azienda (
     id integer primary key,
     ruolo integer, -- 0: Spera Logistica, 1: Produttore, 2: Destinatario
-    nome varchar(20) not null,
+    nome varchar(20) not null unique,
     indirizzo varchar(50),
     comune varchar(20),
     regione integer not null,
