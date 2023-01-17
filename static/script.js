@@ -47,6 +47,7 @@ const receiverRole = 2
 const ordersTableRef = React.createRef();
 const infoOrderRef = React.createRef();
 const insertOrderRef = React.createRef();
+const insertAziendaRef = React.createRef();
 const updateOrderRef = React.createRef();
 const notificationRef = React.createRef();
 
@@ -73,31 +74,28 @@ fetch("/api/me")
         if (r.CompanyID < 0 || r.CompanyRole == receiverRole) Array.from(document.getElementsByClassName("only-receiver")).forEach(el => el.classList.remove("is-hidden"))
         if (r.CompanyID < 0) Array.from(document.getElementsByClassName("only-admin")).forEach(el => el.classList.remove("is-hidden"))
 
-        ReactDOM.createRoot(insert_order).render(<InsertOrder ref={insertOrderRef} sender={Math.max(r.CompanyID, 0)} orderTableRef={ordersTableRef} notificationRef={notificationRef} />)
+        ReactDOM.createRoot(insert_order).render(<InsertOrder ref={insertOrderRef} sender={Math.max(r.CompanyID, 0)} orderTableRef={ordersTableRef} insertAziendaRef={insertAziendaRef} notificationRef={notificationRef} />)
     })
     .catch(err => notificationRef.current.notify("Informazioni"))
 
 const insert_order = document.querySelector("#insert-order-root")
 const insert_azienda = document.querySelector("#insert-azienda-root")
-ReactDOM.createRoot(insert_azienda).render(<InsertAzienda onSuccess={() => insertOrderRef.current.updateReceivers()} notificationRef={notificationRef} />)
-
-insert_azienda.style.display = 'none'
+ReactDOM.createRoot(insert_azienda).render(<InsertAzienda ref={insertAziendaRef} onSuccess={() => insertOrderRef.current.updateReceivers()} notificationRef={notificationRef} />)
 
 function add_order_button() {
     insertOrderRef.current.show()
 }
 
 function hide_order_button() {
-    alert("Hide order")
     insertOrderRef.current.close()
 }
 
 function add_azienda_button() {
-    insert_azienda.style.display = 'block';
+    insertAziendaRef.current.addAzienda("")
 }
 
 function hide_azienda_button() {
-    insert_azienda.style.display = 'none'
+    insertAziendaRef.current.close()
 }
 
 // Used HTML input tag

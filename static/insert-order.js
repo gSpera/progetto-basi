@@ -4,6 +4,7 @@ class InsertOrder extends React.Component {
 
         this.state = {
             show: false,
+            validReceiver: true,
             ShowSender: false,
             Receivers: [],
             Selection: {
@@ -28,6 +29,7 @@ class InsertOrder extends React.Component {
         this.show = this.show.bind(this);
         this.close = this.close.bind(this);
         this.checkSelectedValues = this.checkSelectedValues.bind(this);
+        this.addNewAzienda = this.addNewAzienda.bind(this);
 
         this.updateReceivers();
     }
@@ -37,7 +39,6 @@ class InsertOrder extends React.Component {
             .then(r => r.json())
             .then(r => this.setState(r))
             .catch(err => this.props.notificationRef.current.notify("Nuovo ordine:" + err))
-
     }
 
     handleChange(event) {
@@ -49,6 +50,9 @@ class InsertOrder extends React.Component {
                 break;
             case "receiver":
                 this.state.Selection.ReceiverName = String(value);
+
+                const id = this.state.Receivers.filter(r => r.Name === String(value));
+                this.state.validReceiver = id.length == 1
                 break;
             case "ddt":
                 this.state.Selection.DDT = value;
@@ -91,6 +95,10 @@ class InsertOrder extends React.Component {
         const id = this.state.Receivers.filter(r => r.Name === this.state.Selection.ReceiverName);
         if (id.length == 0) {
             this.props.notificationRef.current.notify("Inserire un destinatario valido")
+            this.setState({
+                ...this.state,
+                validReceiver: false,
+            })
             return false
         }
         if (id.length > 1) {
@@ -103,6 +111,9 @@ class InsertOrder extends React.Component {
             return false
         }
         this.state.Selection.ReceiverID = String(id[0].ID)
+        this.setState({
+            ...this.state,
+        })
         return true
     }
 
@@ -146,6 +157,8 @@ class InsertOrder extends React.Component {
             ...this.state,
             isEditing: false,
             show: true,
+        }, () => {
+            this.updateReceivers()
         })
     }
 
@@ -176,6 +189,7 @@ class InsertOrder extends React.Component {
             orderID: order.ID,
             order: order,
         }
+        this.state.validReceiver = true
         this.setState(this.state)
 
         const id = order.ID
@@ -189,6 +203,14 @@ class InsertOrder extends React.Component {
                     Note: note,
                 },
             }))
+    }
+
+    addNewAzienda() {
+        this.props.insertAziendaRef.current.addAzienda(this.state.Selection.ReceiverName, () => this.updateReceivers())
+        this.setState({
+            ...this.state,
+            validReceiver: true, // Well this is fake
+        })
     }
 
     render() {
@@ -221,11 +243,16 @@ class InsertOrder extends React.Component {
                         <div className="field is-horizontal">
                             <label htmlFor="receiver" className="field-label label">Destinatario</label>
                             <div className="field-body control">
-                                <input list="receiver-list" name="receiver" className="input" value={this.state.Selection.ReceiverName} onChange={this.handleChange} />
+                                <input list="receiver-list" name="receiver" className={"input " + (this.state.validReceiver ? "" : "is-danger")} value={this.state.Selection.ReceiverName} onChange={this.handleChange} />
                                 <datalist id="receiver-list">
                                     {this.state.Receivers.map(receiver =>
                                         <option value={receiver.Name} key={receiver.ID}>{receiver.Name}</option>)}
                                 </datalist>
+                                <button className={"button " + (this.state.validReceiver ? "" : "is-info is-light ml-1")} type="button" onClick={this.addNewAzienda} disabled={this.state.validReceiver}>
+                                    <span className="icon">
+                                        <i className="mdi mdi-plus"></i>
+                                    </span>
+                                </button>
                             </div>
                         </div>
 
@@ -296,7 +323,7 @@ class InsertOrder extends React.Component {
                     }
                     <button className="button" onClick={this.close}>Chiudi</button>
                 </div>
-            </div>
-        </div>;
+            </div >
+        </div >;
     }
 }

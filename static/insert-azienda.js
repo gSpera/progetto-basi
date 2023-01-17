@@ -3,6 +3,8 @@ class InsertAzienda extends React.Component {
         super(props);
 
         this.state = {
+            show: false,
+
             Name: "",
             Role: "2",
             Address: "",
@@ -15,6 +17,15 @@ class InsertAzienda extends React.Component {
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.close = this.close.bind(this);
+    }
+
+    addAzienda(name, callback) {
+        this.setState({
+            ...this.state,
+            show: true,
+            onSuccess: callback,
+            Name: name,
+        })
     }
 
     handleChange(event) {
@@ -76,10 +87,17 @@ class InsertAzienda extends React.Component {
     }
 
     close() {
-        hide_azienda_button();
+        this.setState({
+            ...this.state,
+            show: false,
+        })
     }
 
     render() {
+        if (!this.state.show) {
+            return <div></div>
+        }
+
         return <div className="modal is-active">
             <div className="modal-background"></div>
             <div className="modal-card">
