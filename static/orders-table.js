@@ -32,6 +32,7 @@ class OrdersTable extends React.Component {
         this.deleteOrderDelete = this.deleteOrderDelete.bind(this);
         this.editOrder = this.editOrder.bind(this);
         this.searchOrders = this.searchOrders.bind(this);
+        setInterval(() => { this.update() }, 5000);
         this.update();
     }
 
