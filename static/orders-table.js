@@ -219,13 +219,13 @@ class OrdersTable extends React.Component {
                                 <td>
                                     <span className="icon"><span className={"mdi mdi-" + stateIcons[order.StateID]}></span></span>
                                     {order.StateString}
-                                    <span className="icon is-medium only-admin" style={{ float: "right", cursor: "pointer" }} onClick={() => this.updateOrder(order)}>
+                                    <span className="icon is-medium only-admin no-print" style={{ float: "right", cursor: "pointer" }} onClick={() => this.updateOrder(order)}>
                                         <span className="mdi mdi-pencil"></span>
                                     </span>
                                 </td>
                                 <td>
                                     {new Date(order.ArriveDate).getFullYear() != 1970 ? new Date(order.ArriveDate).toLocaleDateString() : ""}
-                                    <span className="icon is-medium only-admin" style={{ float: "right", cursor: "pointer" }} onClick={() => this.updateArriveDate(order)}>
+                                    <span className="icon is-medium only-admin no-print" style={{ float: "right", cursor: "pointer" }} onClick={() => this.updateArriveDate(order)}>
                                         <span className="mdi mdi-pencil"></span>
                                     </span>
                                 </td>
