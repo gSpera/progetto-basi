@@ -162,8 +162,7 @@ class OrdersTable extends React.Component {
     }
 
     render() {
-        console.log(this.state.searchedOrders)
-        const searchInput = (name) => <th key={name}>
+        const searchInput = (name, classes) => <th key={name} className={classes ? classes : ""}>
             <span className="control has-icons-right">
                 <input className="input is-small" name={"search-" + name} value={this.state.search[name] || ""} onChange={this.handleSearch} />
                 <span className="icon is-small is-right">
@@ -188,7 +187,7 @@ class OrdersTable extends React.Component {
                         <th>Assegno</th>
                         <th>Ultimo aggiornamento</th>
                         <th>Stima arrivo</th>
-                        <th>Trasportatore</th>
+                        <th className="only-admin">Trasportatore</th>
                         <th></th>
                     </tr>
                     <tr>
@@ -201,7 +200,7 @@ class OrdersTable extends React.Component {
                         <th></th>
                         {searchInput('latestUpdate')}
                         {searchDateInput('arriveDate')}
-                        {searchInput('carrier')}
+                        {searchInput('carrier', "only-admin")}
                         <th></th>
                     </tr>
                 </thead>
@@ -229,7 +228,7 @@ class OrdersTable extends React.Component {
                                         <span className="mdi mdi-pencil"></span>
                                     </span>
                                 </td>
-                                <td>{order.Carrier}</td>
+                                <td className="only-admin">{order.Carrier}</td>
                                 <td className="no-print">
                                     <span className="icon is-mediumprint" style={{ cursor: "pointer" }} onClick={() => this.orderInfo(order)}>
                                         <span className="mdi mdi-information-outline"></span>
