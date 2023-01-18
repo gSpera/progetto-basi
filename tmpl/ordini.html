@@ -8,6 +8,12 @@
 
     <link rel="stylesheet" href="/static/style.css">
 
+    <style id="only-admin-css">
+        .only-admin {
+            display: none;
+        }
+    </style>
+
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
@@ -16,7 +22,7 @@
 </head>
 
 <body>
-    <nav class="navbar is-warning">
+    <nav class="navbar is-warning no-print">
         <div class="navbar-menu">
             <div class="navbar-start">
                 <div class="navbar-item is-size-4">
@@ -47,14 +53,22 @@
     </nav>
 
     <div class="section content">
-        <h1>Ordini</h1>
-        <div class="field">
-            <div class="control has-icons-left mt only-producer is-hidden">
+        <h1>Ordini </h1>
+        <h3><span class="only-print" id="order-header-date"></span></h3>
+        <div class="buttons" id="orders-buttons">
+            <div class="control has-icons-left mt only-admin no-print m-3">
                 <span class="icon is-left">
-                    <span class="mdi mdi-account"></span>
+                    <span class="mdi mdi-package-variant-closed-plus has-text-info"></span>
                 </span>
 
-                <button class="input button" onclick="add_order_button()">Aggiungi ordine</button>
+                <button class="input button is-info is-outlined" onclick="add_order_button()">Aggiungi ordine</button>
+            </div>
+            <div class="control has-icons-left mt no-print m-3">
+                <span class="icon is-left">
+                    <span class="mdi mdi-printer has-text-info"></span>
+                </span>
+
+                <button class="input button is-info is-outlined" onclick="window.print()">Stampa</button>
             </div>
             <!--<div class="control has-icons-left mt only-admin is-hidden">
                 <span class="icon is-left">

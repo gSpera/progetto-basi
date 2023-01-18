@@ -10,6 +10,27 @@
     z-index: 100;
 }
 
+#orders-buttons {
+    display: flex;
+}
+
 .notification {
     margin: 1rem;
+}
+
+.only-print {
+    display: none;
+    visibility: hidden;
+}
+
+@media print {
+    .no-print {
+        display: none;
+        visibility: hidden;
+    }
+
+    .only-print {
+        display: initial;
+        visibility: initial;
+    }
 }
