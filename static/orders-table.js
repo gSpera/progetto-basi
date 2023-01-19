@@ -32,7 +32,7 @@ class OrdersTable extends React.Component {
         this.deleteOrderDelete = this.deleteOrderDelete.bind(this);
         this.editOrder = this.editOrder.bind(this);
         this.searchOrders = this.searchOrders.bind(this);
-	this.searchDeleteDate = this.searchDeleteDate.bind(this);
+        this.searchDeleteDate = this.searchDeleteDate.bind(this);
 
         setInterval(() => { this.update() }, 5000);
         this.update();
@@ -99,7 +99,7 @@ class OrdersTable extends React.Component {
         const orders = this.state.orders
         const search = this.state.search
 
-	const strIncludes = (a, b) => a.toLowerCase().includes(b.toLowerCase())
+        const strIncludes = (a, b) => a.toLowerCase().includes(b.toLowerCase())
         const filtered = orders
             .filter(o => search.order.length > 0 ? strIncludes(o.Order, search.order) : true)
             .filter(o => search.client.length > 0 ? strIncludes(o.RecipientName, search.client) : true)
@@ -117,8 +117,8 @@ class OrdersTable extends React.Component {
     }
 
     searchDeleteDate(name) {
-	    this.state.search[name] = ""
-	    this.setState(this.state, () => this.searchOrders())
+        this.state.search[name] = ""
+        this.setState(this.state, () => this.searchOrders())
     }
 
 
@@ -180,13 +180,13 @@ class OrdersTable extends React.Component {
                 </span>
             </span>
         </th>
-        const searchDateInput = (name) => <th key={name} style={{display: "inline-flex"}}>
+        const searchDateInput = (name) => <th key={name} style={{ display: "inline-flex" }}>
             <input className="input is-small" type="date" name={"search-" + name} value={this.state.search[name] || ""} onChange={this.handleSearch} />
-	    <button className="button is-small ml-1" disabled={this.state.search[name].length == 0} onClick={() => this.searchDeleteDate(name)}>
-		    <span className="icon">
-		    	<i className="mdi mdi-close"></i>
-		    </span>
-	    </button>
+            <button className="button is-small ml-1" disabled={this.state.search[name].length == 0} onClick={() => this.searchDeleteDate(name)}>
+                <span className="icon">
+                    <i className="mdi mdi-close"></i>
+                </span>
+            </button>
         </th>
 
         return <React.Fragment>
@@ -233,9 +233,9 @@ class OrdersTable extends React.Component {
                                 <td>
                                     <span className="icon"><span className={"mdi mdi-" + stateIcons[order.StateID]}></span></span>
                                     {order.StateString}
-                                    <span className="icon is-medium only-admin no-print" style={{ float: "right", cursor: "pointer" }} onClick={() => this.updateOrder(order)}>
+                                    {/*<span className="icon is-medium only-admin no-print" style={{ float: "right", cursor: "pointer" }} onClick={() => this.updateOrder(order)}>
                                         <span className="mdi mdi-pencil"></span>
-                                    </span>
+                                    </span>*/}
                                 </td>
                                 <td>
                                     {new Date(order.ArriveDate).getFullYear() != 1970 ? new Date(order.ArriveDate).toLocaleDateString() : ""}

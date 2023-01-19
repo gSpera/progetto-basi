@@ -322,6 +322,7 @@ type NewOrderInput struct {
 
 	Sender       int `json:",string"`
 	ReceiverID   int `json:",string"`
+	State        int `json:",string"`
 	DDT          string
 	Order        string
 	Protocollo   string
@@ -361,6 +362,20 @@ func (s *Server) HandleApiNewOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Does this causes a race condition??
+	id, err := res.LastInsertId()
+	if err != nil {
+		s.Log.Errorln("Cannot get inserted row id:", err)
+	}
+	if input.State != 0 {
+		_, err := s.Database.AddStateToOrder(int(id), input.State, time.Now())
+		if err != nil {
+			s.Log.Errorln("Cannot add state to order:", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+	}
+
 	s.Log.Println("Insert new order:", input)
 }
 
@@ -386,6 +401,15 @@ func (s *Server) HandleApiEditOrder(w http.ResponseWriter, r *http.Request) {
 		s.Log.Errorln("Cannot update order:", err, res)
 		http.Error(w, "Invalid Request", http.StatusBadRequest)
 		return
+	}
+
+	if input.State != 0 {
+		_, err := s.Database.AddStateToOrder(input.OrderID, input.State, time.Now())
+		if err != nil {
+			s.Log.Errorln("Cannot add state to order:", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
 	}
 
 	s.Log.Println("Update order:", input)

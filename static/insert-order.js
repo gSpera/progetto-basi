@@ -17,6 +17,7 @@ class InsertOrder extends React.Component {
                 NumColli: "1",
                 Assegno: false,
                 CreationDate: new Date(),
+                State: "0",
                 Note: "",
             },
         };
@@ -77,6 +78,9 @@ class InsertOrder extends React.Component {
                 break;
             case "creation-date":
                 this.state.Selection.CreationDate = new Date(value);
+                break;
+            case "state":
+                this.state.Selection.State = String(value);
                 break;
             default:
                 this.props.notificationRef.current.notify("Errore interno update nuovo ordine")
@@ -185,6 +189,7 @@ class InsertOrder extends React.Component {
             Assegno: order.WithdrawBankCheck,
             Carrier: order.Carrier,
             CreationDate: new Date(order.CreationDate),
+            State: String(order.StateID),
             Note: "LOADING",
         }
 
@@ -231,7 +236,7 @@ class InsertOrder extends React.Component {
 
                 <div className="modal-card-body">
                     <form onSubmit={this.handleSubmit}>
-                        {this.state.ShowSender &&
+                        {false && this.state.ShowSender &&
                             <div className="field is-horizontal">
                                 <label htmlFor="sender" className="field-label label">Mittente</label>
                                 <div className="field-body control">
@@ -245,6 +250,13 @@ class InsertOrder extends React.Component {
                         }
 
                         <div className="field is-horizontal">
+                            <label htmlFor="creation-date" className="field-label label">Data</label>
+                            <div className="field-body control">
+                                <input name="creation-date" className="input" type="date" value={dateToISO8601(this.state.Selection.CreationDate)} onChange={this.handleChange} />
+                            </div>
+                        </div>
+
+                        <div className="field is-horizontal">
                             <label htmlFor="receiver" className="field-label label">Destinatario</label>
                             <div className="field-body control">
                                 <input list="receiver-list" name="receiver" className={"input " + (this.state.validReceiver ? "" : "is-danger")} value={this.state.Selection.ReceiverName} onChange={this.handleChange} />
@@ -252,25 +264,6 @@ class InsertOrder extends React.Component {
                                     {this.state.Receivers.map(receiver =>
                                         <option value={receiver.Name} key={receiver.ID}>{receiver.Name}</option>)}
                                 </datalist>
-                                <button className={"button " + (this.state.validReceiver ? "" : "is-info is-light ml-1")} type="button" onClick={this.addNewAzienda} disabled={this.state.validReceiver}>
-                                    <span className="icon">
-                                        <i className="mdi mdi-plus"></i>
-                                    </span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="field is-horizontal">
-                            <label htmlFor="creation-date" className="field-label label">Data:</label>
-                            <div className="field-body control">
-                                <input name="creation-date" className="input" type="date" value={dateToISO8601(this.state.Selection.CreationDate)} onChange={this.handleChange} />
-                            </div>
-                        </div>
-
-                        <div className="field is-horizontal">
-                            <label htmlFor="ddt" className="field-label label">DDT</label>
-                            <div className="field-body control">
-                                <input name="ddt" className="input" value={this.state.Selection.DDT} onChange={this.handleChange} />
                             </div>
                         </div>
 
@@ -282,12 +275,11 @@ class InsertOrder extends React.Component {
                         </div>
 
                         <div className="field is-horizontal">
-                            <label htmlFor="protocollo" className="field-label label">Protocollo</label>
+                            <label htmlFor="ddt" className="field-label label">DDT</label>
                             <div className="field-body control">
-                                <input name="protocollo" className="input" value={this.state.Selection.Protocollo} onChange={this.handleChange} />
+                                <input name="ddt" className="input" value={this.state.Selection.DDT} onChange={this.handleChange} />
                             </div>
                         </div>
-
 
                         <div className="field is-horizontal">
                             <label htmlFor="num-colli" className="field-label label">Numero Colli</label>
@@ -295,6 +287,25 @@ class InsertOrder extends React.Component {
                                 <input name="num-colli" className="input" type="number" value={this.state.Selection.NumColli} onChange={this.handleChange} />
                             </div>
                         </div>
+
+                        <div className="field is-horizontal">
+                            <label htmlFor="state" className="field-label label">Stato</label>
+                            <div className="field-body control select">
+                                <select name="state" value={this.state.Selection.State} onChange={this.handleChange}>
+                                    {states.map(s => <option value={s.ID} key={s.ID}>{s.Name}</option>)}
+                                </select>
+                            </div>
+                        </div>
+
+                        <hr></hr>
+
+                        {/* <div className="field is-horizontal">
+                            <label htmlFor="protocollo" className="field-label label">Protocollo</label>
+                            <div className="field-body control">
+                                <input name="protocollo" className="input" value={this.state.Selection.Protocollo} onChange={this.handleChange} />
+                            </div>
+                        </div> */}
+
 
                         <div className="field is-horizontal">
                             <label htmlFor="assegno" className="field-label label checkbox">Ritirare Assegno</label>
