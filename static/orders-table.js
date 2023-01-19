@@ -32,6 +32,8 @@ class OrdersTable extends React.Component {
         this.deleteOrderDelete = this.deleteOrderDelete.bind(this);
         this.editOrder = this.editOrder.bind(this);
         this.searchOrders = this.searchOrders.bind(this);
+	this.searchDeleteDate = this.searchDeleteDate.bind(this);
+
         setInterval(() => { this.update() }, 5000);
         this.update();
     }
@@ -97,21 +99,28 @@ class OrdersTable extends React.Component {
         const orders = this.state.orders
         const search = this.state.search
 
+	const strIncludes = (a, b) => a.toLowerCase().includes(b.toLowerCase())
         const filtered = orders
-            .filter(o => search.order.length > 0 ? o.Order.includes(search.order) : true)
-            .filter(o => search.client.length > 0 ? o.RecipientName.includes(search.client) : true)
-            .filter(o => search.region.length > 0 ? o.Region.includes(search.region) : true)
-            .filter(o => search.ddt.length > 0 ? o.DDT.includes(search.ddt) : true)
-            .filter(o => search.numPackages.length > 0 ? String(o.NumPackages).includes(search.numPackages) : true)
-            .filter(o => search.latestUpdate.length > 0 ? o.StateString.includes(search.latestUpdate) : true)
-            .filter(o => search.carrier.length > 0 ? o.Carrier.includes(search.carrier) : true)
-            .filter(o => search.creationDate.length > 0 ? o.CreationDate.includes(search.creationDate) : true)
-            .filter(o => search.arriveDate.length > 0 ? o.ArriveDate.includes(search.arriveDate) : true)
+            .filter(o => search.order.length > 0 ? strIncludes(o.Order, search.order) : true)
+            .filter(o => search.client.length > 0 ? strIncludes(o.RecipientName, search.client) : true)
+            .filter(o => search.region.length > 0 ? strIncludes(o.Region, search.region) : true)
+            .filter(o => search.ddt.length > 0 ? strIncludes(o.DDT, search.ddt) : true)
+            .filter(o => search.numPackages.length > 0 ? strIncludes(String(o.NumPackages), search.numPackages) : true)
+            .filter(o => search.latestUpdate.length > 0 ? strIncludes(o.StateString, search.latestUpdate) : true)
+            .filter(o => search.carrier.length > 0 ? strIncludes(o.Carrier, search.carrier) : true)
+            .filter(o => search.creationDate.length > 0 ? strIncludes(o.CreationDate, search.creationDate) : true)
+            .filter(o => search.arriveDate.length > 0 ? strIncludes(o.ArriveDate, search.arriveDate) : true)
         this.setState({
             ...this.state,
             searchedOrders: filtered,
         })
     }
+
+    searchDeleteDate(name) {
+	    this.state.search[name] = ""
+	    this.setState(this.state, () => this.searchOrders())
+    }
+
 
     updateArriveDateSubmit() {
         const id = this.state.updateArriveDate.orderID;
@@ -171,8 +180,13 @@ class OrdersTable extends React.Component {
                 </span>
             </span>
         </th>
-        const searchDateInput = (name) => <th key={name}>
+        const searchDateInput = (name) => <th key={name} style={{display: "inline-flex"}}>
             <input className="input is-small" type="date" name={"search-" + name} value={this.state.search[name] || ""} onChange={this.handleSearch} />
+	    <button className="button is-small ml-1" disabled={this.state.search[name].length == 0} onClick={() => this.searchDeleteDate(name)}>
+		    <span className="icon">
+		    	<i className="mdi mdi-close"></i>
+		    </span>
+	    </button>
         </th>
 
         return <React.Fragment>
