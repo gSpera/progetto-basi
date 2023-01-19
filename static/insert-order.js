@@ -170,6 +170,10 @@ class InsertOrder extends React.Component {
     }
 
     editOrder(order) {
+        if (new Date(order.CreationDate).getFullYear() == 1970) {
+            order.CreationDate = dateToRFC339Nano(new Date())
+        }
+
         this.state.Selection = {
             Sender: String(order.ProducerID),
             ReceiverID: String(order.RecipientID),
