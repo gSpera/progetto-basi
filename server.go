@@ -329,6 +329,7 @@ type NewOrderInput struct {
 	NumColli     int `json:",string"`
 	Assegno      bool
 	Carrier      string
+	ArriveDate   SqlTime
 	CreationDate SqlTime
 	Note         string
 }

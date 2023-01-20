@@ -239,9 +239,9 @@ class OrdersTable extends React.Component {
                                 </td>
                                 <td>
                                     {new Date(order.ArriveDate).getFullYear() != 1970 ? new Date(order.ArriveDate).toLocaleDateString() : ""}
-                                    <span className="icon is-medium only-admin no-print" style={{ float: "right", cursor: "pointer" }} onClick={() => this.updateArriveDate(order)}>
+                                    {/*<span className="icon is-medium only-admin no-print" style={{ float: "right", cursor: "pointer" }} onClick={() => this.updateArriveDate(order)}>
                                         <span className="mdi mdi-pencil"></span>
-                                    </span>
+                                    </span>*/}
                                 </td>
                                 <td className="only-admin">{order.Carrier}</td>
                                 <td className="no-print">

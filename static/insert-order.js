@@ -17,6 +17,7 @@ class InsertOrder extends React.Component {
                 NumColli: "1",
                 Assegno: false,
                 CreationDate: new Date(),
+                ArriveDate: new Date(),
                 State: "0",
                 Note: "",
             },
@@ -78,6 +79,11 @@ class InsertOrder extends React.Component {
                 break;
             case "creation-date":
                 this.state.Selection.CreationDate = new Date(value);
+                this.state.edit.creationDateDirty = false;
+                break;
+            case "arrive-date":
+                this.state.Selection.ArriveDate = new Date(value);
+                this.state.edit.arriveDateDirty = false;
                 break;
             case "state":
                 this.state.Selection.State = String(value);
@@ -174,8 +180,14 @@ class InsertOrder extends React.Component {
     }
 
     editOrder(order) {
+        let creationDateDirty = false
+        let arriveDateDirty = false
+
         if (new Date(order.CreationDate).getFullYear() == 1970) {
-            order.CreationDate = dateToRFC339Nano(new Date())
+            creationDateDirty = true
+        }
+        if (new Date(order.ArriveDate).getFullYear() == 1970) {
+            arriveDateDirty = true
         }
 
         this.state.Selection = {
@@ -189,6 +201,7 @@ class InsertOrder extends React.Component {
             Assegno: order.WithdrawBankCheck,
             Carrier: order.Carrier,
             CreationDate: new Date(order.CreationDate),
+            ArriveDate: new Date(order.ArriveDate),
             State: String(order.StateID),
             Note: "LOADING",
         }
@@ -197,6 +210,8 @@ class InsertOrder extends React.Component {
         this.state.edit = {
             orderID: order.ID,
             order: order,
+            creationDateDirty,
+            arriveDateDirty,
         }
         this.state.validReceiver = true
         this.setState(this.state)
@@ -252,9 +267,15 @@ class InsertOrder extends React.Component {
                         <div className="field is-horizontal">
                             <label htmlFor="creation-date" className="field-label label">Data</label>
                             <div className="field-body control">
-                                <input name="creation-date" className="input" type="date" value={dateToISO8601(this.state.Selection.CreationDate)} onChange={this.handleChange} />
+                                <input name="creation-date" className={"input " + (this.state.edit.creationDateDirty ? "is-warning" : "")} type="date" value={dateToISO8601(this.state.Selection.CreationDate.getFullYear() == 1970 ? new Date() : this.state.Selection.CreationDate)} onChange={this.handleChange} />
                             </div>
                         </div>
+                        {
+                            this.state.edit.creationDateDirty ?
+                                <p>La data non verrà salvata</p>
+                                : ""
+                        }
+
 
                         <div className="field is-horizontal">
                             <label htmlFor="receiver" className="field-label label">Destinatario</label>
@@ -264,6 +285,12 @@ class InsertOrder extends React.Component {
                                     {this.state.Receivers.map(receiver =>
                                         <option value={receiver.Name} key={receiver.ID}>{receiver.Name}</option>)}
                                 </datalist>
+
+                                <button className={"button ml-1" + (this.state.validReceiver ? "" : "is-info is-light")} type="button" onClick={this.addNewAzienda} disabled={this.state.validReceiver}>
+                                    <span className="icon">
+                                        <i className="mdi mdi-plus"></i>
+                                    </span>
+                                </button>
                             </div>
                         </div>
 
@@ -296,6 +323,18 @@ class InsertOrder extends React.Component {
                                 </select>
                             </div>
                         </div>
+
+                        <div className="field is-horizontal">
+                            <label htmlFor="arrive-date" className="field-label label">Stima arrivo:</label>
+                            <div className="field-body control">
+                                <input name="arrive-date" className={"input " + (this.state.edit.arriveDateDirty ? "is-warning" : "")} type="date" value={dateToISO8601(this.state.Selection.ArriveDate.getFullYear() == 1970 ? new Date() : this.state.Selection.ArriveDate)} onChange={this.handleChange} />
+                            </div>
+                        </div>
+                        {
+                            this.state.edit.arriveDateDirty ?
+                                <p>La data non verrà salvata</p>
+                                : ""
+                        }
 
                         <hr></hr>
 
