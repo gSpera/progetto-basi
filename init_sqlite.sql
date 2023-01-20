@@ -102,7 +102,7 @@ FROM ordine
  JOIN stato_string ON stato_string.id = (SELECT MAX(stato.stato) FROM stato WHERE ordine_id = ordine.id)
  JOIN regione_string ON destinatario.regione = regione_string.id
 GROUP BY ordine.ddt, produttore.nome, destinatario.nome, ordine.num_colli, ordine.ritirare_assegno, stato_string.value
-ORDER BY quando DESC;
+ORDER BY ordine.data_creazione DESC;
 
 INSERT INTO azienda VALUES (-1, 0, 'Spera Logistica', 'Via Speranzosa 123', NULL, 3, '12332112312', 'A1A2A3');
 INSERT INTO utente VALUES ('gs', '7a5443b6636713baa6350c1cf3ec620b2771a8d411ea3180c5d46b502b9ab77d', -1);
