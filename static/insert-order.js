@@ -7,6 +7,27 @@ class InsertOrder extends React.Component {
             validReceiver: true,
             ShowSender: false,
             Receivers: [],
+
+            ...this.initSelectionAndEdit(),
+        };
+
+        this.initSelectionAndEdit = this.initSelectionAndEdit.bind(this);
+        this.handleChange = this.handleChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleEditSubmit = this.handleEditSubmit.bind(this);
+        this.updateReceivers = this.updateReceivers.bind(this);
+        this.editOrder = this.editOrder.bind(this);
+        this.show = this.show.bind(this);
+        this.close = this.close.bind(this);
+        this.checkSelectedValues = this.checkSelectedValues.bind(this);
+        this.addNewAzienda = this.addNewAzienda.bind(this);
+
+        this.updateReceivers();
+    }
+
+
+    initSelectionAndEdit() {
+        return {
             Selection: {
                 Sender: "" + this.props.sender,
                 ReceiverID: "0",
@@ -21,23 +42,12 @@ class InsertOrder extends React.Component {
                 State: "0",
                 Note: "",
             },
+
             edit: {
                 arriveDateDirty: false,
                 creationDateDirty: false,
             },
-        };
-
-        this.handleChange = this.handleChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.handleEditSubmit = this.handleEditSubmit.bind(this);
-        this.updateReceivers = this.updateReceivers.bind(this);
-        this.editOrder = this.editOrder.bind(this);
-        this.show = this.show.bind(this);
-        this.close = this.close.bind(this);
-        this.checkSelectedValues = this.checkSelectedValues.bind(this);
-        this.addNewAzienda = this.addNewAzienda.bind(this);
-
-        this.updateReceivers();
+        }
     }
 
     updateReceivers() {
@@ -169,6 +179,7 @@ class InsertOrder extends React.Component {
     show() {
         this.setState({
             ...this.state,
+            ...this.initSelectionAndEdit(),
             isEditing: false,
             show: true,
         }, () => {
