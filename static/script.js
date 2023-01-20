@@ -8,6 +8,16 @@ let stateIcons = {
     6: "truck",
     7: "check",
 }
+const stateColors = {
+    0: "",
+    1: "",
+    2: "",
+    3: "has-text-info",
+    4: "has-text-info",
+    5: "",
+    6: "has-text-link",
+    7: "has-text-success",
+}
 const states = [
     { ID: 0, Name: "In ricezione" },
     { ID: 1, Name: "Pronto per essere ricevuto" },

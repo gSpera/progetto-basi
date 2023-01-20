@@ -232,7 +232,7 @@ class OrdersTable extends React.Component {
                                 <td><span className="icon is-medium"><span className={"mdi mdi-" + (order.WithdrawBankCheck ? 'check' : '')}></span></span></td>
                                 <td>
                                     <span className="icon"><span className={"mdi mdi-" + stateIcons[order.StateID]}></span></span>
-                                    {order.StateString}
+                                    <span className={stateColors[order.StateID]}>{order.StateString}</span>
                                     {/*<span className="icon is-medium only-admin no-print" style={{ float: "right", cursor: "pointer" }} onClick={() => this.updateOrder(order)}>
                                         <span className="mdi mdi-pencil"></span>
                                     </span>*/}
