@@ -7,6 +7,7 @@ let stateIcons = {
     5: "dolly",
     6: "truck",
     7: "check",
+    8: "close",
 }
 const stateColors = {
     0: "",
@@ -17,6 +18,7 @@ const stateColors = {
     5: "",
     6: "has-text-link",
     7: "has-text-success",
+    8: "has-text-danger",
 }
 const states = [
     { ID: 0, Name: "In ricezione" },
@@ -27,6 +29,7 @@ const states = [
     { ID: 5, Name: "Pronto per essere spedito" },
     { ID: 6, Name: "Spedito" },
     { ID: 7, Name: "Consegnato" },
+    { ID: 8, Name: "Annullato" },
 ]
 const regioni = [
     { ID: 0, Name: "Abruzzo" },

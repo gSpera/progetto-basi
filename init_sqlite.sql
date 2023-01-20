@@ -47,12 +47,13 @@ CREATE TABLE stato_string (
 
 INSERT INTO stato_string VALUES (0, 'In ricezione');
 INSERT INTO stato_string VALUES (1, 'Pronto per essere ricevuto');
-INSERT INTO stato_string VALUES (2, 'Tr');
+INSERT INTO stato_string VALUES (2, 'Trasporto in deposito');
 INSERT INTO stato_string VALUES (3, 'In deposito');
 INSERT INTO stato_string VALUES (4, 'In archivio');
 INSERT INTO stato_string VALUES (5, 'Pronto per essere spedito');
 INSERT INTO stato_string VALUES (6, 'Spedito');
 INSERT INTO stato_string VALUES (7, 'Consegnato');
+INSERT INTO stato_string VALUES (8, 'Annullato');
 
 CREATE TABLE regione_string (
     id integer primary key,
