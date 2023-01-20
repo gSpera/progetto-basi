@@ -21,6 +21,10 @@ class InsertOrder extends React.Component {
                 State: "0",
                 Note: "",
             },
+            edit: {
+                arriveDateDirty: false,
+                creationDateDirty: false,
+            },
         };
 
         this.handleChange = this.handleChange.bind(this);
