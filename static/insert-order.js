@@ -44,8 +44,8 @@ class InsertOrder extends React.Component {
             },
 
             edit: {
-                arriveDateDirty: false,
                 creationDateDirty: false,
+                arriveDateDirty: true,
             },
         }
     }
