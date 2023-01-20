@@ -238,7 +238,11 @@ class OrdersTable extends React.Component {
                                     </span>*/}
                                 </td>
                                 <td>
-                                    {new Date(order.ArriveDate).getFullYear() != 1970 ? new Date(order.ArriveDate).toLocaleDateString() : ""}
+                                    {new Date(order.ArriveDate).getFullYear() != 1970 ? (() => {
+                                        let prefix = ""
+                                        if (order.StateID == 6) prefix = "Arrivo previsto il: "
+                                        return prefix + new Date(order.ArriveDate).toLocaleDateString()
+                                    })() : ""}
                                     {/*<span className="icon is-medium only-admin no-print" style={{ float: "right", cursor: "pointer" }} onClick={() => this.updateArriveDate(order)}>
                                         <span className="mdi mdi-pencil"></span>
                                     </span>*/}
