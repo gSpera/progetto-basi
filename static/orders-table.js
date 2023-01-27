@@ -180,13 +180,15 @@ class OrdersTable extends React.Component {
                 </span>
             </span>
         </th>
-        const searchDateInput = (name) => <th key={name} style={{ display: "inline-flex" }}>
-            <input className="input is-small" type="date" name={"search-" + name} value={this.state.search[name] || ""} onChange={this.handleSearch} />
-            <button className="button is-small ml-1" disabled={this.state.search[name].length == 0} onClick={() => this.searchDeleteDate(name)}>
-                <span className="icon">
-                    <i className="mdi mdi-close"></i>
-                </span>
-            </button>
+        const searchDateInput = (name) => <th key={name}>
+            <span style={{ display: "inline-flex" }}>
+                <input className="input is-small" type="date" name={"search-" + name} value={this.state.search[name] || ""} onChange={this.handleSearch} />
+                <button className="button is-small ml-1" disabled={this.state.search[name].length == 0} onClick={() => this.searchDeleteDate(name)}>
+                    <span className="icon">
+                        <i className="mdi mdi-close"></i>
+                    </span>
+                </button>
+            </span>
         </th>
 
         return <React.Fragment>
@@ -203,7 +205,7 @@ class OrdersTable extends React.Component {
                         <th>Ultimo aggiornamento</th>
                         <th>Stima arrivo</th>
                         <th className="only-admin">Trasportatore</th>
-                        <th></th>
+                        <th className="only-admin"></th>
                     </tr>
                     <tr>
                         {searchInput('order')}
@@ -216,7 +218,7 @@ class OrdersTable extends React.Component {
                         {searchInput('latestUpdate')}
                         {searchDateInput('arriveDate')}
                         {searchInput('carrier', "only-admin")}
-                        <th></th>
+                        <th className="only-admin"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -240,16 +242,16 @@ class OrdersTable extends React.Component {
                                 <td>
                                     {new Date(order.ArriveDate).getFullYear() != 1970 ? (() => {
                                         let prefix = ""
-                                        if (order.StateID == 6) prefix = "Arrivo previsto il: "
-                                        return prefix + new Date(order.ArriveDate).toLocaleDateString()
+                                        if (order.StateID == 6) prefix = <p className="is-size-6 has-text-weight-light">Arrivo previsto il:</p>
+                                        return <span>{prefix} {new Date(order.ArriveDate).toLocaleDateString()} </span>
                                     })() : ""}
                                     {/*<span className="icon is-medium only-admin no-print" style={{ float: "right", cursor: "pointer" }} onClick={() => this.updateArriveDate(order)}>
                                         <span className="mdi mdi-pencil"></span>
                                     </span>*/}
                                 </td>
                                 <td className="only-admin">{order.Carrier}</td>
-                                <td className="no-print">
-                                    <span className="icon is-mediumprint" style={{ cursor: "pointer" }} onClick={() => this.orderInfo(order)}>
+                                <td className=" only-admin no-print">
+                                    <span className="icon is-mediumprint only-admin" style={{ cursor: "pointer" }} onClick={() => this.orderInfo(order)}>
                                         <span className="mdi mdi-information-outline"></span>
                                     </span>
                                     <span className="icon is-medium only-admin" style={{ cursor: "pointer" }} onClick={() => this.editOrder(order)}>

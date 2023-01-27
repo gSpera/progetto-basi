@@ -54,6 +54,10 @@ INSERT INTO stato_string VALUES (5, 'Pronto per essere spedito');
 INSERT INTO stato_string VALUES (6, 'Spedito');
 INSERT INTO stato_string VALUES (7, 'Consegnato');
 INSERT INTO stato_string VALUES (8, 'Annullato');
+INSERT INTO stato_string VALUES (9,  'Hub Sicilia');
+INSERT INTO stato_string VALUES (10, 'Hub Lombardia');
+INSERT INTO stato_string VALUES (11, 'Hub Veneto');
+INSERT INTO stato_string VALUES (12, 'Hub Piemonte');
 
 CREATE TABLE regione_string (
     id integer primary key,

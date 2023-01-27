@@ -8,6 +8,10 @@ let stateIcons = {
     6: "truck",
     7: "check",
     8: "close",
+    9: "warehouse",
+    10: "warehouse",
+    11: "warehouse",
+    12: "warehouse",
 }
 const stateColors = {
     0: "",
@@ -19,7 +23,12 @@ const stateColors = {
     6: "has-text-link",
     7: "has-text-success",
     8: "has-text-danger",
+    9: "has-text-info",
+    10: "has-text-info",
+    11: "has-text-info",
+    12: "has-text-info",
 }
+
 const states = [
     { ID: 0, Name: "In ricezione" },
     { ID: 1, Name: "Pronto per essere ricevuto" },
@@ -30,7 +39,12 @@ const states = [
     { ID: 6, Name: "Spedito" },
     { ID: 7, Name: "Consegnato" },
     { ID: 8, Name: "Annullato" },
+    { ID: 9, Name: "Hub Sicilia" },
+    { ID: 10, Name: "Hub Lombardia" },
+    { ID: 11, Name: "Hub Veneto" },
+    { ID: 12, Name: "Hub Piemonte" },
 ]
+
 const regioni = [
     { ID: 0, Name: "Abruzzo" },
     { ID: 1, Name: "Basilicata" },
