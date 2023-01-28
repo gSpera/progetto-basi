@@ -12,6 +12,7 @@ let stateIcons = {
     10: "warehouse",
     11: "warehouse",
     12: "warehouse",
+    13: "warehouse",
 }
 const stateColors = {
     0: "",
@@ -27,6 +28,7 @@ const stateColors = {
     10: "has-text-info",
     11: "has-text-info",
     12: "has-text-info",
+    13: "has-text-info",
 }
 
 const states = [
@@ -43,6 +45,7 @@ const states = [
     { ID: 10, Name: "Hub Lombardia" },
     { ID: 11, Name: "Hub Veneto" },
     { ID: 12, Name: "Hub Piemonte" },
+    { ID: 13, Name: "Hub Sardegna" },
 ]
 
 const regioni = [

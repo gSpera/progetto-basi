@@ -58,6 +58,7 @@ INSERT INTO stato_string VALUES (9,  'Hub Sicilia');
 INSERT INTO stato_string VALUES (10, 'Hub Lombardia');
 INSERT INTO stato_string VALUES (11, 'Hub Veneto');
 INSERT INTO stato_string VALUES (12, 'Hub Piemonte');
+INSERT INTO stato_string VALUES (13, 'Hub Sardegna');
 
 CREATE TABLE regione_string (
     id integer primary key,
