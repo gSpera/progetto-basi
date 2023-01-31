@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"io"
 	"io/fs"
 	"net/http"
 	"strconv"
@@ -20,12 +21,13 @@ import (
 type Server struct {
 	jwtSecret []byte
 
-	Database Database
-	Template *template.Template
-	Log      *log.Entry
+	Database        Database
+	AttachmentStore AttachmentStore
+	Template        *template.Template
+	Log             *log.Entry
 }
 
-func NewServer(db Database, tmplDir fs.FS, logger *log.Entry, jwtSecret []byte) (Server, error) {
+func NewServer(db Database, attachments AttachmentStore, tmplDir fs.FS, logger *log.Entry, jwtSecret []byte) (Server, error) {
 	tmpl := template.New("html")
 	_, err := tmpl.ParseFS(tmplDir, "*.tmpl")
 	if err != nil {
@@ -33,10 +35,11 @@ func NewServer(db Database, tmplDir fs.FS, logger *log.Entry, jwtSecret []byte) 
 	}
 
 	return Server{
-		Database:  db,
-		Template:  tmpl,
-		Log:       logger,
-		jwtSecret: jwtSecret,
+		Database:        db,
+		AttachmentStore: attachments,
+		Template:        tmpl,
+		Log:             logger,
+		jwtSecret:       jwtSecret,
 	}, nil
 }
 
@@ -543,6 +546,81 @@ func (s *Server) HandleApiDeleteOrder(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		s.Log.Errorln("Delete order:", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+}
+
+func (s *Server) HandleApiRetrieveAttachments(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	orderIDString := r.Form.Get("id")
+	orderID, err := strconv.Atoi(orderIDString)
+	if err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+
+	attachments, err := s.AttachmentStore.List(orderID)
+	if err != nil {
+		s.Log.Errorln("Retrieve attachments for order:", orderID, ":", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	encoder := json.NewEncoder(w)
+	encoder.SetIndent("", "\t")
+	encoder.Encode(attachments)
+}
+
+func (s *Server) HandleApiUploadFile(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseMultipartForm(100 * 1024 * 1024) // 100Mb
+	if err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+
+	orderIDString := r.FormValue("id")
+	orderID, err := strconv.Atoi(orderIDString)
+	if err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+
+	fl, header, err := r.FormFile("attachment")
+	if err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+	defer fl.Close()
+
+	s.Log.Printf("Writing attachment for order: %d: %s\n", orderID, header.Filename)
+	err = s.AttachmentStore.Put(orderID, header.Filename, fl)
+	if err != nil {
+		s.Log.Printf("Cannot write attachment for order: %d: %s: %v\n", orderID, header.Filename, err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+}
+
+func (s *Server) HandleRetrieveAttachment(w http.ResponseWriter, r *http.Request) {
+	var orderID int
+	var filename string
+
+	_, err := fmt.Sscanf(r.URL.Path, "/attachments/%d/%s", &orderID, &filename)
+	if err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+
+	s.Log.Println("Retrieve attachment:", orderID, filename)
+	reader, err := s.AttachmentStore.Get(orderID, filename)
+	if err != nil {
+		s.Log.Errorln("Cannot serve attachment:", err)
+		return
+	}
+
+	_, err = io.Copy(w, reader)
+	if err != nil {
+		s.Log.Errorln("Cannot send attachment:", err)
 		return
 	}
 }

@@ -30,8 +30,15 @@ func main() {
 		log.Fatalln("Cannot connect to database:", err)
 	}
 
+	err = os.MkdirAll("attachments", 0744)
+	if err != nil {
+		log.Fatalln("Cannot create attachments directory:", err)
+	}
+	attachmentsFS := "attachments"
+	attachmentStore := FileSystemAttachmentStore{attachmentsFS}
+
 	log.Println("Initializing server")
-	server, err := NewServer(db, os.DirFS("./tmpl"), log.NewEntry(log.StandardLogger()), []byte(*jwtSecret))
+	server, err := NewServer(db, attachmentStore, os.DirFS("./tmpl"), log.NewEntry(log.StandardLogger()), []byte(*jwtSecret))
 	if err != nil {
 		log.Fatalln("Cannot initialize server:", err)
 	}
@@ -50,6 +57,9 @@ func main() {
 	http.Handle("/api/delete-order", server.LoggedInMiddleware(server.HandleApiDeleteOrder, "/login"))
 	http.Handle("/api/edit-order", server.LoggedInMiddleware(server.HandleApiEditOrder, "/login"))
 	http.Handle("/api/retrieve-note", server.LoggedInMiddleware(server.HandleApiRetrieveNote, "/login"))
+	http.Handle("/api/attachments", server.LoggedInMiddleware(server.HandleApiRetrieveAttachments, "/login"))
+	http.Handle("/api/put-attachment", server.LoggedInMiddleware(server.HandleApiUploadFile, "/login"))
+	http.Handle("/attachments/", server.LoggedInMiddleware(server.HandleRetrieveAttachment, "/login"))
 	http.Handle("/api/me", server.LoggedInMiddleware(server.HandlerApiAboutMe, "/login"))
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))

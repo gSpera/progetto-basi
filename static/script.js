@@ -80,6 +80,7 @@ const insertOrderRef = React.createRef();
 const insertAziendaRef = React.createRef();
 const updateOrderRef = React.createRef();
 const notificationRef = React.createRef();
+const attachmentsRef = React.createRef();
 
 
 const notificationRoot = ReactDOM.createRoot(document.querySelector("#notification-root"))
@@ -92,7 +93,7 @@ const updateOrder = document.querySelector("#update-order-root")
 ReactDOM.createRoot(updateOrder).render(<UpdateOrder ref={updateOrderRef} orderTableRef={ordersTableRef} notificationRef={notificationRef} />)
 
 const ordersRoot = ReactDOM.createRoot(document.querySelector("#orders-root"))
-ordersRoot.render(<OrdersTable ref={ordersTableRef} infoOrderRef={infoOrderRef} updateOrderRef={updateOrderRef} insertOrderRef={insertOrderRef} notificationRef={notificationRef} />)
+ordersRoot.render(<OrdersTable ref={ordersTableRef} infoOrderRef={infoOrderRef} updateOrderRef={updateOrderRef} insertOrderRef={insertOrderRef} attachmentsRef={attachmentsRef} notificationRef={notificationRef} />)
 
 fetch("/api/me")
     .then(r => r.json())
@@ -113,7 +114,9 @@ fetch("/api/me")
 
 const insert_order = document.querySelector("#insert-order-root")
 const insert_azienda = document.querySelector("#insert-azienda-root")
+const attachments = document.querySelector("#attachments-root")
 ReactDOM.createRoot(insert_azienda).render(<InsertAzienda ref={insertAziendaRef} onSuccess={() => insertOrderRef.current.updateReceivers()} notificationRef={notificationRef} />)
+ReactDOM.createRoot(attachments).render(<AttachmentModal ref={attachmentsRef} notificationRef={notificationRef} />)
 
 document.getElementById("order-header-date").innerText = "Aggiornati al " + new Date().toLocaleString()
 

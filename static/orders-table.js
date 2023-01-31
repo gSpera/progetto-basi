@@ -205,6 +205,7 @@ class OrdersTable extends React.Component {
                         <th>Ultimo aggiornamento</th>
                         <th>Stima arrivo</th>
                         <th className="only-admin">Trasportatore</th>
+                        <th className="no-print">Allegati</th>
                         <th className="only-admin"></th>
                     </tr>
                     <tr>
@@ -218,6 +219,7 @@ class OrdersTable extends React.Component {
                         {searchInput('latestUpdate')}
                         {searchDateInput('arriveDate')}
                         {searchInput('carrier', "only-admin")}
+                        <th className="no-print"></th>
                         <th className="only-admin"></th>
                     </tr>
                 </thead>
@@ -250,8 +252,13 @@ class OrdersTable extends React.Component {
                                     </span>*/}
                                 </td>
                                 <td className="only-admin">{order.Carrier}</td>
+                                <td className="no-print">
+                                    <span className="icon is-medium is-clickable" onClick={() => this.props.attachmentsRef.current.show(order)}>
+                                        <span className="mdi mdi-file-document-multiple"></span>
+                                    </span>
+                                </td>
                                 <td className=" only-admin no-print">
-                                    <span className="icon is-mediumprint only-admin" style={{ cursor: "pointer" }} onClick={() => this.orderInfo(order)}>
+                                    <span className="icon is-medium only-admin" style={{ cursor: "pointer" }} onClick={() => this.orderInfo(order)}>
                                         <span className="mdi mdi-information-outline"></span>
                                     </span>
                                     <span className="icon is-medium only-admin" style={{ cursor: "pointer" }} onClick={() => this.editOrder(order)}>
