@@ -59,6 +59,7 @@ func main() {
 	http.Handle("/api/retrieve-note", server.LoggedInMiddleware(server.HandleApiRetrieveNote, "/login"))
 	http.Handle("/api/attachments", server.LoggedInMiddleware(server.HandleApiRetrieveAttachments, "/login"))
 	http.Handle("/api/put-attachment", server.LoggedInMiddleware(server.HandleApiUploadFile, "/login"))
+	http.Handle("/api/delete-attachment", server.LoggedInMiddleware(server.HandleApiDeleteAttachment, "/login"))
 	http.Handle("/attachments/", server.LoggedInMiddleware(server.HandleRetrieveAttachment, "/login"))
 	http.Handle("/api/me", server.LoggedInMiddleware(server.HandlerApiAboutMe, "/login"))
 

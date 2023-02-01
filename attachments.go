@@ -14,6 +14,7 @@ type AttachmentStore interface {
 	List(orderID int) ([]Attachment, error)
 	Put(orderID int, filename string, fl io.Reader) error
 	Get(orderID int, filename string) (io.Reader, error)
+	Delete(orderID int, filename string) error
 }
 
 var _ AttachmentStore = FileSystemAttachmentStore{}
@@ -75,4 +76,14 @@ func (f FileSystemAttachmentStore) Get(orderID int, filename string) (io.Reader,
 	}
 
 	return fl, nil
+}
+
+func (f FileSystemAttachmentStore) Delete(orderID int, filename string) error {
+	safepath := path.Join(f.filesystem, fmt.Sprint(orderID), sanitizeFilename(filename))
+	err := os.Remove(safepath)
+	if err != nil {
+		return fmt.Errorf("cannot delete attachment file %d %q: %w", orderID, filename, err)
+	}
+
+	return nil
 }

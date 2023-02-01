@@ -14,6 +14,14 @@
     display: flex;
 }
 
+.child-background-alternate:nth-child(even) {
+    background-color: hsl(0, 0%, 98%);
+}
+
+.child-background-alternate:not(:last-child) {
+    border-bottom: 1px solid hsl(0, 0%, 85%);
+}
+
 .notification {
     margin: 1rem;
 }

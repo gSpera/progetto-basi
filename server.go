@@ -625,6 +625,26 @@ func (s *Server) HandleRetrieveAttachment(w http.ResponseWriter, r *http.Request
 	}
 }
 
+func (s *Server) HandleApiDeleteAttachment(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	orderIDString := r.Form.Get("id")
+	filename := r.Form.Get("name")
+	orderID, err := strconv.Atoi(orderIDString)
+
+	if err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+
+	s.Log.Printf("Deleting attachment %d %q\n", orderID, filename)
+	err = s.AttachmentStore.Delete(orderID, filename)
+	if err != nil {
+		s.Log.Errorf("Cannot delete attachment for order %d %q %v", orderID, filename, err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+}
+
 // LoggedInMiddleWare makes sure the request continues only if the user is logged in
 func (s *Server) LoggedInMiddleware(handler http.HandlerFunc, redirectTo string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
