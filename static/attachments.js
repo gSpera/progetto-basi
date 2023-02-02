@@ -91,7 +91,7 @@ class AttachmentModal extends React.Component {
                                         <span className="mdi mdi-file-document"></span>
                                     </span>
                                     <a href={`/attachments/${this.state.order.ID}/${file.Name}`} target="_blank">{file.Name}</a>
-                                    <span className="icon is-medium is-pulled-right is-clickable" onClick={() => this.deleteAttachmentShow(file)}>
+                                    <span className="icon is-medium is-pulled-right is-clickable only-admin" onClick={() => this.deleteAttachmentShow(file)}>
                                         <span className="mdi mdi-delete"></span>
                                     </span>
                                 </div>)}
