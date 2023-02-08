@@ -100,12 +100,12 @@ CREATE TRIGGER order_new AFTER INSERT ON ordine FOR EACH ROW
     BEGIN INSERT INTO stato VALUES (NULL, NEW.id, 0, strftime("%Y-%m-%d %H:%M:%S")); END;
 
 CREATE VIEW ultimi_stati AS
-SELECT ordine.id, ordine.ordine, ordine.protocollo, ordine.ddt, produttore.id as produttore_id, destinatario.id as destinatario_id, produttore.nome as produttore_nome, destinatario.nome as destinatario_nome, ordine.num_colli, ordine.ritirare_assegno, regione_string.value as regione, ordine.trasportatore, ordine.data_creazione, ordine.data_consegna, MAX(stato.stato) as stato, stato_string.value as stato_string, MAX(stato.quando) as quando
+SELECT ordine.id, ordine.ordine, ordine.protocollo, ordine.ddt, produttore.id as produttore_id, destinatario.id as destinatario_id, produttore.nome as produttore_nome, destinatario.nome as destinatario_nome, ordine.num_colli, ordine.ritirare_assegno, regione_string.value as regione, ordine.trasportatore, ordine.data_creazione, ordine.data_consegna, stato.stato, stato_string.value as stato_string, stato.quando
 FROM ordine
- JOIN stato ON ordine.id = stato.ordine_id
+ JOIN (SELECT * FROM (SELECT * FROM stato ORDER BY quando DESC) GROUP BY ordine_id) stato ON ordine.id = stato.ordine_id
  JOIN azienda produttore ON ordine.produttore_id = produttore.id
  JOIN azienda destinatario ON ordine.destinatario_id = destinatario.id
- JOIN stato_string ON stato_string.id = (SELECT MAX(stato.stato) FROM stato WHERE ordine_id = ordine.id)
+ JOIN stato_string ON stato_string.id = stato.stato
  JOIN regione_string ON destinatario.regione = regione_string.id
 GROUP BY ordine.ddt, produttore.nome, destinatario.nome, ordine.num_colli, ordine.ritirare_assegno, stato_string.value
 ORDER BY ordine.data_creazione DESC;
