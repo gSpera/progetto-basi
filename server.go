@@ -645,6 +645,32 @@ func (s *Server) HandleApiDeleteAttachment(w http.ResponseWriter, r *http.Reques
 	}
 }
 
+func (s *Server) HandleApiAttachmentIcons(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	idsValue := r.FormValue("ids")
+	idsStringList := strings.Split(idsValue, ",")
+
+	res := make(map[int]int, len(idsStringList))
+	for _, value := range idsStringList {
+		id, err := strconv.Atoi(value)
+		if err != nil {
+			http.Error(w, "Invalid request", http.StatusBadRequest)
+			return
+		}
+
+		res[id], err = s.AttachmentStore.HowMany(id)
+		if err != nil {
+			s.Log.Errorln("Cannot retrieve len of attachments for order:", id, ":", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+	}
+
+	encoder := json.NewEncoder(w)
+	encoder.SetIndent("", "\t")
+	encoder.Encode(res)
+}
+
 // LoggedInMiddleWare makes sure the request continues only if the user is logged in
 func (s *Server) LoggedInMiddleware(handler http.HandlerFunc, redirectTo string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

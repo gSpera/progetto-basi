@@ -17,6 +17,7 @@ class OrdersTable extends React.Component {
                 bankCheck: "",
             },
             searchedOrders: [],
+            ordersIcons: {},
             updateArriveDate: { show: false },
             deleteOrder: { show: false },
         };
@@ -33,6 +34,7 @@ class OrdersTable extends React.Component {
         this.editOrder = this.editOrder.bind(this);
         this.searchOrders = this.searchOrders.bind(this);
         this.searchDeleteDate = this.searchDeleteDate.bind(this);
+        this.updateAttachmentIcons = this.updateAttachmentIcons.bind(this);
 
         setInterval(() => { this.update() }, 5000);
         this.update();
@@ -113,7 +115,17 @@ class OrdersTable extends React.Component {
         this.setState({
             ...this.state,
             searchedOrders: filtered,
-        })
+        }, this.updateAttachmentIcons)
+    }
+
+    updateAttachmentIcons() {
+        const orders = this.state.searchedOrders.map(order => order.ID).join(",")
+        fetch("/api/attachment-icons?ids=" + orders)
+            .then(r => r.json())
+            .then(r => this.setState({
+                ...this.state,
+                ordersIcons: r,
+            }))
     }
 
     searchDeleteDate(name) {
@@ -254,7 +266,8 @@ class OrdersTable extends React.Component {
                                 <td className="only-admin">{order.Carrier}</td>
                                 <td className="no-print">
                                     <span className="icon is-medium is-clickable" onClick={() => this.props.attachmentsRef.current.show(order)}>
-                                        <span className="mdi mdi-file-document-multiple"></span>
+                                        <span className={"mdi " + (this.state.ordersIcons[order.ID] == undefined ? "mdi-timer-sand"
+                                            : this.state.ordersIcons[order.ID] > 0 ? "mdi-file-document-multiple" : "mdi-tray-arrow-up")}></span>
                                     </span>
                                 </td>
                                 <td className=" only-admin no-print">
@@ -273,7 +286,8 @@ class OrdersTable extends React.Component {
                     }
                 </tbody>
             </table>
-            {this.state.updateArriveDate.show &&
+            {
+                this.state.updateArriveDate.show &&
                 <div className="modal is-active">
                     <div className="modal-background"></div>
                     <div className="modal-card">
@@ -298,7 +312,8 @@ class OrdersTable extends React.Component {
                     </div>
                 </div>
             }
-            {this.state.deleteOrder.show &&
+            {
+                this.state.deleteOrder.show &&
                 <div className="modal is-active">
                     <div className="modal-background"></div>
                     <div className="modal-card">
@@ -321,6 +336,6 @@ class OrdersTable extends React.Component {
                     </div>
                 </div>
             }
-        </React.Fragment>
+        </React.Fragment >
     }
 }

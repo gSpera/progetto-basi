@@ -15,6 +15,7 @@ type AttachmentStore interface {
 	Put(orderID int, filename string, fl io.Reader) error
 	Get(orderID int, filename string) (io.Reader, error)
 	Delete(orderID int, filename string) error
+	HowMany(orderID int) (int, error)
 }
 
 var _ AttachmentStore = FileSystemAttachmentStore{}
@@ -86,4 +87,15 @@ func (f FileSystemAttachmentStore) Delete(orderID int, filename string) error {
 	}
 
 	return nil
+}
+
+func (f FileSystemAttachmentStore) HowMany(orderID int) (int, error) {
+	safepath := path.Join(f.filesystem, fmt.Sprint(orderID))
+	fls, err := os.ReadDir(safepath)
+
+	if errors.Is(err, fs.ErrNotExist) { // Attachments sub dir doen't exist, no attachments
+		return 0, nil
+	}
+
+	return len(fls), err
 }
