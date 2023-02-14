@@ -203,6 +203,13 @@ class OrdersTable extends React.Component {
             </span>
         </th>
 
+        const attachmentIcon = (attachmentNum) => {
+            if (attachmentNum == 1) return "mdi-file-document"
+            if (attachmentNum > 1) return "mdi-file-document-multiple"
+
+            return "mdi-tray-arrow-up only-admin"
+        }
+
         return <React.Fragment>
             <table className="table is-striped is-narrow is-hoverable is-fullwidth">
                 <thead>
@@ -266,8 +273,7 @@ class OrdersTable extends React.Component {
                                 <td className="only-admin">{order.Carrier}</td>
                                 <td className="no-print">
                                     <span className="icon is-medium is-clickable" onClick={() => this.props.attachmentsRef.current.show(order)}>
-                                        <span className={"mdi " + (this.state.ordersIcons[order.ID] == undefined ? "mdi-timer-sand"
-                                            : this.state.ordersIcons[order.ID] > 0 ? "mdi-file-document-multiple" : "mdi-tray-arrow-up")}></span>
+                                        <span className={"mdi " + attachmentIcon(this.state.ordersIcons[order.ID])}></span>
                                     </span>
                                 </td>
                                 <td className=" only-admin no-print">
