@@ -136,7 +136,7 @@ func (s *Server) HandlerApiGetOrders(w http.ResponseWriter, r *http.Request) {
 		ProducerID        int     `db:"PRODUTTORE_ID" sqlite:"produttore_id"`
 		RecipientName     string  `db:"DESTINATARIO_NOME" sqlite:"destinatario_nome"`
 		RecipientID       int     `db:"DESTINATARIO_ID" sqlite:"destinatario_id"`
-		NumPackages       int     `db:"NUM_COLLI" sqlite:"num_colli"`
+		NumPackages       string  `db:"NUM_COLLI" sqlite:"num_colli"`
 		WithdrawBankCheck bool    `db:"RITIRARE_ASSEGNO" sqlite:"ritirare_assegno"`
 		StateID           int     `db:"STATO" sqlite:"stato"`
 		StateString       string  `db:"STATO_STRING" sqlite:"stato_string"`
@@ -146,7 +146,6 @@ func (s *Server) HandlerApiGetOrders(w http.ResponseWriter, r *http.Request) {
 		CreationDate      SqlTime `sqlite:"data_creazione"`
 		ArriveDate        SqlTime `sqlite:"data_consegna"`
 	}
-	result := make([]Order, 0, 10)
 
 	orders, err := s.Database.LatestStatesFor(int(claims["aziendaId"].(float64)))
 	if err != nil {
@@ -156,6 +155,7 @@ func (s *Server) HandlerApiGetOrders(w http.ResponseWriter, r *http.Request) {
 	}
 	defer orders.Close()
 
+	result := make([]Order, 0, 10)
 	for orders.Next() {
 		var order Order
 		err := orders.StructScan(&order)
@@ -329,7 +329,7 @@ type NewOrderInput struct {
 	DDT          string
 	Order        string
 	Protocollo   string
-	NumColli     int `json:",string"`
+	NumColli     string
 	Assegno      bool
 	Carrier      string
 	ArriveDate   SqlTime

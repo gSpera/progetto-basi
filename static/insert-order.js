@@ -326,7 +326,7 @@ class InsertOrder extends React.Component {
                         <div className="field is-horizontal">
                             <label htmlFor="num-colli" className="field-label label">Numero Colli</label>
                             <div className="field-body control">
-                                <input name="num-colli" className="input" type="number" value={this.state.Selection.NumColli} onChange={this.handleChange} />
+                                <input name="num-colli" className="input" value={this.state.Selection.NumColli} onChange={this.handleChange} />
                             </div>
                         </div>
 

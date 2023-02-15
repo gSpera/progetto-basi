@@ -22,7 +22,7 @@ CREATE TABLE ordine (
     protocollo varchar(20) not null,
     produttore_id integer not null,
     destinatario_id integer not null,
-    num_colli integer default 1 not null,
+    num_colli varchar(20) not null,
     ritirare_assegno integer not null,-- Boolean
     trasportatore varchar(20),
     data_creazione date,
