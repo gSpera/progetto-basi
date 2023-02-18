@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="/static/vendor/bulma.min.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="/static/vendor/mdi/materialdesignicons.min.css">
+
+    <link rel="stylesheet" href="/static/style.css">
+
+    <style id="only-admin-css">
+        .only-admin {
+            display: none;
+        }
+    </style>
+
+    <script src="/static/vendor/react.development.js"></script>
+    <script src="/static/vendor/react-dom.development.js"></script>
+    <script src="/static/vendor/babel.min.js"></script>
+
+    <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/static/logo-small.png" type="image/x-icon">
+
+    <title>Inventario Spera Logistica SRL</title>
+</head>
+
+<body>
+    <nav class="navbar is-warning no-print">
+        <div class="navbar-menu">
+            <div class="navbar-start">
+                <div class="navbar-item is-size-4">
+                    Gestione Ordini
+                </div>
+            </div>
+            <div class="navbar-end">
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <div id="azienda-nome" class="navbar-link is-underlined"></div>
+
+                    <div class="navbar-dropdown">
+                        <span class="navbar-item icon-text">
+                            <span class="icon"><i class="mdi mdi-account"></i></span>
+                            <span id="navbar-username"></span>
+                        </span>
+                        <span class="navbar-item icon-text">
+                            <span class="icon"><i class="mdi mdi-briefcase"></i></span>
+                            <span id="navbar-company"></span>
+                        </span>
+                        <span class="navbar-item icon-text is-underlined">
+                            <span class="icon"><i class="mdi mdi-logout"></i></span>
+                            <a href="/logout">Esci</a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="section content">
+        <h1>Ordini </h1>
+        <h3><span class="only-print" id="order-header-date"></span></h3>
+        <div class="buttons" id="orders-buttons">
+            <div class="control has-icons-left mt only-admin no-print m-3">
+                <span class="icon is-left">
+                    <span class="mdi mdi-package-variant-closed-plus has-text-info"></span>
+                </span>
+
+                <button class="input button is-info is-outlined" onclick="add_order_button()">Aggiungi ordine</button>
+            </div>
+            <div class="control has-icons-left mt only-admin no-print m-3">
+                <span class="icon is-left">
+                    <span class="mdi mdi-briefcase-edit has-text-info"></span>
+                </span>
+
+                <button class="input button is-info is-outlined" onclick="edit_company_button()">Modifica
+                    azienda</button>
+            </div>
+            <div class="control has-icons-left mt no-print m-3">
+                <span class="icon is-left">
+                    <span class="mdi mdi-printer has-text-info"></span>
+                </span>
+
+                <button class="input button is-info is-outlined" onclick="window.print()">Stampa</button>
+            </div>
+
+            <div class="table-container">
+                <div id="orders-root" />
+            </div>
+        </div>
+    </div>
+
+    <div id="insert-order-root"></div>
+    <div id="insert-azienda-root"></div>
+    <div id="info-order-root"></div>
+    <div id="update-order-root"></div>
+    <div id="notification-root"></div>
+    <div id="attachments-root"></div>
+
+    <script type="text/babel" src="/static/insert-order.js"></script>
+    <script type="text/babel" src="/static/insert-azienda.js"></script>
+    <script type="text/babel" src="/static/orders-table.js"></script>
+    <script type="text/babel" src="/static/info-order.js"></script>
+    <script type="text/babel" src="/static/update-order.js"></script>
+    <script type="text/babel" src="/static/notification.js"></script>
+    <script type="text/babel" src="/static/attachments.js"></script>
+    <script type="text/babel" src="/static/script.js"></script>
+</body>
+
+</html>

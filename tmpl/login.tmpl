@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/static/logo-small.png" type="image/x-icon">
+</head>
+
+<body style="background-image: url('/static/background-blur.jpg'); background-position: center; height: 100vh;">
+    <section class="section" style="margin: auto;">
+        <div class="box">
+            <h3 class="title">Gestione Ordini - Login</h3>
+            <form action="/login" method="POST">
+                <div class="field is-horizontal">
+                    <div class="field-label is-medium">
+                        <label class="label">Username:</label>
+                    </div>
+                    <div class="field-body">
+                        <input class="input" name="username" placeholder="Username">
+                    </div>
+                </div>
+                <div class="field is-horizontal">
+                    <div class="field-label is-medium">
+                        <label class="label">Password:</label>
+                    </div>
+                    <div class="field-body">
+                        <input class="input" name="password" type="password" placeholder="Password">
+                    </div>
+                </div>
+                <div class="field is-grouped is-grouped-right">
+                    <button class="button is-primary">Login</button>
+                </div>
+            </form>
+        </div>
+    </section>
+</body>
+
+</html>
