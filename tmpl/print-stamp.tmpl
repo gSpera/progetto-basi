@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Order}}</title>
+
+    <style>
+        body {
+            /* A4 */
+            width: 21cm;
+            height: 29.7cm;
+
+            margin: 0;
+            padding: 2rem;
+        }
+
+        @page {
+            size: 21cm 29.7cm;
+        }
+
+        .main {
+            height: 50%;
+            width: 100%;
+            margin: 0;
+            font-family: 'Fira Code';
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 4rem;
+            margin: 0;
+        }
+
+        h2 {
+            font-size: 3rem;
+            margin: 0;
+        }
+
+        h3 {
+            margin: 0;
+            font-size: 2rem;
+        }
+    </style>
+</head>
+
+<body>
+    {{ define "content" }}
+    <div class="main">
+        <h1>{{.Order}}</h1>
+        <h1>{{.CompanyName}}</h1>
+        <h2>{{if .CompanyCity}}{{.CompanyCity}}{{end}}</h2>
+        {{ if gt (len .Note) 0 }}
+        <h3>Note: {{.Note}}</h3>
+        {{ end }}
+    </div>
+    {{ end }}
+
+    {{ template "content" . }}
+    {{ template "content" . }}
+
+    <script>
+        window.onafterprint = () => window.close()
+        window.print()
+    </script>
+</body>
+
+</html>

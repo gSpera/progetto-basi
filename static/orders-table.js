@@ -35,6 +35,7 @@ class OrdersTable extends React.Component {
         this.searchOrders = this.searchOrders.bind(this);
         this.searchDeleteDate = this.searchDeleteDate.bind(this);
         this.updateAttachmentIcons = this.updateAttachmentIcons.bind(this);
+        this.stampOrder = this.stampOrder.bind(this);
 
         setInterval(() => { this.update() }, 5000);
         this.update();
@@ -183,6 +184,10 @@ class OrdersTable extends React.Component {
         this.props.insertOrderRef.current.editOrder(order)
     }
 
+    stampOrder(order) {
+        window.open("/stamp/" + order.ID, "_blank", "popup=true")
+    }
+
     render() {
         const searchInput = (name, classes) => <th key={name} className={classes ? classes : ""}>
             <span className="control has-icons-right">
@@ -277,13 +282,16 @@ class OrdersTable extends React.Component {
                                     </span>
                                 </td>
                                 <td className=" only-admin no-print">
-                                    <span className="icon is-medium only-admin" style={{ cursor: "pointer" }} onClick={() => this.orderInfo(order)}>
+                                    <span className="icon is-medium only-admin is-clickable" onClick={() => this.orderInfo(order)}>
                                         <span className="mdi mdi-information-outline"></span>
                                     </span>
-                                    <span className="icon is-medium only-admin" style={{ cursor: "pointer" }} onClick={() => this.editOrder(order)}>
+                                    <span className="icon is-medium only-admin is-clickable" onClick={() => this.stampOrder(order)}>
+                                        <span className="mdi mdi-qrcode"></span>
+                                    </span>
+                                    <span className="icon is-medium only-admin is-clickable" onClick={() => this.editOrder(order)}>
                                         <span className="mdi mdi-pencil"></span>
                                     </span>
-                                    <span className="icon is-medium only-admin" style={{ cursor: "pointer" }} onClick={() => this.deleteOrderButton(order)}>
+                                    <span className="icon is-medium only-admin is-clickable" onClick={() => this.deleteOrderButton(order)}>
                                         <span className="mdi mdi-delete"></span>
                                     </span>
                                 </td>
