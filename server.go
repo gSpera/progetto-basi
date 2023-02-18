@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"html/template"
 	"io"
@@ -669,6 +670,114 @@ func (s *Server) HandleApiAttachmentIcons(w http.ResponseWriter, r *http.Request
 	encoder := json.NewEncoder(w)
 	encoder.SetIndent("", "\t")
 	encoder.Encode(res)
+}
+
+func (s *Server) HandlePrintStamp(w http.ResponseWriter, r *http.Request) {
+	var orderID int
+	_, err := fmt.Sscanf(r.URL.Path, "/stamp/%d", &orderID)
+	if err != nil {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	r.ParseForm()
+	stampNote := r.Form.Get("note")
+
+	res := s.Database.LoadStampInfoFor(orderID)
+	var info struct {
+		OrderID           int    `sqlite:"ordine_id"`
+		Order             string `sqlite:"ordine"`
+		DDT               *string
+		NumPackages       string  `sqlite:"num_colli"`
+		WithdrawBankCheck bool    `sqlite:"ritirare_assegno"`
+		CompanyID         int     `sqlite:"azienda_id"`
+		CompanyName       string  `sqlite:"nome"`
+		CompanyRegion     string  `sqlite:"regione"`
+		CompanyCity       *string `sqlite:"comune"`
+		CompanyAddress    *string `sqlite:"indirizzo"`
+		Note              string
+	}
+	info.Note = stampNote
+	err = res.StructScan(&info)
+	if errors.Is(err, sql.ErrNoRows) {
+		http.Error(w, "Not found", http.StatusNotFound)
+		s.Log.Warnln("Order:", orderID, "not found")
+		return
+	}
+
+	if err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		s.Log.Errorln("Cannot scan info for stamp:", orderID, ":", err)
+		return
+	}
+
+	tmpl, err := template.New("stamp").ParseFiles("tmpl/print-stamp.tmpl")
+	if err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		s.Log.Errorln("Cannot parse stamp template:", err)
+		return
+	}
+	err = tmpl.ExecuteTemplate(w, "print-stamp.tmpl", info)
+	if err != nil {
+		s.Log.Errorln("Cannot execute stamp template:", err)
+		return
+	}
+}
+
+func (s *Server) HandleApiInfoForCompany(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	companyID, err := strconv.Atoi(r.FormValue("id"))
+	if err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+
+	row := s.Database.InfoForCompany(companyID)
+	res := struct {
+		Name     string  `sqlite:"nome"`
+		Address  *string `sqlite:"indirizzo"`
+		City     *string `sqlite:"comune"`
+		RegionID int     `sqlite:"regione" json:",string"`
+	}{}
+	err = row.StructScan(&res)
+	if errors.Is(err, sql.ErrNoRows) {
+		http.Error(w, "Not found", http.StatusNotFound)
+		return
+	}
+	if err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		s.Log.Errorln("Cannot scan company info:", companyID, ":", err)
+		return
+	}
+
+	enc := json.NewEncoder(w)
+	enc.SetIndent("", "\t")
+	enc.Encode(res)
+}
+
+func (s *Server) HandleApiUpdateCompany(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	input := struct {
+		CompanyID int    `json:"EditCompanyID,string"`
+		Name      string `json:"Name"`
+		Address   string `json:"Address"`
+		City      string `json:"Comune"`
+		RegionID  int    `json:"RegioneID,string"`
+	}{}
+
+	err := json.NewDecoder(r.Body).Decode(&input)
+	if err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+
+	s.Log.Println("Update company:", input.CompanyID, input)
+	_, err = s.Database.UpdateCompany(input.CompanyID, input.Name, input.RegionID, input.City, input.Address)
+	if err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		s.Log.Errorln("Cannot update company:", input.CompanyID, err)
+		return
+	}
 }
 
 // LoggedInMiddleWare makes sure the request continues only if the user is logged in

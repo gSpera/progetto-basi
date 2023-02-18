@@ -95,3 +95,14 @@ func (d Database) EditOrder(order NewOrderInput) (sql.Result, error) {
 		`UPDATE ordine SET ddt=?, ordine=?, protocollo=?, produttore_id=?, destinatario_id=?, num_colli=?, ritirare_assegno=?, trasportatore=?, data_creazione=?, data_consegna=?, note=? WHERE id=?`,
 		order.DDT, order.Order, order.Protocollo, order.Sender, order.ReceiverID, order.NumColli, assegno, order.Carrier, order.CreationDate, order.ArriveDate, order.Note, order.OrderID)
 }
+func (d Database) LoadStampInfoFor(orderID int) *sqlx.Row {
+	return d.db.QueryRowx(`SELECT o.id AS ordine_id, o.ordine, o.ddt, o.num_colli, o.ritirare_assegno, a.id AS azienda_id, a.nome, regione_string.value AS regione, a.comune, a.indirizzo FROM ordine o JOIN azienda a ON o.destinatario_id=a.id JOIN regione_string ON a.regione = regione_string.id WHERE o.id=?`, orderID)
+}
+
+func (d Database) InfoForCompany(companyID int) *sqlx.Row {
+	return d.db.QueryRowx(`SELECT nome, indirizzo, comune, regione FROM azienda WHERE id=?`, companyID)
+}
+
+func (d Database) UpdateCompany(companyID int, name string, regionID int, city string, address string) (sql.Result, error) {
+	return d.db.Exec(`UPDATE azienda SET nome=?, regione=?, comune=?, indirizzo=? WHERE id=?`, name, regionID, city, address, companyID)
+}

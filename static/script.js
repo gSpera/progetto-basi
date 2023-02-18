@@ -110,7 +110,7 @@ fetch("/api/me")
 
         ReactDOM.createRoot(insert_order).render(<InsertOrder ref={insertOrderRef} sender={Math.max(r.CompanyID, 0)} orderTableRef={ordersTableRef} insertAziendaRef={insertAziendaRef} notificationRef={notificationRef} />)
     })
-    .catch(err => notificationRef.current.notify("Informazioni"))
+    .catch(err => notificationRef.current.notify("Informazioni: " + err))
 
 const insert_order = document.querySelector("#insert-order-root")
 const insert_azienda = document.querySelector("#insert-azienda-root")
@@ -134,6 +134,10 @@ function add_azienda_button() {
 
 function hide_azienda_button() {
     insertAziendaRef.current.close()
+}
+
+function edit_company_button() {
+    insertAziendaRef.current.openEdit()
 }
 
 // Used HTML input tag

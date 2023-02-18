@@ -65,3 +65,12 @@ func (d Database) DeleteOrder(orderID int) (sql.Result, error) {
 func (d Database) EditOrder(order NewOrderInput) (sql.Result, error) {
 	panic("no database selected")
 }
+func (d Database) LoadStampInfoFor(orderID int) *sqlx.Row {
+	panic("no database selected")
+}
+func (d Database) InfoForCompany(companyID int) *sqlx.Row {
+	panic("no database selected")
+}
+func (d Database) UpdateCompany(companyID int, name string, regionID int, city string, address string) (sql.Result, error) {
+	panic("no database selected")
+}

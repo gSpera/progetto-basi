@@ -4,6 +4,7 @@ class InsertAzienda extends React.Component {
 
         this.state = {
             show: false,
+            edit: null,
 
             Name: "",
             Role: "2",
@@ -16,6 +17,8 @@ class InsertAzienda extends React.Component {
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.openEdit = this.openEdit.bind(this);
+        this.handleEditSubmit = this.handleEditSubmit.bind(this);
         this.close = this.close.bind(this);
     }
 
@@ -23,8 +26,13 @@ class InsertAzienda extends React.Component {
         this.setState({
             ...this.state,
             show: true,
+            edit: null,
             onSuccess: callback,
             Name: name,
+
+            Comune: "",
+            Address: "",
+            RegioneID: "1",
         })
     }
 
@@ -53,6 +61,19 @@ class InsertAzienda extends React.Component {
             case "regione":
                 this.state.RegioneID = String(value);
                 break;
+            case "editCompanyID":
+                this.state.EditCompanyID = String(value);
+                fetch("/api/info-for-company?id=" + String(value))
+                    .then(r => r.json())
+                    .then(r => this.setState({
+                        ...this.state,
+                        Name: r.Name,
+                        Address: r.Address || "",
+                        Comune: r.City || "",
+                        RegioneID: r.RegionID,
+                    }))
+                    .catch(err => this.props.notificationRef.current.notify("Ricezione informazioni: " + err))
+                break;
             default:
                 alert("Errore");
                 this.props.notificationRef.current.notify("Errore interno update insert azienda")
@@ -63,12 +84,6 @@ class InsertAzienda extends React.Component {
     }
 
     handleSubmit() {
-        if (this.state.DDT == "") {
-            alert("Inserire un DDT valido")
-            this.props.notificationRef.current.notify("Inserire un DDT valido")
-            return
-        }
-
         fetch("/api/new-azienda", {
             method: "POST",
             cache: "no-cache",
@@ -86,10 +101,45 @@ class InsertAzienda extends React.Component {
             .catch(err => this.props.notificationRef.current.notify("Nuova azienda:" + err))
     }
 
+    openEdit() {
+        fetch("/api/avaible-receivers")
+            .then(r => r.json())
+            .then(r => this.setState({
+                ...this.state,
+                show: true,
+
+                Name: "",
+                Comune: "",
+                Address: "",
+                RegioneID: "1",
+                edit: { companyID: 'X', receivers: r.Receivers },
+            }))
+            .catch(err => this.props.notificationRef.current.notify("Impossibile modificare le aziende: " + err))
+    }
+
+    handleEditSubmit() {
+        fetch("/api/update-azienda", {
+            method: "POST",
+            cache: "no-cache",
+            body: JSON.stringify(this.state),
+        })
+            .then(resp => {
+                if (!resp.ok) {
+                    this.props.notificationRef.current.notify("Impossibile modificare l'azienda")
+                    console.error("Modifica azienda:" + resp)
+                    return
+                }
+
+                this.close()
+            })
+            .catch(err => this.props.notificationRef.current.notify("Modifica azienda:" + err))
+    }
+
     close() {
         this.setState({
             ...this.state,
             show: false,
+            edit: null,
         })
     }
 
@@ -102,11 +152,23 @@ class InsertAzienda extends React.Component {
             <div className="modal-background"></div>
             <div className="modal-card">
                 <header className="modal-card-head">
-                    <div className="modal-card-title">Aggiungi Azienda</div>
+                    <div className="modal-card-title">{this.state.edit != null ? "Modifica" : "Aggiungi"} Azienda</div>
                 </header>
 
                 <div className="modal-card-body">
-                    <form onSubmit={this.handleSubmit}>
+                    <form>
+                        {this.state.edit != null &&
+                            <div className="field is-horizontal">
+                                <label htmlFor="editCompanyID" className="field-label label">Azienda da mofidicare:</label>
+                                <div className="field-body control select">
+                                    <select name="editCompanyID" value={this.state.edit.companyID} onChange={this.handleChange}>
+                                        {this.state.edit.companyID == 'X' && <option value="X">--Seleziona l'azienda--</option>}
+                                        {this.state.edit.receivers.map(r => <option value={r.ID} key={r.ID}>{r.Name}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+                        }
+
                         <div className="field is-horizontal">
                             <label htmlFor="name" className="field-label label">Nome:</label>
                             <div className="field-body control">
@@ -139,7 +201,7 @@ class InsertAzienda extends React.Component {
                         </div>
 
                         <div className="field is-horizontal">
-                            <label htmlFor="regione" className="field-label label">Ruolo:</label>
+                            <label htmlFor="regione" className="field-label label">Regione:</label>
                             <div className="field-body control select">
                                 <select name="regione" value={this.state.RegioneID} onChange={this.handleChange}>
                                     {regioni.map(r => <option value={r.ID} key={r.ID}>{r.Name}</option>)}
@@ -162,10 +224,10 @@ class InsertAzienda extends React.Component {
                     </form>
                 </div>
                 <div className="modal-card-foot">
-                    <button className="button is-primary" onClick={this.handleSubmit}>Aggiungi</button>
+                    <button className="button is-primary" onClick={this.state.edit != null ? this.handleEditSubmit : this.handleSubmit}>{this.state.edit != null ? "Modifica" : "Aggiungi"}</button>
                     <button className="button" onClick={this.close}>Chiudi</button>
                 </div>
-            </div>
-        </div>;
+            </div >
+        </div >;
     }
 }

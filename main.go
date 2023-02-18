@@ -52,6 +52,8 @@ func main() {
 	http.Handle("/api/avaible-receivers", server.LoggedInMiddleware(server.HandlerApiReceivers, "/login"))
 	http.Handle("/api/new-order", server.LoggedInMiddleware(server.HandleApiNewOrder, "/login"))
 	http.Handle("/api/new-azienda", server.LoggedInMiddleware(server.HandleApiNewAzienda, "/login"))
+	http.Handle("/api/info-for-company", server.LoggedInMiddleware(server.HandleApiInfoForCompany, "/login"))
+	http.Handle("/api/update-azienda", server.LoggedInMiddleware(server.HandleApiUpdateCompany, "/login"))
 	http.Handle("/api/update-order", server.LoggedInMiddleware(server.HandleApiUpdateOrder, "/login"))
 	http.Handle("/api/update-arrive-date", server.LoggedInMiddleware(server.HandleApiUpdateArriveDate, "/login"))
 	http.Handle("/api/delete-order", server.LoggedInMiddleware(server.HandleApiDeleteOrder, "/login"))
@@ -62,6 +64,7 @@ func main() {
 	http.Handle("/api/delete-attachment", server.LoggedInMiddleware(server.HandleApiDeleteAttachment, "/login"))
 	http.Handle("/api/attachment-icons", server.LoggedInMiddleware(server.HandleApiAttachmentIcons, "/login"))
 	http.Handle("/attachments/", server.LoggedInMiddleware(server.HandleRetrieveAttachment, "/login"))
+	http.Handle("/stamp/", server.LoggedInMiddleware(server.HandlePrintStamp, "/login"))
 	http.Handle("/api/me", server.LoggedInMiddleware(server.HandlerApiAboutMe, "/login"))
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
