@@ -44,6 +44,27 @@ func NewServer(db Database, attachments AttachmentStore, tmplDir fs.FS, logger *
 	}, nil
 }
 
+// DeliverOrder is called externally and is used to signal that an order has been delivered
+// this functions returns the order and an error
+func (s *Server) DeliverOrder(orderID int) (order, companyName, city string, err error) {
+	// Maybe not hardcode value
+	_, err = s.Database.AddStateToOrder(orderID, 7, time.Now())
+	if err != nil {
+		return "", "", "", fmt.Errorf("cannot add state: %w", err)
+	}
+
+	row := s.Database.InfoForOrder(orderID)
+	err = row.Scan(&order, &companyName, &city)
+	if errors.Is(err, sql.ErrNoRows) {
+		return "", "", "", fmt.Errorf("cannot find order: %w", err)
+	}
+	if err != nil {
+		return "", "", "", fmt.Errorf("cannot scan order info: %w", err)
+	}
+
+	return
+}
+
 func (s *Server) HandleHome(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "tmpl/ordini.html")
 }

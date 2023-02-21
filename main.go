@@ -13,6 +13,10 @@ type Config struct {
 	JWTSecret     string
 	ListenAddress string
 	DatabaseArg   string
+
+	WhatsAppAccessToken       string
+	WhatsAppWebhookVerifyCode string
+	WhatsAppPhoneNumberID     string
 }
 
 func main() {
@@ -59,6 +63,15 @@ func main() {
 		log.Fatalln("Cannot initialize server:", err)
 	}
 
+	log.Println("Initializing whatsapp business api")
+	whatsapp := NewWhatsappAPI(
+		log.WithField("what", "whatsapp"),
+		cfg.WhatsAppWebhookVerifyCode,
+		cfg.WhatsAppAccessToken,
+		cfg.WhatsAppPhoneNumberID,
+		&server,
+	)
+
 	log.Println("Registering handlers")
 	http.Handle("/", server.LoggedInMiddleware(server.HandleHome, "/login"))
 	http.HandleFunc("/login", server.HandleLogin)
@@ -82,6 +95,8 @@ func main() {
 	http.Handle("/attachments/", server.LoggedInMiddleware(server.HandleRetrieveAttachment, "/login"))
 	http.Handle("/stamp/", server.LoggedInMiddleware(server.HandlePrintStamp, "/login"))
 	http.Handle("/api/me", server.LoggedInMiddleware(server.HandlerApiAboutMe, "/login"))
+
+	http.Handle("/api/whatsapp-webhook", whatsapp)
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 

@@ -8,16 +8,22 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/sijms/go-ora/v2 v2.5.3
 	github.com/sirupsen/logrus v1.9.0
+	modernc.org/sqlite v1.20.1
 )
 
 require (
 	github.com/dustin/go-humanize v1.0.0 // indirect
+	github.com/gSpera/whatsapp-business-api v0.0.0-20230220224902-4cef4f6ae092 // indirect
+	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
+	github.com/liyue201/goqr v0.0.0-20200803022322-df443203d4ea // indirect
+	github.com/makiuchi-d/gozxing v0.1.1 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
 	golang.org/x/mod v0.3.0 // indirect
 	golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab // indirect
+	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/tools v0.0.0-20201124115921-2c860bdd6e78 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	lukechampine.com/uint128 v1.2.0 // indirect
@@ -27,7 +33,8 @@ require (
 	modernc.org/mathutil v1.5.0 // indirect
 	modernc.org/memory v1.4.0 // indirect
 	modernc.org/opt v0.1.3 // indirect
-	modernc.org/sqlite v1.20.1 // indirect
 	modernc.org/strutil v1.1.3 // indirect
 	modernc.org/token v1.0.1 // indirect
 )
+
+replace github.com/gSpera/whatsapp-business-api => ../whatsapp-business-api
