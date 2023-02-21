@@ -1,31 +1,47 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
-	"fmt"
 	"net/http"
 	"os"
 
 	log "github.com/sirupsen/logrus"
 )
 
+type Config struct {
+	JWTSecret     string
+	ListenAddress string
+	DatabaseArg   string
+}
+
 func main() {
 	log.Println("Starting")
-	jwtSecret := flag.String("jwt-secret", "", "JWT token secret, 32 bytes")
-	listen := flag.String("addr", ":8080", "address used to listen")
-	databaseArg := flag.String("db", DatabaseArgDefault(), fmt.Sprintf("argument to db (%s): %s", DatabaseName(), DatabaseArgUsage()))
+	var cfg Config
+	cfgFile := flag.String("cfg", "config.json", "Config file")
 	flag.Parse()
 
-	if len(*jwtSecret) != 32 {
+	cfgBody, err := os.ReadFile(*cfgFile)
+	if err != nil {
+		log.Errorln("Cannot read config file:", err)
+		return
+	}
+	err = json.Unmarshal(cfgBody, &cfg)
+	if err != nil {
+		log.Errorln("Cannot unmarshal config:", err)
+		return
+	}
+
+	if len(cfg.JWTSecret) != 32 {
 		log.Fatalln("Invalid jwt secret, not 32 bytes")
 	}
 
 	log.Println("Database Name:", DatabaseName())
 	log.Println("Connecting to database")
-	log.Println("Database Argument:", *databaseArg)
+	log.Println("Database Argument:", cfg.DatabaseArg)
 	log.SetReportCaller(true)
 
-	db, err := NewDatabase(*databaseArg)
+	db, err := NewDatabase(cfg.DatabaseArg)
 	if err != nil {
 		log.Fatalln("Cannot connect to database:", err)
 	}
@@ -38,7 +54,7 @@ func main() {
 	attachmentStore := FileSystemAttachmentStore{attachmentsFS}
 
 	log.Println("Initializing server")
-	server, err := NewServer(db, attachmentStore, os.DirFS("./tmpl"), log.NewEntry(log.StandardLogger()), []byte(*jwtSecret))
+	server, err := NewServer(db, attachmentStore, os.DirFS("./tmpl"), log.NewEntry(log.StandardLogger()), []byte(cfg.JWTSecret))
 	if err != nil {
 		log.Fatalln("Cannot initialize server:", err)
 	}
@@ -69,6 +85,6 @@ func main() {
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
-	log.Println("Listening:", *listen)
-	http.ListenAndServe(*listen, nil)
+	log.Println("Listening:", cfg.ListenAddress)
+	http.ListenAndServe(cfg.ListenAddress, nil)
 }
