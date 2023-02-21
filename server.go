@@ -17,6 +17,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v4"
 	log "github.com/sirupsen/logrus"
+	"rsc.io/qr"
 )
 
 type Server struct {
@@ -706,6 +707,7 @@ func (s *Server) HandlePrintStamp(w http.ResponseWriter, r *http.Request) {
 
 	res := s.Database.LoadStampInfoFor(orderID)
 	var info struct {
+		ID                int
 		OrderID           int    `sqlite:"ordine_id"`
 		Order             string `sqlite:"ordine"`
 		DDT               *string
@@ -718,6 +720,7 @@ func (s *Server) HandlePrintStamp(w http.ResponseWriter, r *http.Request) {
 		CompanyAddress    *string `sqlite:"indirizzo"`
 		Note              string
 	}
+	info.ID = orderID
 	info.Note = stampNote
 	err = res.StructScan(&info)
 	if errors.Is(err, sql.ErrNoRows) {
@@ -797,6 +800,27 @@ func (s *Server) HandleApiUpdateCompany(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		s.Log.Errorln("Cannot update company:", input.CompanyID, err)
+		return
+	}
+}
+
+func (s *Server) HandleApiQRCodeForStamp(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	orderID, err := strconv.Atoi(r.FormValue("id"))
+	if err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+
+	qrcode, err := qr.Encode(fmt.Sprintf("SPERA-LOGISTICA-ORDINE:%d", orderID), qr.Q)
+	if err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		s.Log.Errorln("Cannot encode qr code:", err)
+		return
+	}
+	_, err = w.Write(qrcode.PNG())
+	if err != nil {
+		s.Log.Errorln("Cannot encode image:", err)
 		return
 	}
 }

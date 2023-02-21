@@ -14,7 +14,7 @@
             height: 29.7cm;
 
             margin: 0;
-            padding: 2rem;
+            padding: 2.5rem;
         }
 
         @page {
@@ -22,7 +22,7 @@
         }
 
         .main {
-            height: 50%;
+            height: 14.5cm;
             width: 100%;
             margin: 0;
             font-family: 'Fira Code';
@@ -35,6 +35,7 @@
         }
 
         h2 {
+            height: 3cm;
             font-size: 3rem;
             margin: 0;
         }
@@ -42,6 +43,11 @@
         h3 {
             margin: 0;
             font-size: 2rem;
+        }
+
+        .qrcode {
+            height: 5cm;
+            width: 5cm;
         }
     </style>
 </head>
@@ -55,6 +61,8 @@
         {{ if gt (len .Note) 0 }}
         <h3>Note: {{.Note}}</h3>
         {{ end }}
+
+        <img src="/api/qrcode-stamp?id={{.ID}}" class="qrcode" />
     </div>
     {{ end }}
 

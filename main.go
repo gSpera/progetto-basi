@@ -96,6 +96,7 @@ func main() {
 	http.Handle("/stamp/", server.LoggedInMiddleware(server.HandlePrintStamp, "/login"))
 	http.Handle("/api/me", server.LoggedInMiddleware(server.HandlerApiAboutMe, "/login"))
 
+	http.Handle("/api/qrcode-stamp", server.LoggedInMiddleware(server.HandleApiQRCodeForStamp, "/login"))
 	http.Handle("/api/whatsapp-webhook", whatsapp)
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))

@@ -82,7 +82,10 @@ func (wa *WhatsappAPI) handleMessage(msg whatsapp.WebhookMessage) {
 
 	switch msg.Type {
 	case "image":
-		wa.onReceivedImage(msg)
+		err := wa.onReceivedImage(msg)
+		if err != nil {
+			wa.log.Errorln("Cannot handle image:", err)
+		}
 	default:
 		wa.client.SendMessage(wa.phoneNumberID, whatsapp.SendMessage{
 			MessagingProduct: "whatsapp",
@@ -120,6 +123,7 @@ func (wa *WhatsappAPI) onReceivedImage(msg whatsapp.WebhookMessage) error {
 		return fmt.Errorf("cannot decode image: %w", err)
 	}
 
+	log.Printf("Found %d qr codes in image", len(res))
 	for _, qr := range res {
 		text := qr.GetText()
 		log.Println("Found QR Code:", text)

@@ -35,6 +35,7 @@ require (
 	modernc.org/opt v0.1.3 // indirect
 	modernc.org/strutil v1.1.3 // indirect
 	modernc.org/token v1.0.1 // indirect
+	rsc.io/qr v0.2.0 // indirect
 )
 
 replace github.com/gSpera/whatsapp-business-api => ../whatsapp-business-api
