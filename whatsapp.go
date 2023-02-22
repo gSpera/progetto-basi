@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"image"
 	_ "image/gif"
@@ -80,22 +81,20 @@ func (wa *WhatsappAPI) setupWebhook(w http.ResponseWriter, r *http.Request) {
 func (wa *WhatsappAPI) handleMessage(msg whatsapp.WebhookMessage) {
 	wa.log.Printf("Received message from %s, type %s, timestamp %d", msg.From, msg.Type, msg.Timestamp)
 
+	err := wa.client.SetMessageAsRead(wa.phoneNumberID, msg.ID)
+	if err != nil {
+		wa.log.Warnln("Cannot mark message message as read:", msg.ID, err)
+	}
+
 	switch msg.Type {
 	case "image":
 		err := wa.onReceivedImage(msg)
 		if err != nil {
 			wa.log.Errorln("Cannot handle image:", err)
+			wa.client.SendSimpleMessage(wa.phoneNumberID, msg.From, "Sfortunatamente c'è stato qualche errore, potresti mandare un altra foto??")
 		}
 	default:
-		wa.client.SendMessage(wa.phoneNumberID, whatsapp.SendMessage{
-			MessagingProduct: "whatsapp",
-			Type:             "text",
-			To:               msg.From,
-
-			Text: &whatsapp.SendMessageText{
-				Body: "Non ho capito",
-			},
-		})
+		wa.client.SendSimpleMessage(wa.phoneNumberID, msg.From, "Non ho capito")
 	}
 }
 
@@ -119,11 +118,17 @@ func (wa *WhatsappAPI) onReceivedImage(msg whatsapp.WebhookMessage) error {
 
 	reader := qrcode.NewQRCodeMultiReader()
 	res, err := reader.DecodeMultipleWithoutHint(scanner)
-	if err != nil {
+	if err != nil && !errors.Is(err, gozxing.NewNotFoundException()) {
 		return fmt.Errorf("cannot decode image: %w", err)
 	}
 
+	if len(res) == 0 { // No QR Codes found
+		log.Warnln("Image with no qr code")
+		return fmt.Errorf("no qr code found")
+	}
+
 	log.Printf("Found %d qr codes in image", len(res))
+	errs := make([]error, 0)
 	for _, qr := range res {
 		text := qr.GetText()
 		log.Println("Found QR Code:", text)
@@ -139,21 +144,20 @@ func (wa *WhatsappAPI) onReceivedImage(msg whatsapp.WebhookMessage) error {
 		order, companyName, city, err := wa.serverInterface.DeliverOrder(orderID)
 		if err != nil {
 			log.Errorln("Cannot deliver package:", err)
+			errs = append(errs, err)
 			continue
 		}
 
-		err = wa.client.SendMessage(wa.phoneNumberID, whatsapp.SendMessage{
-			MessagingProduct: "whatsapp",
-			To:               msg.From,
-
-			Text: &whatsapp.SendMessageText{
-				Body: fmt.Sprintf("Consegnato ordine %s con successo\n*%s* %s", order, companyName, city),
-			},
-		})
+		err = wa.client.SendSimpleMessage(wa.phoneNumberID, msg.From, fmt.Sprintf("Consegnato ordine %s con successo\n*%s* %s", order, companyName, city))
 		if err != nil {
 			log.Errorln("Cannot send success message:", err)
+			errs = append(errs, err)
 			continue
 		}
+	}
+
+	if len(errs) != 0 {
+		return fmt.Errorf("cannot deliver orders: %w", errors.Join(errs...))
 	}
 
 	return nil
