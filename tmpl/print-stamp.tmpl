@@ -13,8 +13,10 @@
             width: 21cm;
             height: 29.7cm;
 
+            box-sizing: border-box;
             margin: 0;
-            padding: 2.5rem;
+            padding: 0.35cm;
+            /* Page height: 29cm */
         }
 
         @page {
@@ -22,32 +24,53 @@
         }
 
         .main {
-            height: 14.5cm;
+            height: 14.47cm;
             width: 100%;
-            margin: 0;
+            box-sizing: border-box;
             font-family: 'Fira Code';
             text-align: center;
-        }
-
-        h1 {
-            font-size: 5rem;
+            font-weight: bold;
+            padding: 0;
             margin: 0;
         }
 
-        h2 {
+        p {
+            padding: 0;
+            margin: 0;
+        }
+
+        hr {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            height: 0.001cm;
+            background-color: lightgray;
+        }
+
+        .order {
             height: 3cm;
-            font-size: 3rem;
-            margin: 0;
         }
 
-        h3 {
-            margin: 0;
-            font-size: 2rem;
+        .company-name {
+            height: 4cm;
+        }
+
+        .city {
+            height: 3cm;
         }
 
         .qrcode {
-            height: 5cm;
-            width: 5cm;
+            height: 4cm;
+            width: 4cm;
+        }
+
+        .note {
+            height: 4cm;
+            width: 70%;
+            box-sizing: border-box;
+            float: right;
+            text-align: left;
+            padding: 1rem;
         }
     </style>
 </head>
@@ -55,21 +78,24 @@
 <body>
     {{ define "content" }}
     <div class="main">
-        <h1>{{.Order}}</h1>
-        <h1>{{.CompanyName}}</h1>
-        <h2>{{if .CompanyCity}}{{.CompanyCity}}{{end}}</h2>
-        {{ if gt (len .Note) 0 }}
-        <h3>Note: {{.Note}}</h3>
-        {{ end }}
+        <p class="order">{{.Order}}</p>
+        <p class="company-name">{{.CompanyName}}</p>
+        <p class="city">{{if .CompanyCity}}{{.CompanyCity}}{{end}}</p>
 
         <img src="/api/qrcode-stamp?id={{.ID}}" class="qrcode" />
+        {{ if gt (len .Note) 0 }}
+        <p class="note">Note: {{.Note}}</p>
+        {{ end }}
     </div>
     {{ end }}
 
     {{ template "content" . }}
+    <hr>
     {{ template "content" . }}
 
+    <script src="/static/vendor/textFit.min.js"></script>
     <script>
+        textFit(document.getElementsByTagName("p"), { multiLine: true, alignVert: true })
         window.onafterprint = () => window.close()
         window.print()
     </script>
