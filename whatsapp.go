@@ -1,18 +1,17 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"image"
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
 	"net/http"
+	"os/exec"
 
 	"github.com/gSpera/whatsapp-business-api"
-	"github.com/makiuchi-d/gozxing"
-	"github.com/makiuchi-d/gozxing/multi/qrcode"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -99,28 +98,21 @@ func (wa *WhatsappAPI) handleMessage(msg whatsapp.WebhookMessage) {
 }
 
 func (wa *WhatsappAPI) onReceivedImage(msg whatsapp.WebhookMessage) error {
-	imgReader, err := wa.client.RetrieveMedia(msg.Image.ID)
 	log := wa.log.WithField("image-id", msg.Image.ID)
 
+	imgReader, err := wa.client.RetrieveMedia(msg.Image.ID)
 	if err != nil {
 		return fmt.Errorf("cannot retrieve image: %w", err)
 	}
+	defer imgReader.Close()
 
-	img, _, err := image.Decode(imgReader)
-	if err != nil {
-		return fmt.Errorf("cannot decode image: %w", err)
-	}
-
-	scanner, err := gozxing.NewBinaryBitmapFromImage(img)
+	cmd := exec.Command("zbarimg", "-q", "-")
+	cmd.Stdin = imgReader
+	res, err := cmd.Output()
 	if err != nil {
 		return fmt.Errorf("cannot scan image: %w", err)
 	}
-
-	reader := qrcode.NewQRCodeMultiReader()
-	res, err := reader.DecodeMultipleWithoutHint(scanner)
-	if err != nil && !errors.Is(err, gozxing.NewNotFoundException()) {
-		return fmt.Errorf("cannot decode image: %w", err)
-	}
+	qrCodes := bytes.Split(res, []byte{'\n'})
 
 	if len(res) == 0 { // No QR Codes found
 		log.Warnln("Image with no qr code")
@@ -129,8 +121,8 @@ func (wa *WhatsappAPI) onReceivedImage(msg whatsapp.WebhookMessage) error {
 
 	log.Printf("Found %d qr codes in image", len(res))
 	errs := make([]error, 0)
-	for _, qr := range res {
-		text := qr.GetText()
+	for _, qr := range qrCodes {
+		text := string(qr)
 		log.Println("Found QR Code:", text)
 
 		var orderID int
