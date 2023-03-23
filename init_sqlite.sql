@@ -102,13 +102,14 @@ CREATE TRIGGER order_new AFTER INSERT ON ordine FOR EACH ROW
 CREATE VIEW ultimi_stati AS
 SELECT ordine.id, ordine.ordine, ordine.protocollo, ordine.ddt, produttore.id as produttore_id, destinatario.id as destinatario_id, produttore.nome as produttore_nome, destinatario.nome as destinatario_nome, ordine.num_colli, ordine.ritirare_assegno, regione_string.value as regione, ordine.trasportatore, ordine.data_creazione, ordine.data_consegna, stato.stato, stato_string.value as stato_string, stato.quando
 FROM ordine
- JOIN (SELECT * FROM (SELECT * FROM stato ORDER BY quando DESC) GROUP BY ordine_id) stato ON ordine.id = stato.ordine_id
  JOIN azienda produttore ON ordine.produttore_id = produttore.id
  JOIN azienda destinatario ON ordine.destinatario_id = destinatario.id
- JOIN stato_string ON stato_string.id = stato.stato
+ JOIN stato ON ordine.id=stato.ordine_id
+ JOIN stato_string ON stato.stato=stato_string.id
  JOIN regione_string ON destinatario.regione = regione_string.id
-GROUP BY ordine.ddt, produttore.nome, destinatario.nome, ordine.num_colli, ordine.ritirare_assegno, stato_string.value
-ORDER BY ordine.data_creazione DESC;
+GROUP BY ordine.id
+ HAVING stato.quando=MAX(stato.quando)
+ORDER BY stato.quando DESC;
 
 INSERT INTO azienda VALUES (-1, 0, 'Spera Logistica', 'Via Speranzosa 123', NULL, 3, '12332112312', 'A1A2A3');
 INSERT INTO utente VALUES ('gs', '7a5443b6636713baa6350c1cf3ec620b2771a8d411ea3180c5d46b502b9ab77d', -1);
