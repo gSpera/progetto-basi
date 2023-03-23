@@ -9,7 +9,7 @@
     <link rel="shortcut icon" href="/static/logo-small.png" type="image/x-icon">
 </head>
 
-<body style="background-image: url('/static/background-blur.jpg'); background-position: center; height: 100vh;">
+<body style="background-image: url('/static/background-blur.jpg'); background-position: center; background-size: cover; height: 100vh;">
     <section class="section" style="margin: auto;">
         <div class="box">
             <h3 class="title">Gestione Ordini - Login</h3>
@@ -30,6 +30,13 @@
                         <input class="input" name="password" type="password" placeholder="Password">
                     </div>
                 </div>
+                {{if .}}
+                <div class="message is-danger">
+                    <div class="message-body">
+                        {{.}}
+                    </div>
+                </div>
+                {{end}}
                 <div class="field is-grouped is-grouped-right">
                     <button class="button is-primary">Login</button>
                 </div>

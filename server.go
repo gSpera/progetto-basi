@@ -75,9 +75,16 @@ func (s *Server) HandleLogin(w http.ResponseWriter, r *http.Request) {
 		err := s.Template.ExecuteTemplate(w, "login.tmpl", nil)
 		if err != nil {
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
-			s.Log.Errorln("Rendering login template: ", err)
+			s.Log.Errorln("Rendering login template:", err)
 		}
 		return
+	}
+	loginError := func(msg string) {
+		err := s.Template.ExecuteTemplate(w, "login.tmpl", msg)
+		if err != nil {
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			s.Log.Errorln("Rendering error login template:", err)
+		}
 	}
 
 	// Not the best, not secure
@@ -95,7 +102,7 @@ func (s *Server) HandleLogin(w http.ResponseWriter, r *http.Request) {
 
 	err := row.Scan(&correctHash, &aziendaId, &azienda, &aziendaRole)
 	if err == sql.ErrNoRows {
-		fmt.Fprintln(w, "Utente non trovato")
+		loginError("Utente non trovato")
 		log.Warningln("User not found")
 		return
 	} else if err != nil {
@@ -108,7 +115,7 @@ func (s *Server) HandleLogin(w http.ResponseWriter, r *http.Request) {
 	hash := hex.EncodeToString(hashBytes[:])
 
 	if hash != correctHash {
-		fmt.Fprintln(w, "Password sbagliata")
+		loginError("Password sbagliata")
 		log.Warningf("Wrong password: given: %s(%q), expected: %s\n", hash, password, correctHash)
 		return
 	}
@@ -127,7 +134,7 @@ func (s *Server) HandleLogin(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("Login successfull")
 	http.SetCookie(w, &http.Cookie{Name: "user", Value: jwtTok, HttpOnly: true, Expires: time.Now().AddDate(0, 0, 7)})
-	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 func (s *Server) HandleLogout(w http.ResponseWriter, r *http.Request) {
