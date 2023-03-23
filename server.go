@@ -139,7 +139,7 @@ func (s *Server) HandleLogin(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) HandleLogout(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{Name: "user", Value: "", HttpOnly: true, Expires: time.Now().AddDate(0, 0, -1)})
-	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+	http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
 }
 
 func (s *Server) HandlerApiGetOrders(w http.ResponseWriter, r *http.Request) {
@@ -833,13 +833,13 @@ func (s *Server) HandleApiQRCodeForStamp(w http.ResponseWriter, r *http.Request)
 }
 
 // LoggedInMiddleWare makes sure the request continues only if the user is logged in
-func (s *Server) LoggedInMiddleware(handler http.HandlerFunc, redirectTo string) http.Handler {
+func (s *Server) LoggedInMiddleware(handler http.HandlerFunc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Get cookie
 		cookie, err := r.Cookie("user")
 		if err != nil {
 			log.Errorln("Cannot retrieve cookie:", err)
-			http.Redirect(w, r, redirectTo, http.StatusTemporaryRedirect)
+			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
 			return
 		}
 
@@ -852,13 +852,49 @@ func (s *Server) LoggedInMiddleware(handler http.HandlerFunc, redirectTo string)
 
 		if claims.Username == "" {
 			log.Errorln("Found jwt token without username:", cookie.Value)
-			http.Redirect(w, r, redirectTo, http.StatusTemporaryRedirect)
+			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
 			return
 		}
 
 		if claims.Expiration.Before(time.Now()) {
 			log.Errorln("Found jwt token expired:", cookie.Value)
-			http.Redirect(w, r, redirectTo, http.StatusTemporaryRedirect)
+			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
+			return
+		}
+
+		handler.ServeHTTP(w, r)
+	})
+}
+
+func (s *Server) MustBeAdminMiddleware(handler http.HandlerFunc) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		cookie, err := r.Cookie("user")
+		if err != nil {
+			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
+			return
+		}
+		claims, err := UserCookieFromJWT(s.parseJWTToken(cookie.Value))
+		if err != nil {
+			http.Error(w, "Bad request", http.StatusBadRequest)
+			log.Errorln("Cannot parse jwt:", err)
+			return
+		}
+
+		if claims.Username == "" {
+			log.Errorln("Found jwt token without username:", cookie.Value)
+			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
+			return
+		}
+
+		if claims.Expiration.Before(time.Now()) {
+			log.Errorln("Found jwt token expired:", cookie.Value)
+			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
+			return
+		}
+
+		if claims.CompanyID >= 0 {
+			log.Errorln("Not admin user tried priviledged endpoint:", claims)
+			http.Error(w, "Forbidden", http.StatusForbidden)
 			return
 		}
 
