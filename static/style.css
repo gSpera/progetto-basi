@@ -26,6 +26,10 @@
     margin: 1rem;
 }
 
+td {
+	word-break: break-word;
+}
+
 .only-print {
     display: none;
     visibility: hidden;
@@ -42,3 +46,4 @@
         visibility: initial;
     }
 }
+
