@@ -226,6 +226,7 @@ class OrdersTable extends React.Component {
                         <th>DDT</th>
                         <th>n° Colli</th>
                         <th>Assegno</th>
+                        <th class="only-admin">Fatturato</th>
                         <th>Ultimo aggiornamento</th>
                         <th>Stima arrivo</th>
                         <th className="only-admin">Trasportatore</th>
@@ -239,6 +240,7 @@ class OrdersTable extends React.Component {
                         {searchInput('region')}
                         {searchInput('ddt')}
                         {searchInput('numPackages')}
+                        <th></th>
                         <th></th>
                         {searchInput('latestUpdate')}
                         {searchDateInput('arriveDate')}
@@ -258,6 +260,7 @@ class OrdersTable extends React.Component {
                                 <td>{order.DDT}</td>
                                 <td>{order.NumPackages}</td>
                                 <td><span className="icon is-medium"><span className={"mdi mdi-" + (order.WithdrawBankCheck ? 'check' : '')}></span></span></td>
+                                <td><span className="only-admin icon is-medium"><span className={"mdi mdi-" + (order.Invoiced ? 'check' : '')}></span></span></td>
                                 <td>
                                     <span className="icon"><span className={"mdi mdi-" + stateIcons[order.StateID]}></span></span>
                                     <span className={stateColors[order.StateID]}>{order.StateString}</span>
@@ -281,7 +284,7 @@ class OrdersTable extends React.Component {
                                         <span className={"mdi " + attachmentIcon(this.state.ordersIcons[order.ID])}></span>
                                     </span>
                                 </td>
-                                <td className=" only-admin no-print">
+                                <td className="only-admin no-print">
                                     <span className="icon is-medium only-admin is-clickable" onClick={() => this.orderInfo(order)}>
                                         <span className="mdi mdi-information-outline"></span>
                                     </span>

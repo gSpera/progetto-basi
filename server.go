@@ -168,6 +168,7 @@ func (s *Server) HandlerApiGetOrders(w http.ResponseWriter, r *http.Request) {
 		RecipientID       int     `db:"DESTINATARIO_ID" sqlite:"destinatario_id"`
 		NumPackages       string  `db:"NUM_COLLI" sqlite:"num_colli"`
 		WithdrawBankCheck bool    `db:"RITIRARE_ASSEGNO" sqlite:"ritirare_assegno"`
+		Invoiced          bool    `sqlite:"fatturato"`
 		StateID           int     `db:"STATO" sqlite:"stato"`
 		StateString       string  `db:"STATO_STRING" sqlite:"stato_string"`
 		When              SqlTime `db:"QUANDO" sqlite:"quando"`
