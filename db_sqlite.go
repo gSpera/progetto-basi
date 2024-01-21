@@ -60,10 +60,10 @@ func (d Database) ViagginiForOrdine(ordineId int) (*sqlx.Rows, error) {
 func (d Database) CompanyNameByID(companyID int) (*sqlx.Rows, error) {
 	return d.db.Queryx(d.db.Rebind(`SELECT id, nome FROM azienda WHERE id >= 0 AND id != ?`), companyID)
 }
-func (d Database) NewOrder(input NewOrderInput, assegno int) (sql.Result, error) {
+func (d Database) NewOrder(input NewOrderInput, assegno int, fatturato int) (sql.Result, error) {
 	return d.db.Exec(
-		`INSERT INTO ordine VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		input.DDT, input.Order, input.Protocollo, input.Sender, input.ReceiverID, input.NumColli, assegno, input.Carrier, input.CreationDate, input.ArriveDate, input.Note)
+		`INSERT INTO ordine VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		input.DDT, input.Order, input.Protocollo, input.Sender, input.ReceiverID, input.NumColli, assegno, fatturato, input.Carrier, input.CreationDate, input.ArriveDate, input.Note)
 }
 func (d Database) NewAzienda(name string, role int, address sql.NullString, piva sql.NullString, codunivoco sql.NullString, comune string, regioneID int) (sql.Result, error) {
 	return d.db.Exec(
@@ -87,13 +87,17 @@ func (d Database) DeleteOrder(orderID int) (sql.Result, error) {
 }
 func (d Database) EditOrder(order NewOrderInput) (sql.Result, error) {
 	var assegno int
+	var fatturato int
 	if order.Assegno {
 		assegno = 1
 	}
+	if order.Fatturato {
+		fatturato = 1
+	}
 
 	return d.db.Exec(
-		`UPDATE ordine SET ddt=?, ordine=?, protocollo=?, produttore_id=?, destinatario_id=?, num_colli=?, ritirare_assegno=?, trasportatore=?, data_creazione=?, data_consegna=?, note=? WHERE id=?`,
-		order.DDT, order.Order, order.Protocollo, order.Sender, order.ReceiverID, order.NumColli, assegno, order.Carrier, order.CreationDate, order.ArriveDate, order.Note, order.OrderID)
+		`UPDATE ordine SET ddt=?, ordine=?, protocollo=?, produttore_id=?, destinatario_id=?, num_colli=?, ritirare_assegno=?, fatturato=?, trasportatore=?, data_creazione=?, data_consegna=?, note=? WHERE id=?`,
+		order.DDT, order.Order, order.Protocollo, order.Sender, order.ReceiverID, order.NumColli, assegno, fatturato, order.Carrier, order.CreationDate, order.ArriveDate, order.Note, order.OrderID)
 }
 func (d Database) LoadStampInfoFor(orderID int) *sqlx.Row {
 	return d.db.QueryRowx(`SELECT o.id AS ordine_id, o.ordine, o.ddt, o.num_colli, o.ritirare_assegno, a.id AS azienda_id, a.nome, regione_string.value AS regione, a.comune, a.indirizzo FROM ordine o JOIN azienda a ON o.destinatario_id=a.id JOIN regione_string ON a.regione = regione_string.id WHERE o.id=?`, orderID)

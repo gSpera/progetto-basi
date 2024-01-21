@@ -226,7 +226,7 @@ class OrdersTable extends React.Component {
                         <th>DDT</th>
                         <th>n° Colli</th>
                         <th>Assegno</th>
-                        <th class="only-admin">Fatturato</th>
+                        <th className="only-admin">Fatturato</th>
                         <th>Ultimo aggiornamento</th>
                         <th>Stima arrivo</th>
                         <th className="only-admin">Trasportatore</th>

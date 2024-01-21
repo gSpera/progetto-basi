@@ -44,7 +44,7 @@ func (d Database) ViagginiForOrdine(ordineId int) (*sqlx.Rows, error) {
 func (d Database) CompanyNameByID(companyID int) (*sqlx.Rows, error) {
 	panic("no database selected")
 }
-func (d Database) NewOrder(input NewOrderInput, assegno int) (sql.Result, error) {
+func (d Database) NewOrder(input NewOrderInput, assegno int, fatturato int) (sql.Result, error) {
 	panic("no database selected")
 }
 func (d Database) NewAzienda(name string, role int, address sql.NullString, piva sql.NullString, codunivoco sql.NullString, comune string, regioneID int) (sql.Result, error) {

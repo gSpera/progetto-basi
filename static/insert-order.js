@@ -37,6 +37,7 @@ class InsertOrder extends React.Component {
                 Protocollo: "",
                 NumColli: "1",
                 Assegno: false,
+                Fatturato: false,
                 CreationDate: new Date(),
                 ArriveDate: new Date(),
                 State: "0",
@@ -84,6 +85,9 @@ class InsertOrder extends React.Component {
                 break;
             case "assegno":
                 this.state.Selection.Assegno = event.target.checked;
+                break;
+            case "fatturato":
+                this.state.Selection.Fatturato = event.target.checked;
                 break;
             case "note":
                 this.state.Selection.Note = value;
@@ -214,6 +218,7 @@ class InsertOrder extends React.Component {
             Protocollo: order.Protocollo,
             NumColli: String(order.NumPackages),
             Assegno: order.WithdrawBankCheck,
+            Fatturato: order.Invoiced,
             Carrier: order.Carrier,
             CreationDate: new Date(order.CreationDate),
             ArriveDate: new Date(order.ArriveDate),
@@ -364,7 +369,14 @@ class InsertOrder extends React.Component {
                         <div className="field is-horizontal">
                             <label htmlFor="assegno" className="field-label label checkbox">Ritirare Assegno</label>
                             <div className="field-body control">
-                                <input name="assegno" type="checkbox" value={this.state.Selection.Assegno} onChange={this.handleChange} />
+                                <input name="assegno" type="checkbox" checked={this.state.Selection.Assegno} onChange={this.handleChange} />
+                            </div>
+                        </div>
+
+                        <div className="field is-horizontal">
+                            <label htmlFor="fatturato" className="field-label label checkbox">Fatturato</label>
+                            <div className="field-body control">
+                                <input name="fatturato" type="checkbox" checked={this.state.Selection.Fatturato} onChange={this.handleChange} />
                             </div>
                         </div>
 

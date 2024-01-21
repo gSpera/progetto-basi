@@ -362,6 +362,7 @@ type NewOrderInput struct {
 	Protocollo   string
 	NumColli     string
 	Assegno      bool
+	Fatturato    bool
 	Carrier      string
 	ArriveDate   SqlTime
 	CreationDate SqlTime
@@ -383,6 +384,10 @@ func (s *Server) HandleApiNewOrder(w http.ResponseWriter, r *http.Request) {
 	if input.Assegno {
 		assegno = 1
 	}
+	fatturato := 0
+	if input.Fatturato {
+		fatturato = 1
+	}
 
 	if input.Order == "" {
 		http.Error(w, "Invalid Request", http.StatusBadRequest)
@@ -390,7 +395,7 @@ func (s *Server) HandleApiNewOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := s.Database.NewOrder(input, assegno)
+	res, err := s.Database.NewOrder(input, assegno, fatturato)
 	if err != nil {
 		s.Log.Errorln("Cannot insert order:", err, res)
 		http.Error(w, "Invalid Request", http.StatusBadRequest)
@@ -402,16 +407,15 @@ func (s *Server) HandleApiNewOrder(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		s.Log.Errorln("Cannot get inserted row id:", err)
 	}
-	if input.State != 0 {
-		_, err := s.Database.AddStateToOrder(int(id), input.State, time.Now())
-		if err != nil {
-			s.Log.Errorln("Cannot add state to order:", err)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
-		}
+
+	_, err = s.Database.AddStateToOrder(int(id), input.State, time.Now())
+	if err != nil {
+		s.Log.Errorln("Cannot add state to order:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
 	}
 
-	s.Log.Println("Insert new order:", input)
+	s.Log.Printf("Insert new order: id=%d input=%+v\n", id, input)
 }
 
 func (s *Server) HandleApiEditOrder(w http.ResponseWriter, r *http.Request) {
