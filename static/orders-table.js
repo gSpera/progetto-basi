@@ -120,13 +120,26 @@ class OrdersTable extends React.Component {
     }
 
     updateAttachmentIcons() {
-        const orders = this.state.searchedOrders.map(order => order.ID).join(",")
-        fetch("/api/attachment-icons?ids=" + orders)
-            .then(r => r.json())
-            .then(r => this.setState({
+        const orders = this.state.searchedOrders.map(order => order.ID)
+        // Split array in groups of 1000,
+        // Max URI size is 8k, if each id is 5byte long(with comma), 1000 * 5 = 5k
+        const count = 1000
+        let icons = {}
+        let promises = []
+        for (let i = 0; i < orders.length; i += count) {
+            const orderSub = orders.slice(i, i + count).join(",")
+            let promise = fetch("/api/attachment-icons?ids=" + orderSub)
+                .then(r => r.json())
+                .then(r => Object.assign(icons, r))
+            promises.push(promise)
+        }
+
+        Promise.all(promises).then(_ => {
+            this.setState({
                 ...this.state,
-                ordersIcons: r,
-            }))
+                ordersIcons: icons,
+            })
+        })
     }
 
     searchDeleteDate(name) {
