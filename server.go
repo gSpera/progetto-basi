@@ -145,14 +145,14 @@ func (s *Server) HandleLogout(w http.ResponseWriter, r *http.Request) {
 func (s *Server) HandlerApiGetOrders(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("user")
 	if err != nil {
-		log.Errorln("Cannot parse cookie:", err)
+		log.Infoln("Cannot parse cookie:", err)
 		http.Error(w, "Login first", http.StatusUnauthorized)
 		return
 	}
 
 	claims, err := s.parseJWTToken(cookie.Value)
 	if err != nil {
-		log.Errorln("Cannot parse jwt:", err)
+		log.Warnln("Cannot parse jwt:", err)
 		http.Error(w, "Invalid jwt", http.StatusBadRequest)
 		return
 	}
