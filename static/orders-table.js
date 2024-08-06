@@ -20,6 +20,7 @@ class OrdersTable extends React.Component {
             ordersIcons: {},
             updateArriveDate: { show: false },
             deleteOrder: { show: false },
+            currentPage: 0,
         };
         this.update = this.update.bind(this);
         this.orderInfo = this.orderInfo.bind(this);
@@ -95,6 +96,7 @@ class OrdersTable extends React.Component {
         const value = event.target.value
 
         this.state.search[name] = value
+        this.state.currentPage = 0
         this.setState(this.state, this.searchOrders)
     }
 
@@ -264,7 +266,7 @@ class OrdersTable extends React.Component {
                 </thead>
                 <tbody>
                     {
-                        this.state.searchedOrders.map(order =>
+                        this.state.searchedOrders.slice(this.state.currentPage*100, (this.state.currentPage+1)*100).map(order =>
                             <tr key={order.ID}>
                                 <td>{order.Order}</td>
                                 <td>{new Date(order.CreationDate).getFullYear() != 1970 ? new Date(order.CreationDate).toLocaleDateString() : ""}</td>
@@ -316,6 +318,43 @@ class OrdersTable extends React.Component {
                     }
                 </tbody>
             </table>
+            <div className="container">
+                <div className="field has-addons is-flex is-justify-content-center"> {/* Pagination */}
+                    <p className="control">
+                        <button className="button" disabled={this.state.currentPage <= 0}
+                         onClick={() => {
+                            this.setState({...this.state, currentPage: this.state.currentPage-1})
+                            window.scroll(0, 0)
+                         }}>
+                            Pagina precedente
+                            {/*<span className="icon is-small"><span className="mdi mdi-chevron-left align-center"></span></span>*/}
+                        </button>
+                    </p>
+                    <p className="control">
+                        <input
+                            className="input"
+                            type="number"
+                            value={this.state.currentPage >= 0 ? this.state.currentPage +1 : ""}
+                            onChange={ev => {
+                                this.setState({
+                                    ...this.state,
+                                    currentPage: Number(ev.target.value)-1,
+                                })
+                            }
+                        }></input>
+                    </p>
+                    <p className="control">
+                        <button className="button" onClick={() => {
+                            this.setState({...this.state, currentPage: this.state.currentPage+1})
+                            window.scroll(0, 0)
+                        }} disabled={this.state.searchedOrders.slice((this.currentPage+1)*100).length == 0}>
+                            {/*<span className="icon is-small"><span className="mdi mdi-chevron-right align-center"></span></span>*/}
+                            Pagina successiva
+                        </button>
+                    </p>
+                </div>
+            </div>
+
             {
                 this.state.updateArriveDate.show &&
                 <div className="modal is-active">
