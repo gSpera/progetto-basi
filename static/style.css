@@ -35,6 +35,69 @@ td {
     visibility: hidden;
 }
 
+@media screen and (max-width: 512px) {
+    #orders-buttons {
+        display: block;
+    }
+    table, tbody, tr, td {
+        display: block;
+    }
+    thead {
+        display: none;
+    }
+
+    tr > td {
+        border: none;
+        font-size: 1.2rem;
+    }
+
+    tr > td:before {
+        font-weight: bold;
+        width: 100px;
+    }
+
+    tr > td:nth-child(1):before {
+        content: "Ordine: ";
+    }
+    tr > td:nth-child(2):before {
+        content: " del ";
+    }
+    tr > td:nth-child(3):before {
+        content: "Azienda: ";
+    }
+    tr > td:nth-child(5):before {
+        content: "DDT: ";
+    }
+    tr > td:nth-child(6):before {
+        content: "N° Colli: ";
+    }
+
+    tr > td:nth-child(1), tr > td:nth-child(2) {
+        display: inline;
+    }
+    tr > td:nth-child(4),
+    tr > td:nth-child(7),
+    tr > td:nth-child(8),
+    tr > td:nth-child(9),
+    tr > td:nth-child(10),
+    tr > td:nth-child(11),
+    tr > td:nth-child(12) {
+        display: none;
+    }
+    tr > td:nth-child(13) {
+        display: flex;
+        justify-content: space-around;
+    }
+    tr > td:nth-child(13) > span {
+        width: 64px;
+    }
+
+    tr {
+        margin-bottom: 3rem;
+    }
+}
+
+
 @media print {
     .no-print {
         display: none;
