@@ -39,19 +39,18 @@ td {
     #orders-buttons {
         display: block;
     }
-    table, tbody, tr, td {
+    table, tbody, thead, tr, td {
         display: block;
     }
-    thead {
-        display: none;
-    }
 
-    tr > td {
+    tr > td,
+    tr > th {
         border: none;
         font-size: 1.2rem;
     }
 
-    tr > td:before {
+    tr > td:before,
+    tr > th:before {
         font-weight: bold;
         width: 100px;
     }
@@ -94,6 +93,39 @@ td {
 
     tr {
         margin-bottom: 3rem;
+    }
+
+    thead > tr:first-child {
+        display: none;
+    }
+
+    tr > th:nth-child(1):before {
+        content: "Ordine: ";
+    }
+    tr > th:nth-child(2):before {
+        content: "Del: ";
+    }
+    tr > th:nth-child(3):before {
+        content: "Azienda: ";
+    }
+    tr > th:nth-child(5):before {
+        content: "DDT: ";
+    }
+
+    tr > th {
+        display: block;
+    }
+    tr > th:nth-child(4),
+    tr > th:nth-child(6),
+    tr > th:nth-child(7),
+    tr > th:nth-child(8),
+    tr > th:nth-child(9),
+    tr > th:nth-child(10),
+    tr > th:nth-child(11),
+    tr > th:nth-child(12),
+    tr > th:nth-child(13) {
+        background-color: red;
+        display: none;
     }
 }
 
