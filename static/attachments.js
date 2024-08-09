@@ -5,6 +5,7 @@ class AttachmentModal extends React.Component {
             isVisible: false,
             order: {},
             attachments: [],
+            deliver: false,
         }
 
         this.inputFileRef = React.createRef()
@@ -26,6 +27,7 @@ class AttachmentModal extends React.Component {
                 order: order,
                 attachments: r,
                 filename: "",
+                deliver: true,
             }))
     }
 
@@ -124,6 +126,17 @@ class AttachmentModal extends React.Component {
                                         : ""}
                                 </label>
                             </div>
+
+                            <label className="checkbox mt-3">
+                                <input
+                                    name="deliver"
+                                    type="checkbox"
+                                    className="mr-1"
+                                    checked={this.state.deliver}
+                                    onChange={ ev => this.setState({ deliver: ev.target.checked })}
+                                />
+                                Aggiorna ordine come <b>Consegnato</b>
+                            </label>
                         </form>
                     </div>
 

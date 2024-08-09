@@ -627,12 +627,24 @@ func (s *Server) HandleApiUploadFile(w http.ResponseWriter, r *http.Request) {
 	}
 	defer fl.Close()
 
-	s.Log.Printf("Writing attachment for order: %d: %s\n", orderID, header.Filename)
+	deliver := r.FormValue("deliver") == "on"
+
+	s.Log.Printf("Writing attachment for order: %d: %s, deliver: %v\n", orderID, header.Filename, deliver)
 	err = s.AttachmentStore.Put(orderID, header.Filename, fl)
 	if err != nil {
-		s.Log.Printf("Cannot write attachment for order: %d: %s: %v\n", orderID, header.Filename, err)
+		s.Log.Errorf("Cannot write attachment for order: %d: %s: %v\n", orderID, header.Filename, err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
+	}
+
+	if deliver {
+		s.Log.Printf("Delivering order: %v\n", orderID)
+		_, _, _, err := s.DeliverOrder(orderID)
+		if err != nil {
+			s.Log.Errorf("Cannot deliver order: %v: %v\n", orderID, err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
 	}
 }
 
