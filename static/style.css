@@ -14,6 +14,10 @@
     display: flex;
 }
 
+#orders-buttons  > .table-container {
+    margin: auto;
+}
+
 .child-background-alternate:nth-child(even) {
     background-color: hsl(0, 0%, 98%);
 }

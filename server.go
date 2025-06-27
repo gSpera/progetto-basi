@@ -150,12 +150,13 @@ func (s *Server) HandlerApiGetOrders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	claims, err := s.parseJWTToken(cookie.Value)
+	claims, err := UserCookieFromJWT(s.parseJWTToken(cookie.Value))
 	if err != nil {
 		log.Warnln("Cannot parse jwt:", err)
 		http.Error(w, "Invalid jwt", http.StatusBadRequest)
 		return
 	}
+	isAdmin := claims.CompanyID < 0
 
 	type Order struct {
 		ID                int     `db:"ID"`
@@ -178,7 +179,7 @@ func (s *Server) HandlerApiGetOrders(w http.ResponseWriter, r *http.Request) {
 		ArriveDate        SqlTime `sqlite:"data_consegna"`
 	}
 
-	orders, err := s.Database.LatestStatesFor(int(claims["aziendaId"].(float64)))
+	orders, err := s.Database.LatestStatesFor(claims.CompanyID)
 	if err != nil {
 		log.Errorln("Cannot retrieve orders:", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -195,6 +196,13 @@ func (s *Server) HandlerApiGetOrders(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
+
+		if !isAdmin {
+			// Censor sensitive information
+			order.Invoiced = false
+			order.Carrier = ""
+		}
+
 		result = append(result, order)
 	}
 

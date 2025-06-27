@@ -48,7 +48,7 @@ func (d Database) GetUserInfoByName(username string) *sql.Row {
 func (d Database) LatestStatesFor(aziendaId int) (*sqlx.Rows, error) {
 	return d.db.Queryx(d.db.Rebind(`
 		SELECT * FROM ultimi_stati
-		WHERE (?<0) or (produttore_id = ? or destinatario_id = ?)
+		WHERE (?<0) OR (produttore_id = ? OR destinatario_id = ?)
 	`), aziendaId, aziendaId, aziendaId)
 }
 func (d Database) StatesForOrdine(ordineId int) (*sqlx.Rows, error) {

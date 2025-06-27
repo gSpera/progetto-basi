@@ -256,7 +256,7 @@ class OrdersTable extends React.Component {
                         {searchInput('ddt')}
                         {searchInput('numPackages')}
                         <th></th>
-                        <th></th>
+                        <th className="only-admin"></th>
                         {searchInput('latestUpdate')}
                         {searchDateInput('arriveDate')}
                         {searchInput('carrier', "only-admin")}
@@ -275,13 +275,10 @@ class OrdersTable extends React.Component {
                                 <td>{order.DDT}</td>
                                 <td>{order.NumPackages}</td>
                                 <td><span className="icon is-medium"><span className={"mdi mdi-" + (order.WithdrawBankCheck ? 'check' : '')}></span></span></td>
-                                <td><span className="only-admin icon is-medium"><span className={"mdi mdi-" + (order.Invoiced ? 'check' : '')}></span></span></td>
+                                <td className="only-admin"><span className="icon is-medium"><span className={"mdi mdi-" + (order.Invoiced ? 'check' : '')}></span></span></td>
                                 <td>
                                     <span className="icon"><span className={"mdi mdi-" + stateIcons[order.StateID]}></span></span>
                                     <span className={stateColors[order.StateID]}>{order.StateString}</span>
-                                    {/*<span className="icon is-medium only-admin no-print" style={{ float: "right", cursor: "pointer" }} onClick={() => this.updateOrder(order)}>
-                                        <span className="mdi mdi-pencil"></span>
-                                    </span>*/}
                                 </td>
                                 <td>
                                     {new Date(order.ArriveDate).getFullYear() != 1970 ? (() => {
@@ -289,9 +286,6 @@ class OrdersTable extends React.Component {
                                         if (order.StateID == 6) prefix = <p className="is-size-6 has-text-weight-light">Arrivo previsto il:</p>
                                         return <span>{prefix} {new Date(order.ArriveDate).toLocaleDateString()} </span>
                                     })() : ""}
-                                    {/*<span className="icon is-medium only-admin no-print" style={{ float: "right", cursor: "pointer" }} onClick={() => this.updateArriveDate(order)}>
-                                        <span className="mdi mdi-pencil"></span>
-                                    </span>*/}
                                 </td>
                                 <td className="only-admin">{order.Carrier}</td>
                                 <td className="no-print">
