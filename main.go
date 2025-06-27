@@ -74,6 +74,7 @@ func main() {
 
 	log.Println("Registering handlers")
 	http.Handle("/", server.LoggedInMiddleware(server.HandleHome))
+	http.Handle("/export.csv", server.LoggedInMiddleware(server.HandleExportCsv))
 	http.HandleFunc("/login", server.HandleLogin)
 	http.HandleFunc("/logout", server.HandleLogout)
 	http.Handle("/api/info-order", server.LoggedInMiddleware(server.HandleApiInfoOrder))

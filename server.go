@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/sha256"
 	"database/sql"
+	"encoding/csv"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -211,6 +212,89 @@ func (s *Server) HandlerApiGetOrders(w http.ResponseWriter, r *http.Request) {
 	err = encoder.Encode(result)
 	if err != nil {
 		log.Errorln("Cannot encode json:", err)
+	}
+}
+
+func (s *Server) HandleExportCsv(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("user")
+	if err != nil {
+		log.Infoln("Cannot parse cookie:", err)
+		http.Error(w, "Login first", http.StatusUnauthorized)
+		return
+	}
+
+	claims, err := UserCookieFromJWT(s.parseJWTToken(cookie.Value))
+	if err != nil {
+		log.Warnln("Cannot parse jwt:", err)
+		http.Error(w, "Invalid jwt", http.StatusBadRequest)
+		return
+	}
+	type Order struct {
+		ID                int     `db:"ID"`
+		DDT               string  `db:"DDT"`
+		Order             string  `sqlite:"ordine"`
+		Protocollo        string  `sqlite:"protocollo"`
+		ProducerName      string  `db:"PRODUTTORE_NOME" sqlite:"produttore_nome"`
+		ProducerID        int     `db:"PRODUTTORE_ID" sqlite:"produttore_id"`
+		RecipientName     string  `db:"DESTINATARIO_NOME" sqlite:"destinatario_nome"`
+		RecipientID       int     `db:"DESTINATARIO_ID" sqlite:"destinatario_id"`
+		NumPackages       string  `db:"NUM_COLLI" sqlite:"num_colli"`
+		WithdrawBankCheck bool    `db:"RITIRARE_ASSEGNO" sqlite:"ritirare_assegno"`
+		Invoiced          bool    `sqlite:"fatturato"`
+		StateID           int     `db:"STATO" sqlite:"stato"`
+		StateString       string  `db:"STATO_STRING" sqlite:"stato_string"`
+		When              SqlTime `db:"QUANDO" sqlite:"quando"`
+		Carrier           string  `sqlite:"trasportatore"`
+		Region            string  `sqlite:"regione"`
+		CreationDate      SqlTime `sqlite:"data_creazione"`
+		ArriveDate        SqlTime `sqlite:"data_consegna"`
+	}
+	header := []string{
+		"DDT", "Ordine", "Protocollo", "Destinatario",
+		"Num Pacchi", "Assegno", "Stato", "Data aggiornamento",
+		"Data Creazione", "Stima Arrivo",
+	}
+	orderString := func(o Order) []string {
+		v := make([]string, 10)
+		v[0] = o.DDT
+		v[1] = o.Order
+		v[2] = o.Protocollo
+		v[3] = o.RecipientName
+		v[4] = o.NumPackages
+		v[5] = fmt.Sprint(o.WithdrawBankCheck)
+		v[6] = o.StateString
+		v[7] = o.When.String()
+		v[8] = o.CreationDate.String()
+		v[9] = o.ArriveDate.String()
+		return v
+	}
+
+	orders, err := s.Database.LatestStatesFor(claims.CompanyID)
+	if err != nil {
+		log.Errorln("Cannot retrieve orders:", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	defer orders.Close()
+
+	w.Header().Add("Content-Disposition", fmt.Sprintf("attachment; filename=%q", time.Now().Format(time.DateTime)))
+	csvWriter := csv.NewWriter(w)
+	csvWriter.Write(header)
+	var errs error
+	for orders.Next() {
+		var order Order
+		err := orders.StructScan(&order)
+		if err != nil {
+			log.Errorln("Cannot scan row:", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		errs = errors.Join(errs, csvWriter.Write(orderString(order)))
+	}
+
+	if errs != nil {
+		log.Errorln("Cannot encode csv:", err)
 	}
 }
 
