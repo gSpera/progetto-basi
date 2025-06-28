@@ -250,22 +250,23 @@ func (s *Server) HandleExportCsv(w http.ResponseWriter, r *http.Request) {
 		ArriveDate        SqlTime `sqlite:"data_consegna"`
 	}
 	header := []string{
-		"DDT", "Ordine", "Protocollo", "Destinatario",
+		"ID", "DDT", "Ordine", "Protocollo", "Destinatario",
 		"Num Pacchi", "Assegno", "Stato", "Data aggiornamento",
 		"Data Creazione", "Stima Arrivo",
 	}
 	orderString := func(o Order) []string {
-		v := make([]string, 10)
-		v[0] = o.DDT
-		v[1] = o.Order
-		v[2] = o.Protocollo
-		v[3] = o.RecipientName
-		v[4] = o.NumPackages
-		v[5] = fmt.Sprint(o.WithdrawBankCheck)
-		v[6] = o.StateString
-		v[7] = o.When.String()
-		v[8] = o.CreationDate.String()
-		v[9] = o.ArriveDate.String()
+		v := make([]string, 11)
+		v[0] = fmt.Sprint(o.ID)
+		v[1] = o.DDT
+		v[2] = o.Order
+		v[3] = o.Protocollo
+		v[4] = o.RecipientName
+		v[5] = o.NumPackages
+		v[6] = fmt.Sprint(o.WithdrawBankCheck)
+		v[7] = o.StateString
+		v[8] = o.When.String()
+		v[9] = o.CreationDate.String()
+		v[10] = o.ArriveDate.String()
 		return v
 	}
 
@@ -277,7 +278,8 @@ func (s *Server) HandleExportCsv(w http.ResponseWriter, r *http.Request) {
 	}
 	defer orders.Close()
 
-	w.Header().Add("Content-Disposition", fmt.Sprintf("attachment; filename=%q", time.Now().Format(time.DateTime)))
+	filename := fmt.Sprintf("attachment; filename=\"speralogistica-%s.csv\"", strings.ReplaceAll(time.Now().Format(time.DateTime), " ", "-"))
+	w.Header().Add("Content-Disposition", filename)
 	csvWriter := csv.NewWriter(w)
 	csvWriter.Write(header)
 	var errs error
