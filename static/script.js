@@ -81,6 +81,7 @@ const insertAziendaRef = React.createRef();
 const updateOrderRef = React.createRef();
 const notificationRef = React.createRef();
 const attachmentsRef = React.createRef();
+const manageUsersRef = React.createRef();
 
 
 const notificationRoot = ReactDOM.createRoot(document.querySelector("#notification-root"))
@@ -94,6 +95,9 @@ ReactDOM.createRoot(updateOrder).render(<UpdateOrder ref={updateOrderRef} orderT
 
 const ordersRoot = ReactDOM.createRoot(document.querySelector("#orders-root"))
 ordersRoot.render(<OrdersTable ref={ordersTableRef} infoOrderRef={infoOrderRef} updateOrderRef={updateOrderRef} insertOrderRef={insertOrderRef} attachmentsRef={attachmentsRef} notificationRef={notificationRef} />)
+
+const manageUsersRoot = ReactDOM.createRoot(document.querySelector("#manage-users-root"))
+manageUsersRoot.render(<ManageUsers ref={manageUsersRef} notificationRef={notificationRef}/>)
 
 fetch("/api/me")
     .then(r => r.json())
@@ -138,6 +142,9 @@ function hide_azienda_button() {
 
 function edit_company_button() {
     insertAziendaRef.current.openEdit()
+}
+function edit_users_button() {
+    manageUsersRef.current.show()
 }
 
 // Used HTML input tag

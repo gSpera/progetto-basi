@@ -83,6 +83,7 @@ func main() {
 	http.Handle("/api/new-order", server.MustBeAdminMiddleware(server.HandleApiNewOrder))
 	http.Handle("/api/new-azienda", server.MustBeAdminMiddleware(server.HandleApiNewAzienda))
 	http.Handle("/api/info-for-company", server.LoggedInMiddleware(server.HandleApiInfoForCompany))
+	http.Handle("/api/users-for-company", server.LoggedInMiddleware(server.HandleApiUsersForCompany))
 	http.Handle("/api/update-azienda", server.MustBeAdminMiddleware(server.HandleApiUpdateCompany))
 	http.Handle("/api/update-order", server.MustBeAdminMiddleware(server.HandleApiUpdateOrder))
 	http.Handle("/api/update-arrive-date", server.MustBeAdminMiddleware(server.HandleApiUpdateArriveDate))

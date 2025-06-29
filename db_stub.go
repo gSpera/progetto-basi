@@ -77,3 +77,6 @@ func (d Database) UpdateCompany(companyID int, name string, regionID int, city s
 func (d Database) InfoForOrder(orderID int) *sqlx.Row {
 	panic("no database selected")
 }
+func (d Database) UsersByCompanyID(companyID int) (*sqlx.Rows, error) {
+	panic("no database selected")
+}

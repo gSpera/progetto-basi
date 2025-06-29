@@ -113,3 +113,6 @@ func (d Database) UpdateCompany(companyID int, name string, regionID int, city s
 func (d Database) InfoForOrder(orderID int) *sqlx.Row {
 	return d.db.QueryRowx(`SELECT o.ordine, d.nome, d.comune FROM ordine o JOIN azienda d ON o.destinatario_id=d.id WHERE o.id=?`, orderID)
 }
+func (d Database) UsersByCompanyID(companyID int) (*sqlx.Rows, error) {
+	return d.db.Queryx(`SELECT nome FROM utente WHERE azienda_id=?`, companyID)
+}

@@ -897,6 +897,42 @@ func (s *Server) HandleApiInfoForCompany(w http.ResponseWriter, r *http.Request)
 	enc.Encode(res)
 }
 
+func (s *Server) HandleApiUsersForCompany(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	companyID, err := strconv.Atoi(r.FormValue("id"))
+	if err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+
+	users, err := s.Database.UsersByCompanyID(companyID)
+	if err != nil {
+		http.Error(w, "Internal server errror", http.StatusInternalServerError)
+		s.Log.Errorln("Cannot get users for company:", companyID, err)
+		return
+	}
+	type User struct {
+		Name string `sqlite:"nome"`
+	}
+	res := make([]User, 0, 10)
+	var errs error
+	for users.Next() {
+		var u User
+		errs = errors.Join(errs, users.StructScan(&u))
+		res = append(res, u)
+	}
+
+	if errs != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		s.Log.Errorln("Cannot scan users:", companyID, ":", err)
+		return
+	}
+
+	enc := json.NewEncoder(w)
+	enc.SetIndent("", "\t")
+	enc.Encode(res)
+}
+
 func (s *Server) HandleApiUpdateCompany(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	input := struct {
