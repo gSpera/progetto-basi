@@ -96,9 +96,6 @@ ReactDOM.createRoot(updateOrder).render(<UpdateOrder ref={updateOrderRef} orderT
 const ordersRoot = ReactDOM.createRoot(document.querySelector("#orders-root"))
 ordersRoot.render(<OrdersTable ref={ordersTableRef} infoOrderRef={infoOrderRef} updateOrderRef={updateOrderRef} insertOrderRef={insertOrderRef} attachmentsRef={attachmentsRef} notificationRef={notificationRef} />)
 
-const manageUsersRoot = ReactDOM.createRoot(document.querySelector("#manage-users-root"))
-manageUsersRoot.render(<ManageUsers ref={manageUsersRef} notificationRef={notificationRef}/>)
-
 fetch("/api/me")
     .then(r => r.json())
     .then(r => {

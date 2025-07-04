@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="/static/vendor/bulma.min.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="/static/vendor/mdi/materialdesignicons.min.css">
+
+    <link rel="stylesheet" href="/static/style.css">
+
+    <style id="only-admin-css">
+        .only-admin {
+            display: none;
+        }
+    </style>
+
+    <script src="/static/vendor/react.development.js"></script>
+    <script src="/static/vendor/react-dom.development.js"></script>
+    <script src="/static/vendor/babel.min.js"></script>
+
+    <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/static/logo-small.png" type="image/x-icon">
+
+    <title>Inventario Spera Logistica SRL - Gestione Utenze</title>
+</head>
+
+<body>
+    <nav class="navbar is-warning no-print">
+        <div class="navbar-brand">
+            <div class="navbar-item is-size-4">
+                <span class="icon is-large is-clickable" onclick="window.location.pathname = '/'">
+                    <span class="mdi mdi-arrow-left"></span>
+                </span>
+
+                Gestione Utenze
+            </div>
+        </div>
+
+        <div class="navbar-menu">
+            <div class="navbar-end">
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <div id="azienda-nome" class="navbar-link is-underlined"></div>
+
+                    <div class="navbar-dropdown">
+                        <span class="navbar-item icon-text">
+                            <span class="icon"><i class="mdi mdi-account"></i></span>
+                            <span id="navbar-username"></span>
+                        </span>
+                        <span class="navbar-item icon-text">
+                            <span class="icon"><i class="mdi mdi-briefcase"></i></span>
+                            <span id="navbar-company"></span>
+                        </span>
+                        <span class="navbar-item icon-text is-underlined">
+                            <span class="icon"><i class="mdi mdi-logout"></i></span>
+                            <a href="/logout">Esci</a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="section content">
+        <h1>Utenze</h1>
+        <h3><span class="only-print" id="users-header-date"></span></h3>
+        <div class="buttons" id="users-buttons">
+            <div class="control has-icons-left mt only-admin no-print m-3">
+                <span class="icon is-left">
+                    <span class="mdi mdi-account-plus has-text-info"></span>
+                </span>
+
+                <button class="input button is-info is-outlined" onclick="add_user_button()">Aggiungi utente</button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div id="users-root"/>
+        </div>
+    </div>
+
+    <div id="edit-user-root"></div>
+    <div id="notification-root"></div>
+
+    <script type="text/babel" src="/static/edit-user.js"></script>
+    <script type="text/babel" src="/static/users-table.js"></script>
+    <script type="text/babel" src="/static/notification.js"></script>
+    <script type="text/babel" src="/static/users.js"></script>
+</body>
+
+</html>

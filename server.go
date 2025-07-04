@@ -70,6 +70,9 @@ func (s *Server) DeliverOrder(orderID int) (order, companyName, city string, err
 func (s *Server) HandleHome(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "tmpl/ordini.html")
 }
+func (s *Server) HandleManageUsers(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "tmpl/utenze.html")
+}
 
 func (s *Server) HandleLogin(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
@@ -912,7 +915,10 @@ func (s *Server) HandleApiUsersForCompany(w http.ResponseWriter, r *http.Request
 		return
 	}
 	type User struct {
-		Name string `sqlite:"nome"`
+		Name      string `sqlite:"nome"`
+		Role      int    `sqlite:"ruolo"`
+		Region    *int   `sqlite:"regione"`
+		CompanyID int    `sqlite:"azienda_id"`
 	}
 	res := make([]User, 0, 10)
 	var errs error
@@ -924,7 +930,7 @@ func (s *Server) HandleApiUsersForCompany(w http.ResponseWriter, r *http.Request
 
 	if errs != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		s.Log.Errorln("Cannot scan users:", companyID, ":", err)
+		s.Log.Errorln("Cannot scan users:", companyID, ":", errs)
 		return
 	}
 
@@ -977,6 +983,59 @@ func (s *Server) HandleApiQRCodeForStamp(w http.ResponseWriter, r *http.Request)
 		s.Log.Errorln("Cannot encode image:", err)
 		return
 	}
+}
+
+func (s *Server) HandleApiEditOrNewUser(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	type Body struct {
+		Username string   `json:"username"`
+		Password string   `json:"password"`
+		Role     UserRole `json:"role,string"`
+		Region   int      `json:"region,string"` // Valid if role == RoleRegion
+		Store    []int    `json:"store"`         // Valid if role == RoleStore or RoleZone
+	}
+	var user Body
+	defer r.Body.Close()
+	dec := json.NewDecoder(r.Body)
+	err := dec.Decode(&user)
+	if err != nil {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		s.Log.Warnln("Cannot decode edit user:", err)
+		return
+	}
+
+	user.Username = strings.TrimSpace(user.Username)
+	user.Password = strings.TrimSpace(user.Password)
+
+	if len(user.Username) < 2 || len(user.Password) < 8 ||
+		user.Role < 0 || user.Role > UserRoleMaxValue || user.Role == UserRoleStore {
+
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		s.Log.Warnln("Invalid request for edit or new user")
+		return
+	}
+
+	var region *int
+	var mainStore int
+	var stores []int
+	switch user.Role {
+	case UserRoleRegion:
+		mainStore = 0 // TODO: Hardcoded
+		region = new(int)
+		*region = 5
+		stores = nil
+	case UserRoleStore:
+		mainStore = user.Store[0]
+		stores = nil
+	case UserRoleZone:
+		mainStore = 0 // TODO: Hardcoded
+		stores = user.Store
+	}
+
+	hashBytes := sha256.Sum256([]byte(user.Password))
+	hash := hex.EncodeToString(hashBytes[:])
+
+	s.Database.InsertOrEditUser(user.Username, hash, user.Role, region, mainStore, stores)
 }
 
 // LoggedInMiddleWare makes sure the request continues only if the user is logged in

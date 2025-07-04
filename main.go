@@ -19,6 +19,16 @@ type Config struct {
 	WhatsAppPhoneNumberID     string
 }
 
+type UserRole int
+
+const (
+	UserRoleRegion = 3 // A Region
+	UserRoleZone   = 4 // Multiple Store
+	UserRoleStore  = 5 // A single Store
+
+	UserRoleMaxValue = UserRoleStore
+)
+
 func main() {
 	log.Println("Starting")
 	var cfg Config
@@ -74,6 +84,7 @@ func main() {
 
 	log.Println("Registering handlers")
 	http.Handle("/", server.LoggedInMiddleware(server.HandleHome))
+	http.Handle("/utenze", server.LoggedInMiddleware(server.HandleManageUsers))
 	http.Handle("/export.csv", server.LoggedInMiddleware(server.HandleExportCsv))
 	http.HandleFunc("/login", server.HandleLogin)
 	http.HandleFunc("/logout", server.HandleLogout)

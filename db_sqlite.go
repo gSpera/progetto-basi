@@ -114,5 +114,24 @@ func (d Database) InfoForOrder(orderID int) *sqlx.Row {
 	return d.db.QueryRowx(`SELECT o.ordine, d.nome, d.comune FROM ordine o JOIN azienda d ON o.destinatario_id=d.id WHERE o.id=?`, orderID)
 }
 func (d Database) UsersByCompanyID(companyID int) (*sqlx.Rows, error) {
-	return d.db.Queryx(`SELECT nome FROM utente WHERE azienda_id=?`, companyID)
+	// TODO: Fix
+	return d.db.Queryx(`SELECT nome, ruolo, regione, azienda_id FROM utente WHERE azienda_id=? OR 1=1`, companyID)
+}
+func (d Database) InsertOrEditUser(username string, passwordHash string, role UserRole, region *int, companyID int, stores []int) error {
+	tx, err := d.db.Begin()
+	if err != nil {
+		return fmt.Errorf("cannot create a transaction: %w", err)
+	}
+
+	res, err := tx.Exec(`INSERT OR REPLACE INTO utente VALUES (?, ?, ?, ?, NULL);`, username, passwordHash, companyID, role)
+	if err != nil {
+		return fmt.Errorf("cannot insert or edit a user: %w", err)
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return fmt.Errorf("cannot commit transaction: %w", err)
+	}
+
+	return err
 }

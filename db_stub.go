@@ -80,3 +80,6 @@ func (d Database) InfoForOrder(orderID int) *sqlx.Row {
 func (d Database) UsersByCompanyID(companyID int) (*sqlx.Rows, error) {
 	panic("no database selected")
 }
+func (d Database) InsertOrEditUser(username string, passwordHash string, role UserRole, region *int, companyID int, stores []int) error {
+	panic("no database selected")
+}

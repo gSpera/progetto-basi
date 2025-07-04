@@ -1,7 +1,10 @@
 CREATE TABLE utente (
-    nome varchar(20) primary key,
-    password char(64) not null,
-    azienda_id integer not null
+	nome	varchar(20),
+	password	char(64) NOT NULL,
+	azienda_id	integer NOT NULL,
+	ruolo	INTEGER NOT NULL DEFAULT -1,
+	regione	INTEGER,
+	PRIMARY KEY("nome")
 );
 
 CREATE TABLE azienda (
@@ -14,6 +17,14 @@ CREATE TABLE azienda (
     partita_iva char(11),
     codice_univoco char(6)
 );
+
+CREATE TABLE utente_azienda (
+	utente	TEXT NOT NULL,
+	azienda	INTEGER NOT NULL,
+	PRIMARY KEY("utente"),
+	FOREIGN KEY("utente") REFERENCES "utente"("nome")
+);
+
 
 CREATE TABLE ordine (
     id integer primary key autoincrement,
