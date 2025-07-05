@@ -986,13 +986,14 @@ func (s *Server) HandleApiQRCodeForStamp(w http.ResponseWriter, r *http.Request)
 }
 
 func (s *Server) HandleApiEditOrNewUser(w http.ResponseWriter, r *http.Request) {
+	log := s.Log.WithField("handler", "ApiEditOrNewUser")
 	r.ParseForm()
 	type Body struct {
 		Username string   `json:"username"`
 		Password string   `json:"password"`
 		Role     UserRole `json:"role,string"`
 		Region   int      `json:"region,string"` // Valid if role == RoleRegion
-		Store    []int    `json:"store"`         // Valid if role == RoleStore or RoleZone
+		Store    []int    `json:"stores"`        // Valid if role == RoleStore or RoleZone
 	}
 	var user Body
 	defer r.Body.Close()
@@ -1000,20 +1001,28 @@ func (s *Server) HandleApiEditOrNewUser(w http.ResponseWriter, r *http.Request) 
 	err := dec.Decode(&user)
 	if err != nil {
 		http.Error(w, "Bad Request", http.StatusBadRequest)
-		s.Log.Warnln("Cannot decode edit user:", err)
+		log.Warnln("Cannot decode edit user:", err)
 		return
 	}
 
 	user.Username = strings.TrimSpace(user.Username)
 	user.Password = strings.TrimSpace(user.Password)
 
-	if len(user.Username) < 2 || len(user.Password) < 8 ||
-		user.Role < 0 || user.Role > UserRoleMaxValue || user.Role == UserRoleStore {
+	if len(user.Username) < 2 || (len(user.Password) < 8 && len(user.Password) != 0) ||
+		user.Role < 0 || user.Role > UserRoleMaxValue ||
+		(user.Role == UserRoleStore && len(user.Store) != 1) {
 
 		http.Error(w, "Bad Request", http.StatusBadRequest)
-		s.Log.Warnln("Invalid request for edit or new user")
+		log.Warnln("Invalid request for edit or new user")
 		return
 	}
+
+	u := user
+	u.Password = "[REDACTED]"
+	if user.Password == "" {
+		u.Password = "[UNCHANGED]"
+	}
+	log.Infof("Inserting or editing user: %#v", u)
 
 	var region *int
 	var mainStore int
@@ -1022,7 +1031,7 @@ func (s *Server) HandleApiEditOrNewUser(w http.ResponseWriter, r *http.Request) 
 	case UserRoleRegion:
 		mainStore = 0 // TODO: Hardcoded
 		region = new(int)
-		*region = 5
+		*region = user.Region
 		stores = nil
 	case UserRoleStore:
 		mainStore = user.Store[0]
@@ -1035,7 +1044,24 @@ func (s *Server) HandleApiEditOrNewUser(w http.ResponseWriter, r *http.Request) 
 	hashBytes := sha256.Sum256([]byte(user.Password))
 	hash := hex.EncodeToString(hashBytes[:])
 
-	s.Database.InsertOrEditUser(user.Username, hash, user.Role, region, mainStore, stores)
+	if user.Password == "" {
+		hash = ""
+	}
+
+	regionV := -1
+	if region != nil {
+		regionV = *region
+	}
+	log.Infof("Database: username=%q hash=%q role=%d region=%p(%d) mainStore=%d stores=%v", user.Username, hash, user.Role, region, regionV, mainStore, stores)
+	err = s.Database.InsertOrEditUser(user.Username, hash, user.Role, region, mainStore, stores)
+
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		log.Errorln("Cannot insert into database:", err)
+		return
+	}
+
+	w.Write([]byte("Ok"))
 }
 
 // LoggedInMiddleWare makes sure the request continues only if the user is logged in

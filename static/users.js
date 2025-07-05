@@ -46,7 +46,7 @@ const editUserRoot = ReactDOM.createRoot(document.querySelector("#edit-user-root
 const notificationRoot = ReactDOM.createRoot(document.querySelector("#notification-root"))
 
 function editUserOnSuccess() {
-    usersTableRefRef.current.update()
+    usersTableRef.current.update()
 }
 
 notificationRoot.render(<Notification ref={notificationRef} />)
