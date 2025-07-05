@@ -118,14 +118,54 @@ func (d Database) UsersByCompanyID(companyID int) (*sqlx.Rows, error) {
 	return d.db.Queryx(`SELECT nome, ruolo, regione, azienda_id FROM utente WHERE azienda_id=? OR 1=1`, companyID)
 }
 func (d Database) InsertOrEditUser(username string, passwordHash string, role UserRole, region *int, companyID int, stores []int) error {
-	tx, err := d.db.Begin()
+	tx, err := d.db.Beginx()
 	if err != nil {
 		return fmt.Errorf("cannot create a transaction: %w", err)
 	}
 
-	res, err := tx.Exec(`INSERT OR REPLACE INTO utente VALUES (?, ?, ?, ?, NULL);`, username, passwordHash, companyID, role)
+	type User struct {
+		Username  string `sqlite:"nome"`
+		Password  string `sqlite:"password"`
+		CompanyID int    `sqlite:"azienda_id"`
+		Role      int    `sqlite:"ruolo"`
+		Region    *int   `sqlite:"regione"`
+	}
+	u := User{
+		Username:  username,
+		Password:  passwordHash,
+		CompanyID: companyID,
+		Role:      int(role),
+		Region:    region,
+	}
+	_, err = tx.NamedExec(`INSERT OR REPLACE INTO utente VALUES (:nome,
+		CASE WHEN :password != "" THEN :password ELSE (SELECT password FROM utente where nome=:nome) END,
+	:azienda_id, :ruolo, :regione);`, u)
 	if err != nil {
-		return fmt.Errorf("cannot insert or edit a user: %w", err)
+		tx.Rollback()
+		return fmt.Errorf("cannot insert user: %w", err)
+	}
+
+	_, err = tx.Exec(d.db.Rebind(`DELETE FROM utente_azienda WHERE utente=?`), username)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("cannot delete user-store connections: %w", err)
+	}
+
+	if len(stores) != 0 {
+		// Use the batch insert of sqlx
+		type UserStore struct {
+			User  string `sqlite:"utente"`
+			Store int    `sqlite:"azienda"`
+		}
+		vs := make([]UserStore, len(stores))
+		for i, v := range stores {
+			vs[i] = UserStore{User: username, Store: v}
+		}
+		_, err = tx.NamedExec(`INSERT INTO utente_azienda VALUES (:utente, :azienda)`, vs)
+		if err != nil {
+			tx.Rollback()
+			return fmt.Errorf("cannot insert into user-store connections: %w", err)
+		}
 	}
 
 	err = tx.Commit()
@@ -133,5 +173,5 @@ func (d Database) InsertOrEditUser(username string, passwordHash string, role Us
 		return fmt.Errorf("cannot commit transaction: %w", err)
 	}
 
-	return err
+	return nil
 }
