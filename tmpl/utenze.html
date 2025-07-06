@@ -7,12 +7,7 @@
     <link rel="stylesheet" href="/static/vendor/mdi/materialdesignicons.min.css">
 
     <link rel="stylesheet" href="/static/style.css">
-
-    <style id="only-admin-css">
-        .only-admin {
-            display: none;
-        }
-    </style>
+    <link rel="stylesheet" href="/static/users-table.css">
 
     <script src="/static/vendor/react.development.js"></script>
     <script src="/static/vendor/react-dom.development.js"></script>
@@ -64,7 +59,7 @@
         <h1>Utenze</h1>
         <h3><span class="only-print" id="users-header-date"></span></h3>
         <div class="buttons" id="users-buttons">
-            <div class="control has-icons-left mt only-admin no-print m-3">
+            <div class="control has-icons-left mt only-admin only-producer is-hidden no-print m-3">
                 <span class="icon is-left">
                     <span class="mdi mdi-account-plus has-text-info"></span>
                 </span>

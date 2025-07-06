@@ -30,7 +30,7 @@ const roleRivenditore = 5
 const userRoleString = [
     "X",
     "X - Produttore",
-    "X - Ricevitore",
+    "Ricevitore",
     "Agente di regione",
     "Agente di zona",
     "Rivenditore",
@@ -60,10 +60,7 @@ fetch("/api/me")
         document.getElementById("navbar-company").innerText = r.CompanyName
         if (r.CompanyID < 0 || r.CompanyRole == roleProduttore) Array.from(document.getElementsByClassName("only-producer")).forEach(el => el.classList.remove("is-hidden"))
         if (r.CompanyID < 0 || r.CompanyRole == roleRicevitore) Array.from(document.getElementsByClassName("only-receiver")).forEach(el => el.classList.remove("is-hidden"))
-        if (r.CompanyID >= 0) Array.from(document.getElementsByClassName("only-admin")).forEach(el => el.classList.remove("is-hidden"))
-        else {
-            document.getElementById("only-admin-css").remove()
-        }
+        if (r.CompanyID < 0) Array.from(document.getElementsByClassName("only-admin")).forEach(el => el.classList.remove("is-hidden"))
 
         ReactDOM.createRoot(userTableRoot).render(
             <UsersTable ref={usersTableRef} notificationRef={notificationRef} editUserRef={editUserRef} name={r.Username} companyID={r.CompanyID}/>

@@ -7,12 +7,7 @@
     <link rel="stylesheet" href="/static/vendor/mdi/materialdesignicons.min.css">
 
     <link rel="stylesheet" href="/static/style.css">
-
-    <style id="only-admin-css">
-        .only-admin {
-            display: none;
-        }
-    </style>
+    <link rel="stylesheet" href="/static/orders-table.css">
 
     <script src="/static/vendor/react.development.js"></script>
     <script src="/static/vendor/react-dom.development.js"></script>
@@ -60,21 +55,21 @@
         <h1>Ordini </h1>
         <h3><span class="only-print" id="order-header-date"></span></h3>
         <div class="buttons" id="orders-buttons">
-            <div class="control has-icons-left mt only-admin no-print m-3">
+            <div class="control has-icons-left mt only-admin is-hidden no-print m-3">
                 <span class="icon is-left">
                     <span class="mdi mdi-package-variant-closed-plus has-text-info"></span>
                 </span>
 
                 <button class="input button is-info is-outlined" onclick="add_order_button()">Aggiungi ordine</button>
             </div>
-            <div class="control has-icons-left mt only-admin no-print m-3">
+            <div class="control has-icons-left mt only-admin is-hidden no-print m-3">
                 <span class="icon is-left">
                     <span class="mdi mdi-briefcase-edit has-text-info"></span>
                 </span>
 
                 <button class="input button is-info is-outlined" onclick="edit_company_button()">Modifica azienda</button>
             </div>
-            <div class="control has-icons-left mt only-admin only-producer no-print m-3">
+            <div class="control has-icons-left mt only-admin only-producer is-hidden no-print m-3">
                 <span class="icon is-left">
                     <span class="mdi mdi-account-multiple has-text-info"></span>
                 </span>

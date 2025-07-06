@@ -227,7 +227,7 @@ class OrdersTable extends React.Component {
             if (attachmentNum == 1) return "mdi-file-document"
             if (attachmentNum > 1) return "mdi-file-document-multiple"
 
-            return "mdi-tray-arrow-up only-admin"
+            return "mdi-tray-arrow-up only-admin is-hidden"
         }
 
         return <React.Fragment>
@@ -241,12 +241,12 @@ class OrdersTable extends React.Component {
                         <th>DDT</th>
                         <th>n° Colli</th>
                         <th>Assegno</th>
-                        <th className="only-admin">Fatturato</th>
+                        <th className="only-admin is-hidden">Fatturato</th>
                         <th>Ultimo aggiornamento</th>
                         <th>Stima arrivo</th>
-                        <th className="only-admin">Trasportatore</th>
+                        <th className="only-admin is-hidden">Trasportatore</th>
                         <th className="no-print">Allegati</th>
-                        <th className="only-admin"></th>
+                        <th className="only-admin is-hidden"></th>
                     </tr>
                     <tr>
                         {searchInput('order')}
@@ -256,12 +256,12 @@ class OrdersTable extends React.Component {
                         {searchInput('ddt')}
                         {searchInput('numPackages')}
                         <th></th>
-                        <th className="only-admin"></th>
+                        <th className="only-admin is-hidden"></th>
                         {searchInput('latestUpdate')}
                         {searchDateInput('arriveDate')}
-                        {searchInput('carrier', "only-admin")}
+                        {searchInput('carrier', "only-admin is-hidden")}
                         <th className="no-print"></th>
-                        <th className="only-admin"></th>
+                        <th className="only-admin is-hidden"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -275,7 +275,7 @@ class OrdersTable extends React.Component {
                                 <td>{order.DDT}</td>
                                 <td>{order.NumPackages}</td>
                                 <td><span className="icon is-medium"><span className={"mdi mdi-" + (order.WithdrawBankCheck ? 'check' : '')}></span></span></td>
-                                <td className="only-admin"><span className="icon is-medium"><span className={"mdi mdi-" + (order.Invoiced ? 'check' : '')}></span></span></td>
+                                <td className="only-admin is-hidden"><span className="icon is-medium"><span className={"mdi mdi-" + (order.Invoiced ? 'check' : '')}></span></span></td>
                                 <td>
                                     <span className="icon"><span className={"mdi mdi-" + stateIcons[order.StateID]}></span></span>
                                     <span className={stateColors[order.StateID]}>{order.StateString}</span>
@@ -287,23 +287,23 @@ class OrdersTable extends React.Component {
                                         return <span>{prefix} {new Date(order.ArriveDate).toLocaleDateString()} </span>
                                     })() : ""}
                                 </td>
-                                <td className="only-admin">{order.Carrier}</td>
+                                <td className="only-admin is-hidden">{order.Carrier}</td>
                                 <td className="no-print">
                                     <span className="icon is-medium is-clickable" onClick={() => this.props.attachmentsRef.current.show(order)}>
                                         <span className={"mdi " + attachmentIcon(this.state.ordersIcons[order.ID])}></span>
                                     </span>
                                 </td>
-                                <td className="only-admin no-print">
-                                    <span className="icon is-medium only-admin is-clickable" onClick={() => this.orderInfo(order)}>
+                                <td className="only-admin is-hidden no-print">
+                                    <span className="icon is-medium only-admin is-hidden is-clickable" onClick={() => this.orderInfo(order)}>
                                         <span className="mdi mdi-information-outline"></span>
                                     </span>
-                                    <span className="icon is-medium only-admin is-clickable" onClick={() => this.stampOrder(order)}>
+                                    <span className="icon is-medium only-admin is-hidden is-clickable" onClick={() => this.stampOrder(order)}>
                                         <span className="mdi mdi-qrcode"></span>
                                     </span>
-                                    <span className="icon is-medium only-admin is-clickable" onClick={() => this.editOrder(order)}>
+                                    <span className="icon is-medium only-admin is-hidden is-clickable" onClick={() => this.editOrder(order)}>
                                         <span className="mdi mdi-pencil"></span>
                                     </span>
-                                    <span className="icon is-medium only-admin is-clickable" onClick={() => this.deleteOrderButton(order)}>
+                                    <span className="icon is-medium only-admin is-hidden is-clickable" onClick={() => this.deleteOrderButton(order)}>
                                         <span className="mdi mdi-delete"></span>
                                     </span>
                                 </td>

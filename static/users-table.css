@@ -1,0 +1,53 @@
+@media screen and (max-width: 512px) {
+    table, tbody, thead, tr, td {
+        display: block;
+    }
+
+    td {
+        border: none !important;
+    }
+    tbody > tr {
+        border-bottom: 1px solid #dbdbdb;
+    }
+
+    tr > td,
+    tr > th {
+        border: none;
+        font-size: 1.2rem;
+    }
+
+    tr > td:before,
+    tr > th:before {
+        font-weight: bold;
+        width: 100px;
+    }
+
+    tr > td:nth-child(1),
+    tr > td:nth-child(2) {
+        display: inline;
+    }
+
+    thead > tr:nth-child(1) { display: none; }
+    tr > th {
+        display: block;
+    }
+    tr > th:nth-child(1):before {
+        content: "Nome: ";
+    }
+    tr > th:nth-child(2):before {
+        content: "Ruolo: ";
+    }
+    tr > th:nth-child(3):before {
+        content: "Regione: ";
+    }
+    tr > th:nth-child(4):before {
+        content: "Rivenditori: ";
+    }
+
+    tr > td:nth-child(1):before {
+        content: "Utente: ";
+    }
+    tr > td:nth-child(2):before {
+        content: " ";
+    }
+}
