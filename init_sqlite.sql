@@ -21,7 +21,7 @@ CREATE TABLE azienda (
 CREATE TABLE utente_azienda (
 	utente	TEXT NOT NULL,
 	azienda	INTEGER NOT NULL,
-	PRIMARY KEY("utente"),
+	PRIMARY KEY("utente", "azienda"),
 	FOREIGN KEY("utente") REFERENCES "utente"("nome")
 );
 
