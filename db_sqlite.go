@@ -124,8 +124,10 @@ func (d Database) InfoForOrder(orderID int) *sqlx.Row {
 	return d.db.QueryRowx(`SELECT o.ordine, d.nome, d.comune FROM ordine o JOIN azienda d ON o.destinatario_id=d.id WHERE o.id=?`, orderID)
 }
 func (d Database) UsersByCompanyID(companyID int) (*sqlx.Rows, error) {
-	// TODO: Fix
-	return d.db.Queryx(`SELECT nome, ruolo, regione, azienda_id FROM utente WHERE azienda_id=? OR 1=1`, companyID)
+	return d.db.Queryx(`SELECT nome, ruolo, regione, azienda_id FROM utente WHERE
+	(?<0) -- Admin
+	OR (? = 0) AND azienda_id>0 -- Produttore
+	OR azienda_id=? -- Singola azienda`, companyID, companyID, companyID, companyID)
 }
 func (d Database) InsertOrEditUser(username string, passwordHash string, role UserRole, region *int, companyID int, stores []int) error {
 	tx, err := d.db.Beginx()
