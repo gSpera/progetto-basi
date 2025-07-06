@@ -4,6 +4,7 @@ class UsersTable extends React.Component {
 
         this.state = {
             users: [],
+            receivers: [],
             search: {
                 name: "",
                 role: "",
@@ -20,7 +21,13 @@ class UsersTable extends React.Component {
         this.searchUsers = this.searchUsers.bind(this);
         this.editUser = this.editUser.bind(this);
         this.deleteUserButton = this.deleteUserButton.bind(this);
+        this.deleteUserDelete = this.deleteUserDelete.bind(this);
         this.deleteUserClose = this.deleteUserClose.bind(this);
+        this.loadReceivers = this.loadReceivers.bind(this);
+        this.storeName = this.storeName.bind(this);
+        this.storesToString =  this.storesToString.bind(this);
+
+        this.loadReceivers();
 
         setInterval(() => { this.update() }, 5000);
         this.update();
@@ -56,20 +63,43 @@ class UsersTable extends React.Component {
         this.setState(this.state, this.searchUsers)
     }
 
+    storesToString(user) {
+        if (user.CompanyID != 0) return this.storeName(user.CompanyID);
+        if (user.Stores == null) return "";
+        return user.Stores.map(r => this.storeName(r)).join(", ")
+    }
+
     searchUsers() {
         const users = this.state.users
         const search = this.state.search
 
-        const strIncludes = (a, b) => a.toLowerCase().includes(b.toLowerCase())
+        const strIncludes = (a, b) => a != null && b != null && a.toLowerCase().includes(b.toLowerCase())
         const filtered = users
             .filter(u => search.name.length > 0 ? strIncludes(u.Name, search.name) : true)
             .filter(u => search.role.length > 0 ? strIncludes(userRoleString[u.Role], search.role) : true)
-            .filter(u => search.region.length > 0 ? strIncludes(u.Region, search.region) : true)
-            .filter(u => search.store.length > 0 ? strIncludes(u.Store, search.store) : true)
+            .filter(u => search.region.length > 0 ? strIncludes(regioni[u.Region].Name, search.region) : true)
+            .filter(u => search.store.length > 0 ? strIncludes(this.storesToString(u), search.store) : true)
         this.setState({
             ...this.state,
             searchedUsers: filtered,
         })
+    }
+
+    loadReceivers() {
+        fetch("/api/avaible-receivers")
+            .then(r => r.json())
+            .then(r => this.setState({
+                ...this.state,
+                receivers:  r.Receivers,
+            }))
+            .catch(err => this.props.notificationRef.current.notify("Impossibile caricare i rivenditori: " + err))
+    }
+    storeName(id) {
+        if (id === "") return "";
+        id = Number(id);
+        const store = this.state.receivers.find(r => id === r.ID);
+        if (store == undefined) return "";
+        return store.Name;
     }
 
     newUser() {
@@ -91,6 +121,15 @@ class UsersTable extends React.Component {
             ...this.state,
             deleteUser: { show: false },
         })
+    }
+
+    deleteUserDelete() {
+        fetch("/api/delete-user?user="+this.state.deleteUser.user.Name)
+            .then(_ => {
+                this.update()
+                this.deleteUserClose()
+            })
+            .catch(err => this.props.notificationRef.current.notify("Impossibile cancellare l'utente:" + err))
     }
 
     render() {
@@ -129,7 +168,11 @@ class UsersTable extends React.Component {
                                 <td>{user.Name}</td>
                                 <td>{userRoleString[user.Role]}</td>
                                 <td>{userRegione(user)}</td>
-                                <td>{user.Stores}</td>
+                                <td>
+                                    {user.Role == roleRivenditore &&
+                                        this.storeName(user.CompanyID)}
+                                    {user.Stores && this.storesToString(user)}
+                                </td>
                                 <td>
                                     {(user.Name != this.props.name) && <span>
                                         <span className="icon is-medium is-clickable" onClick={() => this.editUser(user)}>
@@ -196,7 +239,7 @@ class UsersTable extends React.Component {
                                 <b>Ruolo:</b> {userRoleString[this.state.deleteUser.user.Role]}
                             </p>
                             <p>
-                                {this.state.deleteUser.user.Region != null &&
+                                {this.state.deleteUser.user.Role != null &&
                                     <span><b>Regione:</b> {userRegione(this.state.deleteUser.user)}</span>
                                 }
                             </p>

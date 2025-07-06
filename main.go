@@ -22,6 +22,7 @@ type Config struct {
 type UserRole int
 
 const (
+	UserRoleProducer = 2
 	UserRoleRegion = 3 // A Region
 	UserRoleZone   = 4 // Multiple Store
 	UserRoleStore  = 5 // A single Store
@@ -106,6 +107,7 @@ func main() {
 	http.Handle("/api/delete-attachment", server.MustBeAdminMiddleware(server.HandleApiDeleteAttachment))
 	http.Handle("/api/attachment-icons", server.LoggedInMiddleware(server.HandleApiAttachmentIcons))
 	http.Handle("/api/edit-or-create-user", server.LoggedInMiddleware(server.HandleApiEditOrNewUser))
+	http.Handle("/api/delete-user", server.LoggedInMiddleware(server.HandleApiDeleteUser))
 	http.Handle("/attachments/", server.LoggedInMiddleware(server.HandleRetrieveAttachment))
 	http.Handle("/stamp/", server.LoggedInMiddleware(server.HandlePrintStamp))
 	http.Handle("/api/me", server.LoggedInMiddleware(server.HandlerApiAboutMe))

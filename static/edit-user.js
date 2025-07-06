@@ -13,6 +13,8 @@ class EditUser extends React.Component {
             region: 0,
             storeInput: "",
             storeID: undefined,
+            storeZonaInput: "",
+            storeZonaID: undefined,
             stores: [],
         };
 
@@ -21,6 +23,7 @@ class EditUser extends React.Component {
         this.loadReceivers = this.loadReceivers.bind(this);
         this.storeName = this.storeName.bind(this);
         this.findStore = this.findStore.bind(this);
+        this.zonaAddStore = this.zonaAddStore.bind(this);
 
         this.newUser = this.newUser.bind(this);
         this.editUser = this.editUser.bind(this);
@@ -47,7 +50,11 @@ class EditUser extends React.Component {
                 break;
             case "store":
                 this.state.storeInput = value;
-                this.state.store = [this.findStore(value)];
+                this.state.stores = [this.findStore(value)];
+                break;
+            case "store-zona":
+                this.state.storeZonaInput = value;
+                this.state.storeZonaID = this.findStore(value);
                 break;
             default:
                 alert("Errore");
@@ -55,14 +62,20 @@ class EditUser extends React.Component {
 
         }
 
-        this.setState(this.state);
+        this.setState(this.state, this.validate);
     }
 
     handleSubmit() {
         fetch("/api/edit-or-create-user", {
             method: "POST",
             cache: "no-cache",
-            body: JSON.stringify(this.state),
+            body: JSON.stringify({
+                username: this.state.username.trim(),
+                password: this.state.password.trim(),
+                role: String(this.state.role),
+                region: this.state.region == "X" ? "-1" : String(this.state.region),
+                stores: this.state.stores,
+            }),
         })
             .then(resp => {
                 if (!resp.ok) {
@@ -71,6 +84,7 @@ class EditUser extends React.Component {
                     return
                 }
                 this.props.onSuccess()
+                this.close()
             })
             .catch(err => this.props.notificationRef.current.notify("Errore in modifica o aggiunta utenza:" + err))
     }
@@ -92,7 +106,7 @@ class EditUser extends React.Component {
         return store.Name;
     }
     findStore(name) {
-        const store = this.state.receivers.find(r => name === r.Name)
+        const store = this.state.receivers.find(r => name === r.Name.trim())
         if (store == undefined) return undefined;
         return store.ID;
     }
@@ -102,13 +116,14 @@ class EditUser extends React.Component {
             ...this.state,
             show: true,
             edit: false,
-            receivers: [],
 
             username: "",
             password: "",
             role: "X",
-            region: 0,
+            region: "X",
             storeInput: "",
+            storeZonaInput: "",
+            storeZonaID: undefined,
             stores: [],
         })
     }
@@ -119,13 +134,15 @@ class EditUser extends React.Component {
             edit: true,
 
             username: user.Name,
-            password: "XXX",
+            password: "",
             role: user.Role,
             region: user.Region,
             storeInput: this.storeName(user.CompanyID),
-            store: user.CompanyID,
+            storeID: user.CompanyID,
+            storeZonaInput: "",
+            storeZonaID: undefined,
             stores: [],
-        })
+        }, this.validate)
     }
 
     close() {
@@ -135,10 +152,69 @@ class EditUser extends React.Component {
         })
     }
 
+    validate() {
+        this.state.usernameValid = true
+        this.state.passwordValid = true
+        this.state.storeValid = true
+        this.state.storeZonaValid = true
+        this.state.isValid = true
+
+        if (this.state.username.trim().length < 2) {
+            this.state.usernameValid = false
+            this.state.isValid = false
+        }
+
+        // If edit password could be empty
+        if (!(this.state.edit && this.state.password.trim().length == 0) && this.state.password.trim().length < 8) {
+            this.state.passwordValid = false
+            this.state.isValid = false
+        }
+
+        if (this.state.role == roleRivenditore && this.findStore(this.state.storeInput) == undefined) {
+            this.state.storeValid = false
+            this.state.isValid = false
+        }
+
+        if (this.state.role == roleZona && this.findStore(this.state.storeZonaInput) == undefined) {
+            this.state.storeZonaValid = false
+            this.state.isValid = false
+        }
+
+        this.setState(this.state)
+    }
+
+    zonaAddStore(event) {
+        event.preventDefault()
+        const storeID = this.state.storeZonaID
+        if (storeID == undefined) {
+            this.props.notificationRef.current.notify("Rivenditore non trovato")
+            return;
+        }
+
+        if (this.state.stores.indexOf(storeID) != -1) {
+            this.props.notificationRef.current.notify("Rivenditore già inserito")
+            return
+        }
+
+        let storesWithName = [
+            {id: storeID, name: this.storeName(storeID)},
+            ...this.state.stores.map(s => ({id: s, name: this.storeName(s)}))
+        ]
+        storesWithName.sort((a, b) => a.name < b.name ? -1 : 1)
+        let stores = storesWithName.map(s => s.id)
+
+        this.setState({
+            ...this.state,
+            storeZonaInput: "",
+            stores,
+        })
+    }
+
     render() {
         if (!this.state.show) {
             return <div></div>
         }
+        const errorBorder = (valid) => (!valid) ? " is-danger" : ""
 
         return <div className="modal is-active">
             <div className="modal-background"></div>
@@ -152,13 +228,13 @@ class EditUser extends React.Component {
                         <div className="field is-horizontal">
                             <label htmlFor="username" className="field-label label">Nome:</label>
                             <div className="field-body control">
-                                <input name="name" className="input" value={this.state.username} disabled={this.state.edit} onChange={this.handleChange} />
+                                <input name="name" className={"input" + errorBorder(this.state.usernameValid)} value={this.state.username} disabled={this.state.edit} minLength={2} onChange={this.handleChange} />
                             </div>
                         </div>
                         <div className="field is-horizontal">
                             <label htmlFor="password" className="field-label label">Password:</label>
                             <div className="field-body control">
-                                <input name="password" type="password" className="input" value={this.state.password} onChange={this.handleChange} />
+                                <input name="password" type="password" className={"input" + errorBorder(this.state.passwordValid)} value={this.state.password} minLength={this.edit ? 8 : null} placeholder={this.state.edit ? "Invariata" : "Richiesta"} onChange={this.handleChange} />
                             </div>
                         </div>
                         <div className="field is-horizontal">
@@ -177,7 +253,7 @@ class EditUser extends React.Component {
                             <div className="field is-horizontal">
                                 <label htmlFor="store" className="field-label label">Negozio: </label>
                                 <div className="field-body control">
-                                    <input name="store" className="input" value={this.state.storeInput} list="edit-user-store" onChange={this.handleChange}/>
+                                    <input name="store" className={"input" + errorBorder(this.state.storeValid)} value={this.state.storeInput} list="edit-user-store" onChange={this.handleChange}/>
 
                                     <datalist id="edit-user-store">
                                         {this.state.receivers.map(r => <option label={r.Name} key={r.ID}>{r.Name}</option>)}
@@ -190,17 +266,48 @@ class EditUser extends React.Component {
                                 <label htmlFor="region" className="field-label label">Regione: </label>
                                 <div className="field-body control select">
                                     <select name="region" value={this.state.region ? this.state.region : 0} onChange={this.handleChange}>
+                                        <option value="X">-- Seleziona una regione --</option>
                                         {regioni.map(r => <option value={r.ID} key={r.ID}>{r.Name}</option>)}
                                     </select>
                                 </div>
                             </div>
                         }
+                        {this.state.role == roleZona &&
+                            <React.Fragment>
+                            <div className="field is-horizontal">
+                                <label htmlFor="store-zona" className="field-label label">Aggiungi negozio: </label>
+                                <div className="field-body control">
+                                    <input name="store-zona" className={"input" + errorBorder(this.state.storeZonaValid)} value={this.state.storeZonaInput} list="edit-user-store-zona" onChange={this.handleChange}/>
 
+                                    <datalist id="edit-user-store-zona">
+                                        {this.state.receivers.map(r => <option label={r.Name} key={r.ID}>{r.Name}</option>)}
+                                    </datalist>
+                                </div>
+                                <button type="button" className="button is-success is-light ml-2" onClick={this.zonaAddStore}>
+                                    <span className="icon is-small is-right">
+                                        <i className="mdi mdi-plus"></i>
+                                    </span>
+                                </button>
+                            </div>
+
+                            {this.state.stores.length == 0 ?
+                                <span>Nessun rivenditore selezionato</span>
+                            :
+                                <React.Fragment>
+                                    <hr />
+                                    <b>Rivenditori:</b>
+                                    <ul>
+                                        {this.state.stores.map(r => <li key={r}>{this.storeName(r)}</li>)}
+                                    </ul>
+                                </React.Fragment>
+                            }
+                            </React.Fragment>
+                        }
                     </form>
                 </div>
 
                 <div className="modal-card-foot">
-                    <button className="button is-success" onClick={this.handleSubmit} disabled={this.state.username.length == 0 || this.state.password.length == 0 || this.state.role == "X"}>{this.state.edit ? "Modifica" : "Aggiungi"}</button>
+                    <button className="button is-success" onClick={this.handleSubmit} disabled={!this.state.isValid}>{this.state.edit ? "Modifica" : "Aggiungi"}</button>
                     <button className="button" onClick={this.close}>Chiudi</button>
                 </div>
             </div>

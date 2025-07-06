@@ -102,9 +102,11 @@ func (s *Server) HandleLogin(w http.ResponseWriter, r *http.Request) {
 		aziendaId   int
 		azienda     string
 		aziendaRole int
+		userRole    UserRole
+		regionPtr   *int
 	)
 
-	err := row.Scan(&correctHash, &aziendaId, &azienda, &aziendaRole)
+	err := row.Scan(&correctHash, &aziendaId, &azienda, &aziendaRole, &userRole, &regionPtr)
 	if err == sql.ErrNoRows {
 		loginError("Utente non trovato")
 		log.Warningln("User not found")
@@ -113,6 +115,11 @@ func (s *Server) HandleLogin(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		log.Errorln("Cannot query password:", err)
 		return
+	}
+
+	region := -1
+	if regionPtr != nil {
+		region = *regionPtr
 	}
 
 	hashBytes := sha256.Sum256([]byte(password))
@@ -129,6 +136,8 @@ func (s *Server) HandleLogin(w http.ResponseWriter, r *http.Request) {
 		CompanyID:   aziendaId,
 		CompanyName: azienda,
 		CompanyRole: aziendaRole,
+		UserRole:    userRole,
+		Region:      region,
 		Expiration:  time.Now().AddDate(0, 0, 7),
 	}.Claims())
 	jwtTok, err := tok.SignedString(s.jwtSecret)
@@ -184,7 +193,7 @@ func (s *Server) HandlerApiGetOrders(w http.ResponseWriter, r *http.Request) {
 		ArriveDate        SqlTime `sqlite:"data_consegna"`
 	}
 
-	orders, err := s.Database.LatestStatesFor(claims.CompanyID)
+	orders, err := s.Database.LatestStatesFor(claims.UserRole, claims.Username, claims.CompanyID, claims.Region)
 	if err != nil {
 		log.Errorln("Cannot retrieve orders:", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -274,7 +283,7 @@ func (s *Server) HandleExportCsv(w http.ResponseWriter, r *http.Request) {
 		return v
 	}
 
-	orders, err := s.Database.LatestStatesFor(claims.CompanyID)
+	orders, err := s.Database.LatestStatesFor(claims.UserRole, claims.Username, claims.CompanyID, claims.Region)
 	if err != nil {
 		log.Errorln("Cannot retrieve orders:", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -390,6 +399,7 @@ func (s *Server) HandlerApiAboutMe(w http.ResponseWriter, r *http.Request) {
 		CompanyName string
 		CompanyRole int
 		Username    string
+		UserRole    UserRole
 	}
 
 	cookie, _ := r.Cookie("user")
@@ -399,6 +409,7 @@ func (s *Server) HandlerApiAboutMe(w http.ResponseWriter, r *http.Request) {
 	result.CompanyName = claims.CompanyName
 	result.CompanyRole = claims.CompanyRole
 	result.Username = claims.Username
+	result.UserRole = claims.UserRole
 
 	encoder := json.NewEncoder(w)
 	encoder.SetIndent("", "\t")
@@ -920,12 +931,28 @@ func (s *Server) HandleApiUsersForCompany(w http.ResponseWriter, r *http.Request
 		Role      int    `sqlite:"ruolo"`
 		Region    *int   `sqlite:"regione"`
 		CompanyID int    `sqlite:"azienda_id"`
+		Stores    []int  `sqlite:"-"`
 	}
 	res := make([]User, 0, 10)
 	var errs error
 	for users.Next() {
 		var u User
-		errs = errors.Join(errs, users.StructScan(&u))
+		err := users.StructScan(&u)
+		if err != nil {
+			errs = errors.Join(errs, fmt.Errorf("cannot scan user: %w", err))
+			continue
+		}
+
+		if u.Role == UserRoleZone {
+			// Load stores
+			stores, err := s.Database.LoadStoresForUser(u.Name)
+			if err != nil {
+				errs = errors.Join(errs, fmt.Errorf("cannot load stores for user: %w", err))
+				continue
+			}
+			u.Stores = stores
+		}
+
 		res = append(res, u)
 	}
 
@@ -1059,6 +1086,27 @@ func (s *Server) HandleApiEditOrNewUser(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		log.Errorln("Cannot insert into database:", err)
+		return
+	}
+
+	w.Write([]byte("Ok"))
+}
+
+func (s *Server) HandleApiDeleteUser(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+
+	username := r.Form.Get("user")
+	if username == "" {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		s.Log.Warnln("DeleteUser without user")
+		return
+	}
+
+	s.Log.Infoln("Deleting user:", username)
+	err := s.Database.DeleteUser(username)
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		s.Log.Errorln("Cannot delete user:", username, err)
 		return
 	}
 

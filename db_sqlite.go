@@ -43,13 +43,23 @@ func NewDatabase(dbPath string) (Database, error) {
 
 func (d Database) GetUserInfoByName(username string) *sql.Row {
 	return d.db.QueryRow(
-		d.db.Rebind("SELECT utente.password, utente.azienda_id, azienda.nome, azienda.ruolo FROM utente JOIN azienda ON utente.azienda_id = azienda.id WHERE utente.nome=?"), username)
+		d.db.Rebind("SELECT utente.password, utente.azienda_id, azienda.nome, azienda.ruolo, utente.ruolo, utente.regione FROM utente JOIN azienda ON utente.azienda_id = azienda.id WHERE utente.nome=?"), username)
 }
-func (d Database) LatestStatesFor(aziendaId int) (*sqlx.Rows, error) {
-	return d.db.Queryx(d.db.Rebind(`
-		SELECT * FROM ultimi_stati
-		WHERE (?<0) OR (produttore_id = ? OR destinatario_id = ?)
-	`), aziendaId, aziendaId, aziendaId)
+func (d Database) LatestStatesFor(role UserRole, username string, companyID int, region int) (*sqlx.Rows, error) {
+	args := map[string]interface{}{
+		"role":      role,
+		"username":  username,
+		"companyID": companyID,
+		"region":    region,
+	}
+
+	return d.db.NamedQuery(`
+	SELECT * FROM ultimi_stati
+	WHERE (:role<0)
+	OR (:role = 2) AND produttore_id=:companyID -- Produttore
+	OR (:role = 3) AND regione_id=:region -- Agente di Regione
+	OR (:role = 4) AND destinatario_id IN (SELECT azienda FROM utente_azienda WHERE utente=:username) -- Agente di Zona
+	OR (:role = 5) AND destinatario_id=:companyID -- Rivenditore`, args)
 }
 func (d Database) StatesForOrdine(ordineId int) (*sqlx.Rows, error) {
 	return d.db.Queryx("SELECT stato_string.value as stato, stato as statoID, quando FROM stato JOIN stato_string ON stato_string.id=stato.stato WHERE ordine_id=?", ordineId)
@@ -175,4 +185,15 @@ func (d Database) InsertOrEditUser(username string, passwordHash string, role Us
 	}
 
 	return nil
+}
+
+func (d Database) DeleteUser(username string) error {
+	_, err := d.db.Exec(`DELETE FROM utente WHERE nome=?`, username)
+	return err
+}
+
+func (d Database) LoadStoresForUser(username string) ([]int, error) {
+	var res []int
+	err := d.db.Select(&res, `SELECT azienda FROM utente_azienda WHERE utente=?`, username)
+	return res, err
 }

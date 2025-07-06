@@ -32,7 +32,7 @@ func NewDatabase(string) (Database, error) {
 func (d Database) GetUserInfoByName(username string) *sql.Row {
 	panic("no database selected")
 }
-func (d Database) LatestStatesFor(aziendaId int) (*sqlx.Rows, error) {
+func (d Database) LatestStatesFor(role UserRole, username string, companyID int, region int) (*sqlx.Rows, error) {
 	panic("no database selected")
 }
 func (d Database) StatesForOrdine(ordineId int) (*sqlx.Rows, error) {
@@ -81,5 +81,8 @@ func (d Database) UsersByCompanyID(companyID int) (*sqlx.Rows, error) {
 	panic("no database selected")
 }
 func (d Database) InsertOrEditUser(username string, passwordHash string, role UserRole, region *int, companyID int, stores []int) error {
+	panic("no database selected")
+}
+func (d Database) DeleteUser(username string) error {
 	panic("no database selected")
 }
