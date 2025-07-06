@@ -161,7 +161,8 @@ func (d Database) InsertOrEditUser(username string, passwordHash string, role Us
 		for i, v := range stores {
 			vs[i] = UserStore{User: username, Store: v}
 		}
-		_, err = tx.NamedExec(`INSERT INTO utente_azienda VALUES (:utente, :azienda)`, vs)
+
+		_, err = tx.NamedExec(`INSERT INTO utente_azienda(utente, azienda) VALUES (:utente, :azienda)`, vs)
 		if err != nil {
 			tx.Rollback()
 			return fmt.Errorf("cannot insert into user-store connections: %w", err)
