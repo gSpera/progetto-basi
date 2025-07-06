@@ -1119,14 +1119,13 @@ func (s *Server) LoggedInMiddleware(handler http.HandlerFunc) http.Handler {
 		// Get cookie
 		cookie, err := r.Cookie("user")
 		if err != nil {
-			log.Errorln("Cannot retrieve cookie:", err)
 			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
 			return
 		}
 
 		claims, err := UserCookieFromJWT(s.parseJWTToken(cookie.Value))
 		if err != nil {
-			http.Error(w, "Bad request", http.StatusBadRequest)
+			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
 			log.Errorln("Cannot parse jwt:", err)
 			return
 		}
