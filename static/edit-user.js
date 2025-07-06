@@ -24,6 +24,7 @@ class EditUser extends React.Component {
         this.storeName = this.storeName.bind(this);
         this.findStore = this.findStore.bind(this);
         this.zonaAddStore = this.zonaAddStore.bind(this);
+        this.zonaDeleteStore = this.zonaDeleteStore.bind(this);
 
         this.newUser = this.newUser.bind(this);
         this.editUser = this.editUser.bind(this);
@@ -210,6 +211,14 @@ class EditUser extends React.Component {
         })
     }
 
+    zonaDeleteStore(id) {
+        const stores = this.state.stores.filter(s => s != id)
+        this.setState({
+            ...this.state,
+            stores,
+        })
+    }
+
     render() {
         if (!this.state.show) {
             return <div></div>
@@ -276,14 +285,14 @@ class EditUser extends React.Component {
                             <React.Fragment>
                             <div className="field is-horizontal">
                                 <label htmlFor="store-zona" className="field-label label">Aggiungi negozio: </label>
-                                <div className="field-body control">
+                                <div className="field-body control ml-2">
                                     <input name="store-zona" className={"input" + errorBorder(this.state.storeZonaValid)} value={this.state.storeZonaInput} list="edit-user-store-zona" onChange={this.handleChange}/>
 
                                     <datalist id="edit-user-store-zona">
                                         {this.state.receivers.map(r => <option label={r.Name} key={r.ID}>{r.Name}</option>)}
                                     </datalist>
                                 </div>
-                                <button type="button" className="button is-success is-light ml-2" onClick={this.zonaAddStore}>
+                                <button className="button is-success is-light ml-2" onClick={this.zonaAddStore}>
                                     <span className="icon is-small is-right">
                                         <i className="mdi mdi-plus"></i>
                                     </span>
@@ -297,7 +306,10 @@ class EditUser extends React.Component {
                                     <hr />
                                     <b>Rivenditori:</b>
                                     <ul>
-                                        {this.state.stores.map(r => <li key={r}>{this.storeName(r)}</li>)}
+                                        {this.state.stores.map(r => <li key={r}>
+                                            {this.storeName(r)}
+                                            <a onClick={() => this.zonaDeleteStore(r)} className="is-pulled-right"><span className="icon is-small"><i className="mdi mdi-close"></i></span></a>
+                                        </li>)}
                                     </ul>
                                 </React.Fragment>
                             }
