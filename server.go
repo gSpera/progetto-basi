@@ -178,6 +178,7 @@ func (s *Server) HandlerApiGetOrders(w http.ResponseWriter, r *http.Request) {
 		StateString       string  `db:"STATO_STRING" sqlite:"stato_string"`
 		When              SqlTime `db:"QUANDO" sqlite:"quando"`
 		Carrier           string  `sqlite:"trasportatore"`
+		RegionID          int     `sqlite:"regione_id"`
 		Region            string  `sqlite:"regione"`
 		CreationDate      SqlTime `sqlite:"data_creazione"`
 		ArriveDate        SqlTime `sqlite:"data_consegna"`
