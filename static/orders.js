@@ -93,8 +93,6 @@ ReactDOM.createRoot(info_order).render(<InfoOrder ref={infoOrderRef} notificatio
 const updateOrder = document.querySelector("#update-order-root")
 ReactDOM.createRoot(updateOrder).render(<UpdateOrder ref={updateOrderRef} orderTableRef={ordersTableRef} notificationRef={notificationRef} />)
 
-const ordersRoot = ReactDOM.createRoot(document.querySelector("#orders-root"))
-ordersRoot.render(<OrdersTable ref={ordersTableRef} infoOrderRef={infoOrderRef} updateOrderRef={updateOrderRef} insertOrderRef={insertOrderRef} attachmentsRef={attachmentsRef} notificationRef={notificationRef} />)
 
 fetch("/api/me")
     .then(r => r.json())
@@ -107,6 +105,9 @@ fetch("/api/me")
         if (r.CompanyID < 0) Array.from(document.getElementsByClassName("only-admin")).forEach(el => el.classList.remove("is-hidden"))
 
         ReactDOM.createRoot(insert_order).render(<InsertOrder ref={insertOrderRef} sender={Math.max(r.CompanyID, 0)} orderTableRef={ordersTableRef} insertAziendaRef={insertAziendaRef} notificationRef={notificationRef} />)
+
+        const ordersRoot = ReactDOM.createRoot(document.querySelector("#orders-root"))
+        ordersRoot.render(<OrdersTable ref={ordersTableRef} infoOrderRef={infoOrderRef} updateOrderRef={updateOrderRef} insertOrderRef={insertOrderRef} attachmentsRef={attachmentsRef} notificationRef={notificationRef} companyID={r.CompanyID} />)
     })
     .catch(err => notificationRef.current.notify("Informazioni: " + err))
 
