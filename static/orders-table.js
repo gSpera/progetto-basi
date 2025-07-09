@@ -228,6 +228,11 @@ class OrdersTable extends React.Component {
             return isAdmin ? "" : " is-hidden ";
         }
 
+        const onlyAdminOrReceiver = () => {
+            const isAdminOrReceiver = this.props.companyID <= 0
+            return isAdminOrReceiver ? "" : " is-hidden ";
+        }
+
         const attachmentIcon = (attachmentNum) => {
             if (attachmentNum == 1) return "mdi-file-document"
             if (attachmentNum > 1) return "mdi-file-document-multiple"
@@ -252,7 +257,7 @@ class OrdersTable extends React.Component {
                         <th>Stima arrivo</th>
                         <th className={onlyAdmin()}>Trasportatore</th>
                         <th className="no-print">Allegati</th>
-                        <th className={onlyAdmin()}></th>
+                        <th className={onlyAdminOrReceiver()}></th>
                     </tr>
                     <tr>
                         {searchInput('order')}
@@ -267,7 +272,7 @@ class OrdersTable extends React.Component {
                         {searchDateInput('arriveDate')}
                         {searchInput('carrier',onlyAdmin())}
                         <th className="no-print"></th>
-                        <th className={onlyAdmin()}></th>
+                        <th className={onlyAdminOrReceiver()}></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -299,8 +304,8 @@ class OrdersTable extends React.Component {
                                         <span className={"mdi " + attachmentIcon(this.state.ordersIcons[order.ID])}></span>
                                     </span>
                                 </td>
-                                <td className={onlyAdmin() + "no-print"}>
-                                    <span className={onlyAdmin() + "icon is-medium is-clickable"} onClick={() => this.orderInfo(order)}>
+                                <td className={onlyAdminOrReceiver() + "no-print"}>
+                                    <span className={onlyAdminOrReceiver() + "icon is-medium is-clickable"} onClick={() => this.orderInfo(order)}>
                                         <span className="mdi mdi-information-outline"></span>
                                     </span>
                                     <span className={onlyAdmin() + "icon is-medium is-clickable"} onClick={() => this.stampOrder(order)}>
