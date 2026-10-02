@@ -28,9 +28,12 @@ type Server struct {
 	AttachmentStore AttachmentStore
 	Template        *template.Template
 	Log             *log.Entry
+
+	StampPrefix string
+	StampSuffix string
 }
 
-func NewServer(db Database, attachments AttachmentStore, tmplDir fs.FS, logger *log.Entry, jwtSecret []byte) (Server, error) {
+func NewServer(db Database, attachments AttachmentStore, tmplDir fs.FS, logger *log.Entry, jwtSecret []byte, stampPrefix string, stampSuffix string) (Server, error) {
 	tmpl := template.New("html")
 	_, err := tmpl.ParseFS(tmplDir, "*.tmpl")
 	if err != nil {
@@ -43,6 +46,8 @@ func NewServer(db Database, attachments AttachmentStore, tmplDir fs.FS, logger *
 		Template:        tmpl,
 		Log:             logger,
 		jwtSecret:       jwtSecret,
+		StampPrefix:     stampPrefix,
+		StampSuffix:     stampSuffix,
 	}, nil
 }
 
@@ -852,9 +857,13 @@ func (s *Server) HandlePrintStamp(w http.ResponseWriter, r *http.Request) {
 		CompanyCity       *string `sqlite:"comune"`
 		CompanyAddress    *string `sqlite:"indirizzo"`
 		Note              string
+		StampPrefix       string
+		StampSuffix       string
 	}
 	info.ID = orderID
 	info.Note = stampNote
+	info.StampPrefix = s.StampPrefix
+	info.StampSuffix = s.StampSuffix
 	err = res.StructScan(&info)
 	if errors.Is(err, sql.ErrNoRows) {
 		http.Error(w, "Not found", http.StatusNotFound)
@@ -1000,7 +1009,7 @@ func (s *Server) HandleApiQRCodeForStamp(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	qrcode, err := qr.Encode(fmt.Sprintf("SPERA-LOGISTICA-ORDINE:%d", orderID), qr.Q)
+	qrcode, err := qr.Encode(fmt.Sprintf("%s%d%s", s.StampPrefix, orderID, s.StampSuffix), qr.Q)
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		s.Log.Errorln("Cannot encode qr code:", err)

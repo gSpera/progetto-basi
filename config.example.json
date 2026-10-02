@@ -1,5 +1,8 @@
 {
     "DatabaseArg": "test.db",
     "JWTSecret": "00000000000000000000000000000000",
-    "ListenAddress": ":8080"
+    "ListenAddress": ":8080",
+
+    "StampPrefix": "GS",
+    "StampSuffix": "XX"
 }

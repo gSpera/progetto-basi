@@ -17,15 +17,18 @@ type Config struct {
 	WhatsAppAccessToken       string
 	WhatsAppWebhookVerifyCode string
 	WhatsAppPhoneNumberID     string
+
+	StampPrefix string
+	StampSuffix string
 }
 
 type UserRole int
 
 const (
 	UserRoleProducer = 2
-	UserRoleRegion = 3 // A Region
-	UserRoleZone   = 4 // Multiple Store
-	UserRoleStore  = 5 // A single Store
+	UserRoleRegion   = 3 // A Region
+	UserRoleZone     = 4 // Multiple Store
+	UserRoleStore    = 5 // A single Store
 
 	UserRoleMaxValue = UserRoleStore
 )
@@ -69,7 +72,11 @@ func main() {
 	attachmentStore := FileSystemAttachmentStore{attachmentsFS}
 
 	log.Println("Initializing server")
-	server, err := NewServer(db, attachmentStore, os.DirFS("./tmpl"), log.NewEntry(log.StandardLogger()), []byte(cfg.JWTSecret))
+	server, err := NewServer(db, attachmentStore,
+		os.DirFS("./tmpl"), log.NewEntry(log.StandardLogger()),
+		[]byte(cfg.JWTSecret), cfg.StampPrefix, cfg.StampSuffix,
+	)
+
 	if err != nil {
 		log.Fatalln("Cannot initialize server:", err)
 	}

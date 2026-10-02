@@ -48,20 +48,20 @@
         }
 
         .order {
-            height: 3cm;
+            height: 2cm;
         }
 
         .company-name {
-            height: 4cm;
+            height: 2cm;
         }
 
         .city {
-            height: 3cm;
+            height: 2cm;
         }
 
         .qrcode {
-            height: 4cm;
-            width: 4cm;
+            height: 7cm;
+            width: 7cm;
         }
 
         .note {
@@ -71,6 +71,10 @@
             float: right;
             text-align: left;
             padding: 1rem;
+        }
+
+        .stamp-text {
+            height: 0.7cm;
         }
     </style>
 </head>
@@ -83,6 +87,8 @@
         <p class="city">{{if .CompanyCity}}{{.CompanyCity}}{{end}}</p>
 
         <img src="/api/qrcode-stamp?id={{.ID}}" class="qrcode" />
+        <div class="stamp-text">{{.StampPrefix}}{{.ID}}{{.StampSuffix}}</div>
+
         {{ if gt (len .Note) 0 }}
         <p class="note">Note: {{.Note}}</p>
         {{ end }}
