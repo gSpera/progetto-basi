@@ -434,6 +434,7 @@ func (s *Server) HandlerApiReceivers(w http.ResponseWriter, r *http.Request) {
 		ShowSender bool
 		Receivers  []receiver
 	}
+	// result.Receivers = make([]receiver, 0)
 
 	cookie, _ := r.Cookie("user")
 	claims, _ := UserCookieFromJWT(s.parseJWTToken(cookie.Value))
