@@ -81,15 +81,6 @@ func main() {
 		log.Fatalln("Cannot initialize server:", err)
 	}
 
-	log.Println("Initializing whatsapp business api")
-	whatsapp := NewWhatsappAPI(
-		log.WithField("what", "whatsapp"),
-		cfg.WhatsAppWebhookVerifyCode,
-		cfg.WhatsAppAccessToken,
-		cfg.WhatsAppPhoneNumberID,
-		&server,
-	)
-
 	log.Println("Registering handlers")
 	http.Handle("/", server.LoggedInMiddleware(server.HandleHome))
 	http.Handle("/utenze", server.LoggedInMiddleware(server.HandleManageUsers))
@@ -120,7 +111,6 @@ func main() {
 	http.Handle("/api/me", server.LoggedInMiddleware(server.HandlerApiAboutMe))
 
 	http.Handle("/api/qrcode-stamp", server.MustBeAdminMiddleware(server.HandleApiQRCodeForStamp))
-	http.Handle("/api/whatsapp-webhook", whatsapp)
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
