@@ -129,6 +129,27 @@ func (d Database) UsersByCompanyID(companyID int) (*sqlx.Rows, error) {
 	OR (? = 0) AND azienda_id>0 -- Produttore
 	OR azienda_id=? -- Singola azienda`, companyID, companyID, companyID, companyID)
 }
+
+type OrderInfo struct {
+	Ordine             string `sqlite:"ordine"`
+	CompanyName        string `sqlite:"destinatario_nome"`
+	ComuneDestinatione string `sqlite:"comune_destinazione"`
+}
+
+func (d Database) RetrieveOrderInfoByID(orderID int) (OrderInfo, error) {
+	rowx := d.db.QueryRowx(`SELECT ordine.ordine as ordine, destinatario.nome as destinatario_nome, destinatario.comune as comune_destinazione
+		FROM ordine JOIN azienda destinatario ON ordine.destinatario_id=destinatario.id
+		WHERE ordine.id=?`, orderID)
+
+	var o OrderInfo
+	err := rowx.StructScan(&o)
+	if err != nil {
+		return o, fmt.Errorf("cannot scan database result: %w", err)
+	}
+
+	return o, nil
+}
+
 func (d Database) InsertOrEditUser(username string, passwordHash string, role UserRole, region *int, companyID int, stores []int) error {
 	tx, err := d.db.Beginx()
 	if err != nil {

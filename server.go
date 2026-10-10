@@ -323,6 +323,10 @@ func (s *Server) HandleApiInfoOrder(w http.ResponseWriter, r *http.Request) {
 		State   string  `db:"STATO" sqlite:"stato"`
 		StateID int     `db:"STATOID" sqlite:"statoID"`
 		When    SqlTime `db:"QUANDO" sqlite:"quando"`
+
+		Order           string `sqlite:"ordine"`
+		CompanyName     string `sqlite:destinario_nome"`
+		DestinationCity string `sqlite:"comune_destinazione"`
 	}
 	type viaggioRes struct {
 		StartDate    SqlTime `db:"DATA_PARTENZA"`
@@ -381,15 +385,24 @@ func (s *Server) HandleApiInfoOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	note, err := s.Database.RetrieveOrderNote(id)
+	if err != nil {
+		log.Errorln("Cannot get order note:", err)
+	}
+	orderInfo, err := s.Database.RetrieveOrderInfoByID(id)
+	if err != nil {
+		log.Errorln("Cannot get order info:", err)
+	}
 
 	encoder := json.NewEncoder(w)
 	encoder.SetIndent("", "\t")
 	err = encoder.Encode(struct {
-		Note   string
+		Note string
+		OrderInfo
 		States []stateRes
 		Viaggi []viaggioRes
 	}{
 		note,
+		orderInfo,
 		states,
 		viaggios,
 	})
