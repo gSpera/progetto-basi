@@ -62,7 +62,7 @@ func (d Database) LatestStatesFor(role UserRole, username string, companyID int,
 	OR (:role = 5) AND destinatario_id=:companyID -- Rivenditore`, args)
 }
 func (d Database) StatesForOrdine(ordineId int) (*sqlx.Rows, error) {
-	return d.db.Queryx("SELECT stato_string.value as stato, stato as statoID, quando FROM stato JOIN stato_string ON stato_string.id=stato.stato WHERE ordine_id=?", ordineId)
+	return d.db.Queryx("SELECT stato_string.value as stato, stato as statoID, quando, nota FROM stato JOIN stato_string ON stato_string.id=stato.stato WHERE ordine_id=?", ordineId)
 }
 func (d Database) ViagginiForOrdine(ordineId int) (*sqlx.Rows, error) {
 	return d.db.Queryx("SELECT partenza, destinazione, data_partenza, data_arrivo FROM viaggio WHERE id_ordine=?", ordineId)
@@ -128,12 +128,6 @@ func (d Database) UsersByCompanyID(companyID int) (*sqlx.Rows, error) {
 	(?<0) -- Admin
 	OR (? = 0) AND azienda_id>0 -- Produttore
 	OR azienda_id=? -- Singola azienda`, companyID, companyID, companyID, companyID)
-}
-
-type OrderInfo struct {
-	Ordine             string `sqlite:"ordine"`
-	CompanyName        string `sqlite:"destinatario_nome"`
-	ComuneDestinatione string `sqlite:"comune_destinazione"`
 }
 
 func (d Database) RetrieveOrderInfoByID(orderID int) (OrderInfo, error) {

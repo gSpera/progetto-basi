@@ -61,3 +61,9 @@ func (s SqlTime) Value() (driver.Value, error) {
 func (s SqlTime) MarshalJSON() ([]byte, error) {
 	return []byte("\"" + s.String() + "\""), nil
 }
+
+type OrderInfo struct {
+	Ordine             string `sqlite:"ordine"`
+	CompanyName        string `sqlite:"destinatario_nome"`
+	ComuneDestinatione string `sqlite:"comune_destinazione"`
+}

@@ -24,9 +24,14 @@ class InfoOrder extends React.Component {
     showUpdate(update) {
         if (update.State) {
             return <div>
-                <div>Il: {new Date(update.When).toLocaleDateString()} l'ordine è
+                <div>Il {new Date(update.When).toLocaleString()} l'ordine è
                     <span className="icon"><span className={"mdi mdi-" + stateIcons[update.StateID]}></span></span>
                     <b>{update.State}</b>
+                    {update.Note.length > 0 &&
+                    <div class="content">
+                        <blockquote>{update.Note}</blockquote> 
+                    </div>
+                    }
                 </div>
             </div>
         }

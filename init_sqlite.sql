@@ -104,7 +104,7 @@ CREATE TABLE stato (
     ordine_id integer,
     stato integer,
     quando date,
-    nota text
+    nota text not null
 );
 
 

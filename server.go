@@ -323,6 +323,7 @@ func (s *Server) HandleApiInfoOrder(w http.ResponseWriter, r *http.Request) {
 		State   string  `db:"STATO" sqlite:"stato"`
 		StateID int     `db:"STATOID" sqlite:"statoID"`
 		When    SqlTime `db:"QUANDO" sqlite:"quando"`
+		Note    string  `sqlite:"nota"`
 
 		Order           string `sqlite:"ordine"`
 		CompanyName     string `sqlite:destinario_nome"`
