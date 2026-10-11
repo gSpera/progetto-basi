@@ -79,9 +79,9 @@ func (d Database) NewAzienda(name string, role int, address sql.NullString, piva
 	return d.db.Exec(
 		`INSERT INTO azienda VALUES (NULL, ?, ?, ?, ?, ?, ?, ?)`, role, name, address, comune, regioneID, piva, codunivoco)
 }
-func (d Database) AddStateToOrder(orderID int, newState int, when time.Time) (sql.Result, error) {
+func (d Database) AddStateToOrder(orderID int, newState int, when time.Time, note string) (sql.Result, error) {
 	return d.db.Exec(
-		`INSERT INTO stato VALUES (NULL, ?, ?, ?)`, orderID, newState, SqlTime(when))
+		`INSERT INTO stato VALUES (NULL, ?, ?, ?, ?)`, orderID, newState, SqlTime(when), note)
 }
 func (d Database) RetrieveOrderNote(orderID int) (string, error) {
 	var note string

@@ -55,7 +55,7 @@ func NewServer(db Database, attachments AttachmentStore, tmplDir fs.FS, logger *
 // this functions returns the order and an error
 func (s *Server) DeliverOrder(orderID int) (order, companyName, city string, err error) {
 	// Maybe not hardcode value
-	_, err = s.Database.AddStateToOrder(orderID, 7, time.Now())
+	_, err = s.Database.AddStateToOrder(orderID, 7, time.Now(), "")
 	if err != nil {
 		return "", "", "", fmt.Errorf("cannot add state: %w", err)
 	}
@@ -536,7 +536,7 @@ func (s *Server) HandleApiNewOrder(w http.ResponseWriter, r *http.Request) {
 		s.Log.Errorln("Cannot get inserted row id:", err)
 	}
 
-	_, err = s.Database.AddStateToOrder(int(id), input.State, time.Now())
+	_, err = s.Database.AddStateToOrder(int(id), input.State, time.Now(), "")
 	if err != nil {
 		s.Log.Errorln("Cannot add state to order:", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -571,7 +571,7 @@ func (s *Server) HandleApiEditOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if input.State != 0 {
-		_, err := s.Database.AddStateToOrder(input.OrderID, input.State, time.Now())
+		_, err := s.Database.AddStateToOrder(input.OrderID, input.State, time.Now(), "")
 		if err != nil {
 			s.Log.Errorln("Cannot add state to order:", err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -638,6 +638,7 @@ func (s *Server) HandleApiUpdateOrder(w http.ResponseWriter, r *http.Request) {
 		OrderID int
 		State   int `json:",string"`
 		When    time.Time
+		Note    string
 	}{}
 
 	defer r.Body.Close()
@@ -648,7 +649,7 @@ func (s *Server) HandleApiUpdateOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = s.Database.AddStateToOrder(input.OrderID, input.State, input.When)
+	_, err = s.Database.AddStateToOrder(input.OrderID, input.State, input.When, input.Note)
 	if err != nil {
 		s.Log.Errorln("Cannot add state to order:", err)
 		http.Error(w, "Invalid Request", http.StatusBadRequest)

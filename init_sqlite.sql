@@ -103,7 +103,8 @@ CREATE TABLE stato (
     id integer primary key autoincrement,
     ordine_id integer,
     stato integer,
-    quando date
+    quando date,
+    nota text
 );
 
 
