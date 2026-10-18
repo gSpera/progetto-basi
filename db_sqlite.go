@@ -72,8 +72,8 @@ func (d Database) CompanyNameByID(companyID int) (*sqlx.Rows, error) {
 }
 func (d Database) NewOrder(input NewOrderInput, assegno int, fatturato int) (sql.Result, error) {
 	return d.db.Exec(
-		`INSERT INTO ordine VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		input.DDT, input.Order, input.Protocollo, input.Sender, input.ReceiverID, input.NumColli, assegno, fatturato, input.Carrier, input.CreationDate, input.ArriveDate, input.Note)
+		`INSERT INTO ordine VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULLIF(?, ''))`,
+		input.DDT, input.Order, input.Protocollo, input.Sender, input.ReceiverID, input.NumColli, assegno, fatturato, input.Carrier, input.CreationDate, input.ArriveDate, input.Note, input.DestinationCity)
 }
 func (d Database) NewAzienda(name string, role int, address sql.NullString, piva sql.NullString, codunivoco sql.NullString, comune string, regioneID int) (sql.Result, error) {
 	return d.db.Exec(
@@ -106,11 +106,18 @@ func (d Database) EditOrder(order NewOrderInput) (sql.Result, error) {
 	}
 
 	return d.db.Exec(
-		`UPDATE ordine SET ddt=?, ordine=?, protocollo=?, produttore_id=?, destinatario_id=?, num_colli=?, ritirare_assegno=?, fatturato=?, trasportatore=?, data_creazione=?, data_consegna=?, note=? WHERE id=?`,
-		order.DDT, order.Order, order.Protocollo, order.Sender, order.ReceiverID, order.NumColli, assegno, fatturato, order.Carrier, order.CreationDate, order.ArriveDate, order.Note, order.OrderID)
+		`UPDATE ordine SET ddt=?, ordine=?, protocollo=?, produttore_id=?, destinatario_id=?, num_colli=?, ritirare_assegno=?,
+		fatturato=?, trasportatore=?, data_creazione=?, data_consegna=?, note=?,
+		comune_destinazione=NULLIF(NULLIF(?, ''), (SELECT comune FROM azienda WHERE id=?))
+		WHERE id=?`,
+		order.DDT, order.Order, order.Protocollo, order.Sender, order.ReceiverID, order.NumColli, assegno, fatturato, order.Carrier, order.CreationDate, order.ArriveDate, order.Note, order.DestinationCity, order.ReceiverID, order.OrderID)
 }
 func (d Database) LoadStampInfoFor(orderID int) *sqlx.Row {
-	return d.db.QueryRowx(`SELECT o.id AS ordine_id, o.ordine, o.ddt, o.num_colli, o.ritirare_assegno, a.id AS azienda_id, a.nome, regione_string.value AS regione, a.comune, a.indirizzo FROM ordine o JOIN azienda a ON o.destinatario_id=a.id JOIN regione_string ON a.regione = regione_string.id WHERE o.id=?`, orderID)
+	return d.db.QueryRowx(`SELECT
+		o.id AS ordine_id, o.ordine, o.ddt, o.num_colli, o.ritirare_assegno,
+		a.id AS azienda_id, a.nome, regione_string.value AS regione,
+		COALESCE(o.comune_destinazione, a.comune, '') as comune_destinazione,
+		a.indirizzo FROM ordine o JOIN azienda a ON o.destinatario_id=a.id JOIN regione_string ON a.regione = regione_string.id WHERE o.id=?`, orderID)
 }
 
 func (d Database) InfoForCompany(companyID int) *sqlx.Row {
@@ -121,7 +128,7 @@ func (d Database) UpdateCompany(companyID int, name string, regionID int, city s
 	return d.db.Exec(`UPDATE azienda SET nome=?, regione=?, comune=?, indirizzo=? WHERE id=?`, name, regionID, city, address, companyID)
 }
 func (d Database) InfoForOrder(orderID int) *sqlx.Row {
-	return d.db.QueryRowx(`SELECT o.ordine, d.nome, d.comune FROM ordine o JOIN azienda d ON o.destinatario_id=d.id WHERE o.id=?`, orderID)
+	return d.db.QueryRowx(`SELECT o.ordine, d.nome, COALESCE(o.comune_destinazione, d.comune) FROM ordine o JOIN azienda d ON o.destinatario_id=d.id WHERE o.id=?`, orderID)
 }
 func (d Database) UsersByCompanyID(companyID int) (*sqlx.Rows, error) {
 	return d.db.Queryx(`SELECT nome, ruolo, regione, azienda_id FROM utente WHERE
@@ -131,7 +138,7 @@ func (d Database) UsersByCompanyID(companyID int) (*sqlx.Rows, error) {
 }
 
 func (d Database) RetrieveOrderInfoByID(orderID int) (OrderInfo, error) {
-	rowx := d.db.QueryRowx(`SELECT ordine.ordine as ordine, destinatario.nome as destinatario_nome, destinatario.comune as comune_destinazione
+	rowx := d.db.QueryRowx(`SELECT ordine.ordine as ordine, destinatario.nome as destinatario_nome, ordine.comune_destinazione as comune_destinazione
 		FROM ordine JOIN azienda destinatario ON ordine.destinatario_id=destinatario.id
 		WHERE ordine.id=?`, orderID)
 

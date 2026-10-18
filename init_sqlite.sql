@@ -39,7 +39,8 @@ CREATE TABLE ordine (
     trasportatore varchar(20),
     data_creazione date,
     data_consegna date,
-    note varchar(256)
+    note varchar(256),
+    comune_destinazione varchar(20), -- if NULL use azienda.comune
 );
 
 CREATE TABLE viaggio (
@@ -113,7 +114,15 @@ CREATE TABLE stato (
 --    BEGIN INSERT INTO stato VALUES (NULL, NEW.id, 0, strftime("%Y-%m-%d %H:%M:%S")); END;
 
 CREATE VIEW ultimi_stati AS
-SELECT ordine.id, ordine.ordine, ordine.protocollo, ordine.ddt, produttore.id as produttore_id, destinatario.id as destinatario_id, produttore.nome as produttore_nome, destinatario.nome as destinatario_nome, ordine.num_colli, ordine.ritirare_assegno, ordine.fatturato, destinatario.regione as regione_id, regione_string.value as regione, ordine.trasportatore, ordine.data_creazione, ordine.data_consegna, stato.stato, stato_string.value as stato_string, stato.quando
+SELECT
+    ordine.id, ordine.ordine, ordine.protocollo, ordine.ddt,
+    produttore.id as produttore_id, destinatario.id as destinatario_id,
+    produttore.nome as produttore_nome, destinatario.nome as destinatario_nome,
+    ordine.num_colli, ordine.ritirare_assegno, ordine.fatturato,
+    destinatario.regione as regione_id, regione_string.value as regione,
+    ordine.trasportatore, ordine.data_creazione, ordine.data_consegna,
+    COALESCE(ordine.comune_destinazione, destinatario.comune, '') as comune_destinazione,
+    stato.stato, stato_string.value as stato_string, stato.quando
 FROM ordine
  JOIN azienda produttore ON ordine.produttore_id = produttore.id
  JOIN azienda destinatario ON ordine.destinatario_id = destinatario.id

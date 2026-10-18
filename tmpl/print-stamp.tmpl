@@ -84,7 +84,7 @@
     <div class="main">
         <p class="order">{{.Order}}</p>
         <p class="company-name">{{.CompanyName}}</p>
-        <p class="city">{{if .CompanyCity}}{{.CompanyCity}}{{end}}</p>
+        <p class="city">{{if .DestinationCity}}{{.DestinationCity}}{{end}}</p>
 
         <img src="/api/qrcode-stamp?id={{.ID}}" class="qrcode" />
         <div class="stamp-text">{{.StampPrefix}}{{.ID}}{{.StampSuffix}}</div>

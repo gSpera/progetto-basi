@@ -66,6 +66,7 @@ class InfoOrder extends React.Component {
                 <div className="modal-card-body">
                     <div><b>Mittente: </b>{this.state.order.ProducerName}</div>
                     <div><b>Destinatario: </b>{this.state.order.RecipientName}</div>
+                    <div><b>Destinazione: </b>{this.state.order.DestinationCity}</div>
 
                     <h2>Note:</h2>
                     <textarea className="textarea" readOnly={true}>{this.state.r.Note}</textarea>

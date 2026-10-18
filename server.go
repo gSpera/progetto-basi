@@ -196,6 +196,7 @@ func (s *Server) HandlerApiGetOrders(w http.ResponseWriter, r *http.Request) {
 		Region            string  `sqlite:"regione"`
 		CreationDate      SqlTime `sqlite:"data_creazione"`
 		ArriveDate        SqlTime `sqlite:"data_consegna"`
+		DestinationCity   string  `sqlite:"comune_destinazione"`
 	}
 
 	orders, err := s.Database.LatestStatesFor(claims.UserRole, claims.Username, claims.CompanyID, claims.Region)
@@ -483,19 +484,20 @@ func (s *Server) HandlerApiReceivers(w http.ResponseWriter, r *http.Request) {
 type NewOrderInput struct {
 	OrderID int // Only Edit
 
-	Sender       int `json:",string"`
-	ReceiverID   int `json:",string"`
-	State        int `json:",string"`
-	DDT          string
-	Order        string
-	Protocollo   string
-	NumColli     string
-	Assegno      bool
-	Fatturato    bool
-	Carrier      string
-	ArriveDate   SqlTime
-	CreationDate SqlTime
-	Note         string
+	Sender          int `json:",string"`
+	ReceiverID      int `json:",string"`
+	State           int `json:",string"`
+	DDT             string
+	Order           string
+	Protocollo      string
+	NumColli        string
+	Assegno         bool
+	Fatturato       bool
+	Carrier         string
+	ArriveDate      SqlTime
+	CreationDate    SqlTime
+	Note            string
+	DestinationCity string
 }
 
 func (s *Server) HandleApiNewOrder(w http.ResponseWriter, r *http.Request) {
@@ -870,11 +872,11 @@ func (s *Server) HandlePrintStamp(w http.ResponseWriter, r *http.Request) {
 		CompanyID         int     `sqlite:"azienda_id"`
 		CompanyName       string  `sqlite:"nome"`
 		CompanyRegion     string  `sqlite:"regione"`
-		CompanyCity       *string `sqlite:"comune"`
 		CompanyAddress    *string `sqlite:"indirizzo"`
 		Note              string
 		StampPrefix       string
 		StampSuffix       string
+		DestinationCity   string `sqlite:"comune_destinazione"`
 	}
 	info.ID = orderID
 	info.Note = stampNote

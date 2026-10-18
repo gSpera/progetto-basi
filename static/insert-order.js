@@ -42,6 +42,7 @@ class InsertOrder extends React.Component {
                 ArriveDate: new Date(),
                 State: "0",
                 Note: "",
+                DestinationCity: "",
             },
 
             edit: {
@@ -105,6 +106,9 @@ class InsertOrder extends React.Component {
                 break;
             case "state":
                 this.state.Selection.State = String(value);
+                break;
+            case "destination-city":
+                this.state.Selection.DestinationCity = String(value);
                 break;
             default:
                 this.props.notificationRef.current.notify("Errore interno update nuovo ordine")
@@ -224,6 +228,7 @@ class InsertOrder extends React.Component {
             ArriveDate: new Date(order.ArriveDate),
             State: String(order.StateID),
             Note: "LOADING",
+            DestinationCity: order.DestinationCity,
         }
 
         this.state.isEditing = true
@@ -355,6 +360,13 @@ class InsertOrder extends React.Component {
                                 <p>La data non verrà salvata</p>
                                 : ""
                         }
+                        
+                        <div className="field is-horizontal">
+                            <label htmlFor="destination-city" className="field-label label">Destinazione:</label>
+                            <div className="field-body control">
+                                <input name="destination-city" className="input" value={this.state.Selection.DestinationCity} onChange={this.handleChange} placeholder="L'ordine sarà consegnato all'azienda"/>
+                            </div>
+                        </div>
 
                         <hr></hr>
 
